@@ -2,6 +2,7 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
+import Accueil from "./pages/Accueil";
 
 
 
@@ -11,7 +12,7 @@ const AppRoutes = () => {
     <BrowserRouter>
       <Header/>
       <Routes>
-        <Route path="/" element="" />
+        <Route path="/" element=""/>
         <Route path="/DevenirPres" element="" />
         <Route path="/Contact" element="" />
         <Route path="/serviceFixe" element="" />
