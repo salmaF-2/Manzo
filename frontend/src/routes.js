@@ -2,6 +2,8 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
+import ServiceFixe from "./pages/ServiceFixe";
+import ServiceDevis from "./pages/ServiceDevis";
 
 
 
@@ -14,8 +16,8 @@ const AppRoutes = () => {
         <Route path="/" element="" />
         <Route path="/DevenirPres" element="" />
         <Route path="/Contact" element="" />
-        <Route path="/serviceFixe" element="" />
-        <Route path="/serviceDevis" element="" />
+        <Route path="/serviceFixe" element={<ServiceFixe/>} />
+        <Route path="/serviceDevis" element={<ServiceDevis/>} />
         <Route path="/Seconnecter" element="" />
         <Route path="/CreerCompte" element="" />
 
