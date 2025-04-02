@@ -1,0 +1,31 @@
+.scrollbar-hide {
+  display: flex;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  padding-bottom: 10px;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  height: 8px;
+}
+
+.scrollbar-hide::-webkit-scrollbar-track {
+  background: #D6E4F0;
+  border-radius: 10px;
+}
+
+.scrollbar-hide::-webkit-scrollbar-thumb {
+  background: #4874A0;
+  border-radius: 10px;
+}
+
+.scrollbar-hide::-webkit-scrollbar-thumb:hover {
+  background: #4874A0;
+}
+
+
+@media (max-width: 640px) {
+    .vector {
+      display: none;
+    }
+}

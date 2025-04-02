@@ -41,7 +41,8 @@ const Header = () => {
     }, []);
 
     return (
-        <div className='bg-white shadow-md p-6 flex justify-between items-center relative'>
+        <div className='bg-white p-6 flex justify-between items-center fixed top-0 left-0 w-full z-50'> 
+        {/* shadow-md */}
             <img src={logo} alt='logo MANZO' className='text-xl font-bold text-[#5869A3] ml-10 w-28 h-auto' />
             
             {/* Menu */}
@@ -52,6 +53,7 @@ const Header = () => {
             {/* navigation menu */}
             {isMobileMenuOpen && (
                 <div className='absolute top-full left-0 w-full bg-white shadow-md p-4 flex flex-col space-y-4 z-50' ref={mobileMenuRef}>
+
                     <Link to="/" className='text-[#5869A3] font-medium hover:bg-[#5869A3] hover:text-white rounded-full px-4 py-2 transition duration-300'>Accueil</Link>
                     <Link to="/DevenirPres" className='text-[#5869A3] font-medium hover:bg-[#5869A3] hover:text-white rounded-full px-4 py-2 transition duration-300'>Devenir prestataire</Link>
                     <Link to="/Contact" className='text-[#5869A3] font-medium hover:bg-[#5869A3] hover:text-white rounded-full px-4 py-2 transition duration-300'>Contacter-nous</Link>
