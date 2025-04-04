@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import { ChevronDown } from "lucide-react";
 import logo from "../assets/images/logo.png";
 
+
 const Header = () => {
     const [isOpen, setIsOpen] = useState(false);
     const userMenuRef = useRef(null);
@@ -42,8 +43,13 @@ const Header = () => {
 
     return (
         <div className='bg-white shadow-md p-6 flex justify-between items-center relative'>
-            <img src={logo} alt='logo MANZO' className='text-xl font-bold text-[#5869A3] ml-10 w-28 h-auto' />
-            
+  <Link to="/">
+    <img 
+      src={logo} 
+      alt='logo MANZO' 
+      className='text-xl font-bold text-[#5869A3] ml-10 w-28 h-auto cursor-pointer'
+    />
+  </Link>
             {/* Menu */}
             <button className='md:hidden text-[#5869A3] text-2xl' onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
                 {isMobileMenuOpen ? <FaTimes /> : <FaBars />}
