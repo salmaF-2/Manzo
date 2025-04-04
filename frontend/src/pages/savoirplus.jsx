@@ -181,17 +181,12 @@ const AboutPage = () => {
         </div>
       </div>
 
-      {/* Features Section */}
       <div className="relative py-12">
-        {/* Blue background element */}
         <div className="absolute inset-0 opacity-10 -z-10 w-full h-[80%]"></div>
 
         <div className="container mx-auto px-5 max-w-6xl">
-          {/* Flex container for text and image */}
           <div className="flex justify-between items-center">
-            {/* Text Section */}
             <div className="flex-1">
-              {/* First section */}
               <div className="mb-16">
                 <h3 className="text-2xl font-bold text-[#1B1F2A] mb-4">
                   Un engagement envers les artisans et l'économie locale.
@@ -206,7 +201,6 @@ const AboutPage = () => {
                 </p>
               </div>
 
-              {/* Second section */}
               <div>
                 <h3 className="text-2xl font-bold text-[#1B1F2A] mb-4">
                   Une flexibilité totale pour les professionnels.
@@ -221,7 +215,6 @@ const AboutPage = () => {
               </div>
             </div>
 
-            {/* Image Section with Background */}
             <div className="w-1/2 bg-[rgba(188,208,234,0.09)] rounded-[50px] p-5 p w-[336px] h-[434px] mr-20">
               <img
                 src={PL}
@@ -233,13 +226,10 @@ const AboutPage = () => {
         </div>
       </div>
       <div className="relative py-12">
-        {/* Blue background element */}
         <div className="absolute inset-0 opacity-10 -z-10 w-full h-[80%]"></div>
 
         <div className="container mx-auto px-5 max-w-6xl">
-          {/* Flex container for image and text */}
           <div className="flex justify-start items-center">
-            {/* Image Section with Background */}
             <div className="w-[336px] h-[434px] bg-[rgba(188,208,234,0.09)] rounded-[50px] p-5 mr-8">
               <img
                 src={PLL}
@@ -248,9 +238,7 @@ const AboutPage = () => {
               />
             </div>
 
-            {/* Text Section */}
             <div className="flex-1 pl-6">
-              {/* First section */}
               <div className="mb-16">
                 <h3 className="text-2xl font-bold text-[#1B1F2A] mb-4 ">
                   Une mise en relation optimisée et équitable.
@@ -266,7 +254,6 @@ const AboutPage = () => {
                 </p>
               </div>
 
-              {/* Second section */}
               <div>
                 <h3 className="text-2xl font-bold text-[#1B1F2A] mb-4">
                   Une transparence totale avec nos partenaires.
@@ -286,12 +273,9 @@ const AboutPage = () => {
       </div>
 
       <div className="relative py-12">
-        {/* Blue background element */}
         <div className="absolute inset-0 opacity-10 -z-10 w-full h-[80%]"></div>
         <div className="container mx-auto px-5 max-w-6xl">
-          {/* Flex container for image and text */}
           <div className="flex justify-start items-start space-x-8">
-            {/* Text Section */}
             <div className="flex-1 pl-6">
               <div>
                 <h3 className="text-2xl font-bold text-[#1B1F2A] mb-4">
@@ -308,7 +292,6 @@ const AboutPage = () => {
               </div>
             </div>
 
-            {/* Box Section */}
             <div className="w-[446px] h-[460px] bg-[rgba(188,208,234,0.09)] rounded-[50px] relative p-10">
               <div className="mb-6">
                 <h1 className="text-[25px] font-bold text-gray-900 text-center items-center pt-8">
@@ -351,7 +334,6 @@ const AboutPage = () => {
         </div>
       </div>
 
-      {/* Mission Statement */}
       <section className="text-[#6977AF] font-bold py-12 text-center">
         <div className="container mx-auto px-5 max-w-6xl">
           <h2 className="text-3xl font-bold">
@@ -360,13 +342,10 @@ const AboutPage = () => {
         </div>
       </section>
 
-      {/* Platform Features */}
 
       <div className="max-w-7xl mx-auto px-4 py-12">
         <div className="grid md:grid-cols-3 gap-12 items-center">
-          {/* Left Elements (2x2 Grid) */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-12 col-span-2 self-center ml-[10%] mr-5">
-            {/* First Element */}
             <div className="flex flex-col items-start">
               <div className="border-2 bg-[#475489]/40 w-[90px] h-[90px] rounded-full flex justify-center items-center mb-4">
                 <img src={lg1} alt="Logo 1" className="w-12 h-12" />
@@ -385,7 +364,6 @@ const AboutPage = () => {
               </ul>
             </div>
 
-            {/* Second Element */}
             <div className="flex flex-col items-start">
               <div className="border-2 bg-[#475489]/40 w-[90px] h-[90px] rounded-full flex justify-center items-center mb-4">
                 <img src={lg2} alt="Logo 2" className="w-12 h-12" />
@@ -404,7 +382,6 @@ const AboutPage = () => {
               </ul>
             </div>
 
-            {/* Third Element */}
             <div className="flex flex-col items-start">
               <div className="border-2 bg-[#475489]/40 w-[90px] h-[90px] rounded-full flex justify-center items-center mb-4">
                 <img src={lg3} alt="Logo 3" className="w-12 h-12" />
@@ -423,7 +400,6 @@ const AboutPage = () => {
               </ul>
             </div>
 
-            {/* Fourth Element */}
             <div className="flex flex-col items-start">
               <div className="border-2 bg-[#475489]/40 w-[90px] h-[90px] rounded-full flex justify-center items-center mb-4">
                 <img src={lg4} alt="Logo 4" className="w-12 h-12" />
@@ -443,7 +419,6 @@ const AboutPage = () => {
             </div>
           </div>
 
-          {/* Right Image Box */}
           <div className="flex justify-center md:justify-end self-center">
             <div className="bg-[rgba(188,208,234,0.09)] rounded-[50px] p-5 w-[389px] h-[776px] flex items-center justify-center">
               <img
@@ -456,14 +431,12 @@ const AboutPage = () => {
         </div>
       </div>
 
-      {/* Stats Section */}
       <h2 className="text-3xl text-[#6977AF] font-black mb-12 ml-[13%]">
         EN QUELQUES CHIFFRES
       </h2>
       <section className="py-16 text-center w-full">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-10 w-full px-10">
-          {/* First stat */}
-          <div className="p-10 bg-[rgba(188,208,234,0.09)] border border-blue-200 rounded-[50px] shadow-md w-full ">
+          <div className="p-10 bg-[rgba(188,208,234,0.09)] border border-blue-200 rounded-[50px] shadow-md w-full transform transition-transform duration-300 hover:scale-105 hover:rotate-2">
             <div className="text-5xl font-bold text-[#A3BADB] mb-3">
               10 000 +
             </div>
@@ -472,24 +445,21 @@ const AboutPage = () => {
             </div>
           </div>
 
-          {/* Second stat */}
-          <div className="p-10 bg-[rgba(188,208,234,0.09)] border border-blue-200 rounded-[50px] shadow-md w-full ">
+          <div className="p-10 bg-[rgba(188,208,234,0.09)] border border-blue-200 rounded-[50px] shadow-md w-full transform transition-transform duration-300 hover:scale-105 hover:rotate-2">
             <div className="text-5xl font-bold text-[#A3BADB] mb-3">9800 +</div>
             <div className="text-xl font-bold">
               Services demandés chaque mois
             </div>
           </div>
 
-          {/* Third stat */}
-          <div className="p-10 bg-[rgba(188,208,234,0.09)] border border-blue-200 rounded-[50px] shadow-md w-full ">
+          <div className="p-10 bg-[rgba(188,208,234,0.09)] border border-blue-200 rounded-[50px] shadow-md w-full transform transition-transform duration-300 hover:scale-105 hover:rotate-2">
             <div className="text-5xl font-bold text-[#4D6099] mb-3">1925 +</div>
             <div className="text-xl font-bold">
               Clients utilisent MANZO pour leurs services à domicile
             </div>
           </div>
 
-          {/* Fourth stat */}
-          <div className="p-10 bg-[rgba(188,208,234,0.09)] border border-blue-200 rounded-[50px] shadow-md w-full ">
+          <div className="p-10 bg-[rgba(188,208,234,0.09)] border border-blue-200 rounded-[50px] shadow-md w-full transform transition-transform duration-300 hover:scale-105 hover:rotate-2">
             <div className="text-5xl font-bold text-[#1F263D] mb-3">
               15 villes
             </div>
@@ -498,7 +468,6 @@ const AboutPage = () => {
         </div>
       </section>
 
-      {/* CTA Section */}
       <section className="py-20 text-center border-t-2 border-b-2 border-[#475489] bg-[rgba(188,208,234,0.09)] mt-12 ">
         <div className="container mx-auto px-5 max-w-6xl">
           <h2 className="text-3xl font-black mb-8 text-[#6977AF]">
@@ -542,7 +511,7 @@ const AboutPage = () => {
                   className="transform mb-9"
                 />
               </div>
-            
+
               <Link to="/faq" className="flex w-full ml-[59%]">
                 <button className="bg-[#475489] text-xl text-white font-bold py-3 px-6 rounded-[37.5px] w-[275px] h-[75px] ">
                   Voir la FAQ
