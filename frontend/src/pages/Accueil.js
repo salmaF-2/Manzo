@@ -435,28 +435,34 @@ const Accueil = () => {
 
 
             {/* partie 7  */}
-            <div className="text-center py-1 bg-[rgba(188,208,234,0.2)]">
-                <div className="relative flex flex-col md:flex-row items-center justify-center gap-4">
-                    <div className="text-center ">
-                        <h2 className="text-2xl md:text-4xl font-bold text-[#8C97C3] max-w-[900px] leading-tight mx-auto md:mr-[400px] md:text-left">
-                            Intégrez notre réseau dès aujourd'hui et <br />partagez vos services avec notre clientèle<br /> grandissante !
-                        </h2>
-                        <button className="mt-10 px-6 py-3 mx-auto md:mr-[350px] text-white rounded-full shadow-md bg-[#5869A3] hover:bg-[#9BA5C8] ">
-                            Proposer vos services
-                        </button>
-                    </div>
+            <div className="text-center py-4 md:py-8 lg:py-12 bg-[rgba(188,208,234,0.2)]">
+                <div className="container mx-auto px-4 m-4">
+                    <div className="relative flex flex-col md:flex-row items-center justify-center gap-6 lg:gap-8">
+                        {/* Texte et bouton */}
+                        <div className="text-center ">
+                            <h2 className="text-justify text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-[#8C97C3] leading-snug lg:leading-tight mr-24">
+                                    Intégrez notre réseau dès aujourd'hui et <br className="hidden sm:inline"/>partagez vos services avec notre clientèle<br className="hidden sm:inline"/> grandissante !
+                                </h2>
+                            <button className="mt-10 ml-28 px-6 py-3 mx-auto md:mr-[350px] text-white rounded-full shadow-md bg-[#5869A3] hover:bg-[#9BA5C8] ">
+                                Proposer vos services
+                            </button>
+                        </div>
 
-                    <div className="flex flex-col gap-2 ">
-                        <img 
-                            src={rectangle4}
-                            alt="Technicien installant une climatisation"
-                            className="w-full max-w-[192px] md:w-48 md:h-48 object-cover rounded-xl mx-auto md:mx-0"
-                        />
-                        <img 
-                            src={rectangle5}
-                            alt="Livreur sonnant à une porte"
-                            className="w-full max-w-[160px] md:w-40 md:h-40 object-cover rounded-xl mx-auto md:mx-0"
-                        />
+                        {/* Images */}
+                        <div className="flex flex-col gap-3 sm:gap-4 w-full md:w-auto">
+                            <div className="flex justify-center md:justify-end gap-3 sm:gap-4">
+                                <img 
+                                    src={rectangle4}
+                                    alt="Technicien installant une climatisation"
+                                    className="w-36 h-36 sm:w-40 sm:h-40 md:w-44 md:h-44 lg:w-48 lg:h-48 object-cover rounded-xl"
+                                />
+                                <img 
+                                    src={rectangle5}
+                                    alt="Livreur sonnant à une porte"
+                                    className="w-32 h-32 sm:w-36 sm:h-36 md:w-40 md:h-40 lg:w-44 lg:h-44 object-cover rounded-xl mt-8 sm:mt-10 md:mt-12"
+                                />
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
