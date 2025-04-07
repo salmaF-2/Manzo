@@ -29,3 +29,24 @@
       display: none;
     }
 }
+
+
+.a {
+  display: none;
+}
+
+@media screen and (min-width: 1400px) {
+  .a{
+    display: block;
+  }
+}
+
+.b {
+  display: none;
+}
+
+@media screen and (min-width: 900px) {
+  .b{
+    display: block;
+  }
+}

@@ -297,31 +297,32 @@ const Accueil = () => {
                         />
                     </div>
 
+                    {/* fleche image */}
                     <img 
                         src={Vector4}
                         alt="Flèche vers le bas" 
-                        className="absolute hidden md:block top-[190px] left-[50%] md:left-[450px] w-45 transform rotate-[-10deg] vector" 
+                        className="absolute hidden md:block top-[190px] left-[50%] md:left-[450px] w-45 transform rotate-[-10deg] vector a" 
                     />
                     <img 
                         src={Vector5}
                         alt="Flèche vers la droite" 
-                        className="absolute hidden md:block top-[360px] left-[40%] md:left-[380px] w-50 transform rotate-[30deg] vector" 
+                        className="absolute hidden md:block top-[360px] left-[40%] md:left-[380px] w-50 transform rotate-[30deg] vector a" 
                     />
                     {/* etoiles */}
                     <img 
                         src={Union1}
                         alt="Décoration" 
-                        className="absolute hidden md:block top-[17px] left-[50%] md:left-[431px] w-50 etoile1" 
+                        className="absolute hidden md:block top-[17px] left-[50%] md:left-[431px] w-50 etoile1 a" 
                     />
                     <img 
                         src={Union2}
                         alt="Décoration" 
-                        className="absolute hidden md:block top-[310px] left-[20%] md:left-[140px] w-50 etoile1" 
+                        className="absolute hidden md:block top-[310px] left-[20%] md:left-[140px] w-50 etoile1 a" 
                     />
                     <img 
                         src={Union1}
                         alt="Décoration" 
-                        className="absolute hidden md:block top-[-25px] left-[-15px] w-etoile1 " 
+                        className="absolute hidden md:block top-[-25px] left-[-15px] w-etoile1 a" 
                     />
                 </div>
 
@@ -378,8 +379,7 @@ const Accueil = () => {
             </div>
            
           
-            
-            
+                  
             {/* partie 5  */}
             <div className="text-center py-12 bg-[rgba(188,208,234,0.2)]">
                 <h2 className="text-4xl font-bold text-[#6977AF] mb-8">Comment ça marche ?</h2>
@@ -396,7 +396,7 @@ const Accueil = () => {
                     <img 
                     src={Vector6} 
                     alt="Tracé en pointillé" 
-                    className="absolute w-full max-w-[750px] top-14 md:top-20 vector"
+                    className="absolute w-full max-w-[750px] top-14 md:top-20 vector b"
                     />
                 </div>
             </div>
