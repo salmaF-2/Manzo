@@ -5,6 +5,10 @@ import Footer from "./components/Footer";
 import ServiceFixe from "./pages/ServiceFixe";
 import ServiceDevis from "./pages/ServiceDevis";
 import ResultatsRecherche from "./pages/services/ResultatsRecherche";
+import Accueil from "./pages/Accueil";
+import CreerCompte from "./components/creerCompte";
+import Connexion from "./components/connexion";
+import InscriptionClient from "./components/inscriptionClient";
 
 
 
@@ -14,17 +18,18 @@ const AppRoutes = () => {
     <BrowserRouter>
       <Header/>
       <Routes>
-        <Route path="/" element="" />
+        <Route path="/" element={<Accueil/> }/>
         <Route path="/DevenirPres" element="" />
         <Route path="/Contact" element="" />
         <Route path="/serviceFixe" element={<ServiceFixe/>} />
         <Route path="/serviceDevis" element={<ServiceDevis/>} />
         <Route path="/recherche" element={<ResultatsRecherche/>} />
         {/* <Route path="/services/tout-le-maroc" element={<ServicesTousMaroc/>} /> */}
-     
-  
-        <Route path="/Seconnecter" element="" />
-        <Route path="/CreerCompte" element="" />
+        <Route path="/CreerCompte" element={<CreerCompte/>} />
+        <Route path="/InscriptionClient" element={<InscriptionClient/>} />
+        <Route path="/InscriptionPrestataire" element=''/>
+        <Route path="/Seconnecter" element={<Connexion/>}/>
+
       </Routes>
       <Footer/>
     </BrowserRouter>
