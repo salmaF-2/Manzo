@@ -1,3 +1,6 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 .scrollbar-hide {
   display: flex;
   overflow-x: auto;
@@ -48,5 +51,17 @@
 @media screen and (min-width: 900px) {
   .b{
     display: block;
+  }
+}
+
+@layer utilities {
+  .animation-delay-100 {
+    animation-delay: 0.1s;
+  }
+  .animation-delay-200 {
+    animation-delay: 0.2s;
+  }
+  .animation-delay-300 {
+    animation-delay: 0.3s;
   }
 }

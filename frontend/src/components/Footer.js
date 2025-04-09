@@ -14,7 +14,7 @@ const Footer = () => {
             <div className='container mx-auto flex flex-col md:flex-row items-start justify-between gap-6'>
 
                 <div className="w-full md:w-1/3 mb-6 md:mb-0 flex justify-start">
-                    <img src={logo} alt='Manzo logo' className='h-12' />
+                    <Link to='/'><img src={logo} alt='Manzo logo' className='h-12' /></Link>
                 </div>
                 
                 <div className="flex flex-wrap justify-center md:justify-between w-full max-w-4xl gap-6">

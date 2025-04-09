@@ -43,7 +43,7 @@ const Header = () => {
     return (
         <div className='bg-white p-6 flex justify-between items-center fixed top-0 left-0 w-full z-50'> 
         {/* shadow-md */}
-            <img src={logo} alt='logo MANZO' className='text-xl font-bold text-[#5869A3] ml-10 w-28 h-auto' />
+            <Link to="/"><img src={logo} alt='logo MANZO' className='text-xl font-bold text-[#5869A3] ml-10 w-28 h-auto' /></Link>
             
             {/* Menu */}
             <button className='md:hidden text-[#5869A3] text-2xl' onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
