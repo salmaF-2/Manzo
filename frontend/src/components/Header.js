@@ -156,6 +156,7 @@ const Header = () => {
                     servicesTimeoutRef.current = setTimeout(() => {
                     setServicesOpen(false);
                     }, 300); 
+                    
                 }}
                 >
                 <button className="flex items-center text-[#5869A3] font-medium hover:bg-[#5869A3] hover:text-white rounded-full px-4 py-2 transition duration-300">
