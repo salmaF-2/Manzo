@@ -7,6 +7,9 @@ module.exports = {
       transformStyle: {
         'preserve-3d': 'preserve-3d',
       },
+      colors: {
+        mint: '#A5E5CF', 
+      },
       backfaceVisibility: {
         hidden: 'hidden',
       },

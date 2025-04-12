@@ -2,8 +2,8 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
-import Accueil from "./pages/Accueil";
-import Contact from "./pages/Accueil";
+import Accueil from "./pages/Accueil.js";
+import Contact from "./pages/Contact.js";
 import DevenirPres from "./pages/DevenirPres.js"
 
 
