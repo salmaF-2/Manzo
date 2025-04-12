@@ -57,6 +57,9 @@ import "../css/Accueil.css";
 
 
 const Accueil = () => {
+    useEffect(()=>{
+        window.scrollTo(0,0);
+    },[])
     const services = [
         { city: "Agadir", image: Agadir },
         { city: "CasaBlanca", image: CasaBlanca },
@@ -190,68 +193,70 @@ const Accueil = () => {
     return (
         <div className="overflow-hidden">
             {/* Partie 1 */}
-            <div className="relative bg-white p-4 md:p-10 rounded-lg flex flex-col lg:flex-row items-center pt-20 lg:pt-[125px]">
-                {/* Texte à gauche */}
+            <div className="relative bg-white p-4 md:p-10 rounded-lg flex flex-col lg:flex-row items-center pt-20 lg:pt-[125px] animate-fade-in">
                 <div className="w-full lg:w-1/2 ml-0 lg:ml-20 order-2 lg:order-1 mt-8 lg:mt-0">
-                    <h2 className="text-2xl md:text-3xl font-semibold text-[#475489] text-center lg:text-left">Trouver ce que vous convient</h2>
-                    <h1 className="text-4xl md:text-6xl font-bold text-[#475489] relative inline-block text-center lg:text-left">
+                    <h2 className="text-2xl md:text-3xl font-semibold text-[#475489] text-center lg:text-left animate-slide-in-left animate-delay-100">
+                        Trouver ce que vous convient
+                    </h2>
+                    <h1 className="text-4xl md:text-6xl font-bold text-[#475489] relative inline-block text-center lg:text-left animate-slide-in-left animate-delay-200">
                         <span className="relative z-10">Autour de vous !</span>
                     </h1>
-                    <div className="flex justify-center lg:justify-start">
+                    <div className="flex justify-center lg:justify-start animate-slide-in-left animate-delay-300">
                         <img src={Shape} alt="décoration"/>
                     </div>
 
-                    {/* Image flèche en dessous du titre */}
-                    <div className="hidden lg:block absolute left-[590px] top-[150px] w-50 h-50 pt-[210px]">
+                    <div className="hidden lg:block absolute left-[590px] top-[150px] w-50 h-50 pt-[210px] animate-bounce-slow">
                         <img src={Vector} alt="Fléche"/>
                     </div>
                     
-                    {/* Formulaire sous le texte */}
-                    <div className="relative z-10 mt-6 bg-white p-5 shadow-lg flex flex-col sm:flex-row text-[#9BA5C8] w-full lg:w-[140%] rounded-lg overflow-visible gap-4" style={{ borderRadius: '50px' }}>
-                        <div className="flex items-center flex-1 p-3 border rounded-lg lg:rounded-l-lg bg-white" style={{ borderRadius: '50px' }}>
+                    <div className="relative z-10 mt-6 bg-white p-5 shadow-lg flex flex-col sm:flex-row text-[#9BA5C8] w-full lg:w-[140%] rounded-lg overflow-visible gap-4 animate-fade-in-up animate-delay-500" style={{ borderRadius: '50px' }}>
+                        <div className="flex items-center flex-1 p-3 border rounded-lg lg:rounded-l-lg bg-white hover:scale-105 transition-transform duration-300" style={{ borderRadius: '50px' }}>
                             <FaUser className="mr-2" />
                             <select className="flex-1 bg-transparent focus:outline-none">
                                 <option value="Type de service">Type de service</option>
                             </select>
                         </div>
-                        <div className="flex items-center flex-1 p-3 border rounded-lg lg:rounded-none bg-white" style={{ borderRadius: '50px' }}>
+                        <div className="flex items-center flex-1 p-3 border rounded-lg lg:rounded-none bg-white hover:scale-105 transition-transform duration-300" style={{ borderRadius: '50px' }}>
                             <FaMapMarkerAlt className="mr-2" />
                             <select className="flex-1 bg-transparent focus:outline-none">
                                 <option>Sélectionner l'emplacement</option>
                             </select>
                         </div>
-                        <button className="text-white px-6 py-3 flex items-center justify-center rounded-lg lg:rounded-r-lg" style={{ backgroundColor: '#434F83', borderRadius: '50px'}}>
+                        <button className="text-white px-6 py-3 flex items-center justify-center rounded-lg lg:rounded-r-lg hover:scale-105 transition-transform duration-300 hover:shadow-lg" style={{ backgroundColor: '#434F83', borderRadius: '50px'}}>
                             <span className="mr-2">Recherche</span>
                             <FaSearch />
                         </button>
                     </div>
-
                 </div>      
-                {/* Images à droite */}
                 <div className="relative w-full lg:w-1/2 flex gap-4 mr-0 lg:mr-20 order-1 lg:order-2">
-                    <img src={image1} alt="Travailleur 1" className="w-1/2 rounded-lg" />
-                    <img src={image2} alt="Travailleur 2" className="w-1/2 rounded-lg" />
+                    <img src={image1} alt="Travailleur 1" className="w-1/2 rounded-lg hover:scale-105 transition-transform duration-500" />
+                    <img src={image2} alt="Travailleur 2" className="w-1/2 rounded-lg hover:scale-105 transition-transform duration-500" />
                 </div>
-
             </div>
 
 
          
             {/* Partout Au Maroc  Partie 2 */}
             <div className="relative bg-white">
-                <div className="absolute top-0 left-0 right-0 flex justify-center z-20">
+                <div className="absolute top-0 left-0 right-0 flex justify-center z-20 animate-fade-down duration-1000">
                     <img src={PetitLogo} alt="Manzo Logo" className="h-24 max-w-xs" />
                 </div>
-    
+
                 <div className="relative">
                     <img src={Vector2} alt="Background Image" className="w-full h-auto min-h-[1100px] object-cover z-10" />
-                    <div className="absolute inset-0 flex items-center justify-center z-10 pt-16 pb-18 h-[900px] ">
+
+                    <div className="absolute inset-0 flex items-center justify-center z-10 pt-16 pb-18 h-[900px]">
                         <div className="py-12 w-full max-w-6xl mx-auto rounded-lg px-4">
                             <div className="text-center">
-                                <h2 className="text-4xl font-bold text-[#475489] mb-19 pt-24">PARTOUT AU MAROC</h2>
+
+                                <h2 className="text-4xl font-bold text-[#475489] mb-19 pt-24 animate-fade-up duration-1000 delay-300">
+                                    PARTOUT AU MAROC
+                                </h2>
+
                                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6 pt-10">
                                     {services.map((service, index) => (
-                                        <div key={index} className="relative group overflow-hidden rounded-lg shadow-md">
+                                        <div key={index}
+                                            className="relative group overflow-hidden rounded-lg shadow-md transform transition-all duration-500 hover:scale-105 animate-zoom-in delay-[index*100]">
                                             <img src={service.image} alt={service.city} className="w-full h-32 md:h-40 object-cover transition-transform group-hover:scale-110"/>
                                             <div className="absolute inset-0 bg-black bg-opacity-40 flex items-end p-4">
                                                 <p className="text-white font-semibold text-sm md:text-base">Service à {service.city}</p>
@@ -259,8 +264,9 @@ const Accueil = () => {
                                         </div>
                                     ))}
                                 </div>
+
                                 <Link to="/voirplus">
-                                    <button className="mt-6 px-6 py-3 bg-[#5869A3] text-white font-semibold rounded-full  shadow-md hover:bg-[#9BA5C8] transition ">
+                                    <button className="mt-6 px-6 py-3 bg-[#5869A3] text-white font-semibold rounded-full shadow-md hover:bg-[#9BA5C8] transition hover:scale-105 animate-fade-up duration-700 delay-500">
                                         Voir plus →
                                     </button>
                                 </Link>
@@ -268,7 +274,8 @@ const Accueil = () => {
                         </div>
                     </div>
                 </div>
-            </div> 
+            </div>
+
             
 
 
@@ -297,31 +304,32 @@ const Accueil = () => {
                         />
                     </div>
 
+                    {/* fleche image */}
                     <img 
                         src={Vector4}
                         alt="Flèche vers le bas" 
-                        className="absolute hidden md:block top-[190px] left-[50%] md:left-[450px] w-45 transform rotate-[-10deg] vector" 
+                        className="absolute hidden md:block top-[190px] left-[50%] md:left-[450px] w-45 transform rotate-[-10deg] vector a" 
                     />
                     <img 
                         src={Vector5}
                         alt="Flèche vers la droite" 
-                        className="absolute hidden md:block top-[360px] left-[40%] md:left-[380px] w-50 transform rotate-[30deg] vector" 
+                        className="absolute hidden md:block top-[360px] left-[40%] md:left-[380px] w-50 transform rotate-[30deg] vector a" 
                     />
                     {/* etoiles */}
                     <img 
                         src={Union1}
                         alt="Décoration" 
-                        className="absolute hidden md:block top-[17px] left-[50%] md:left-[431px] w-50 etoile1" 
+                        className="absolute hidden md:block top-[17px] left-[50%] md:left-[431px] w-50 etoile1 a" 
                     />
                     <img 
                         src={Union2}
                         alt="Décoration" 
-                        className="absolute hidden md:block top-[310px] left-[20%] md:left-[140px] w-50 etoile1" 
+                        className="absolute hidden md:block top-[310px] left-[20%] md:left-[140px] w-50 etoile1 a" 
                     />
                     <img 
                         src={Union1}
                         alt="Décoration" 
-                        className="absolute hidden md:block top-[-25px] left-[-15px] w-etoile1 " 
+                        className="absolute hidden md:block top-[-25px] left-[-15px] w-etoile1 a" 
                     />
                 </div>
 
@@ -355,10 +363,10 @@ const Accueil = () => {
                     >
                         <ChevronLeftIcon className="h-6 w-6 text-gray-700" />
                     </button>
-                    <div className="flex space-x-4 overflow-hidden">
+                    <div className="flex space-x-4 overflow-hidden transition-opacity duration-500 ease-in-out animate-fade-in">
                         {prestataires.slice(index, index + itemsPerPage).map((p, idx) => (
                             <Link key={idx} href={p.link} passHref>
-                                <div className="relative w-40 h-56 overflow-hidden rounded-lg cursor-pointer">
+                                <div className="relative w-40 h-56 overflow-hidden rounded-lg cursor-pointer transition-transform duration-500 ease-in-out transform hover:scale-105 animate-fade-in">
                                     <img src={p.image} alt={p.name} className="w-full h-full object-cover" />
                                     <div className="absolute bottom-0 w-full bg-[#5869A3] bg-opacity-70 p-2 text-white rounded-t-lg">
                                         <p className="text-xs font-bold">{p.skill}</p>
@@ -378,15 +386,14 @@ const Accueil = () => {
             </div>
            
           
-            
-            
+                  
             {/* partie 5  */}
             <div className="text-center py-12 bg-[rgba(188,208,234,0.2)]">
                 <h2 className="text-4xl font-bold text-[#6977AF] mb-8">Comment ça marche ?</h2>
                 <div className="relative flex flex-col md:flex-row items-center justify-center gap-8">
                     {steps.map((step, index) => (
-                    <div key={index} className="flex flex-col items-center text-center max-w-xs relative">
-                        <div className="p-6 rounded-full  mb-4 relative z-10">
+                    <div key={index} className="flex flex-col items-center text-center max-w-xs relative animate-fade-in">
+                        <div className="p-6 rounded-full mb-4 relative z-10 transition-transform hover:scale-105 duration-300">
                         <img src={step.image} alt={step.title} className="w-[150px] h-[150px]" />
                         </div>
                         <h3 className="text-lg font-semibold text-gray-900">{step.title}</h3>
@@ -396,7 +403,7 @@ const Accueil = () => {
                     <img 
                     src={Vector6} 
                     alt="Tracé en pointillé" 
-                    className="absolute w-full max-w-[750px] top-14 md:top-20 vector"
+                    className="absolute w-full max-w-[750px] top-14 md:top-20 vector b"
                     />
                 </div>
             </div>
@@ -407,7 +414,7 @@ const Accueil = () => {
             <div className="p-8 m-8">
                 <h2 className="text-4xl font-bold text-left text-[#6977AF] mb-10">Les avis de nos clients</h2>
                 <div className="flex space-x-6 overflow-x-auto scrollbar-hide">
-                    <div className="bg-white p-6 rounded-lg shadow-md min-w-[250px] text-center">
+                    <div className="bg-white p-6 rounded-lg shadow-md min-w-[250px] text-center animate-fade-in-up">
                     <p className="font-semibold text-lg">Excellent</p>
                     <div className="flex justify-center my-2">
                         <img src={Getoile} alt='Grande étoile' className='mt-4'/>
@@ -435,28 +442,34 @@ const Accueil = () => {
 
 
             {/* partie 7  */}
-            <div className="text-center py-1 bg-[rgba(188,208,234,0.2)]">
-                <div className="relative flex flex-col md:flex-row items-center justify-center gap-4">
-                    <div className="text-center ">
-                        <h2 className="text-2xl md:text-4xl font-bold text-[#8C97C3] max-w-[900px] leading-tight mx-auto md:mr-[400px] md:text-left">
-                            Intégrez notre réseau dès aujourd'hui et <br />partagez vos services avec notre clientèle<br /> grandissante !
-                        </h2>
-                        <button className="mt-10 px-6 py-3 mx-auto md:mr-[350px] text-white rounded-full shadow-md bg-[#5869A3] hover:bg-[#9BA5C8] ">
-                            Proposer vos services
-                        </button>
-                    </div>
+            <div className="text-center py-4 md:py-8 lg:py-12 bg-[rgba(188,208,234,0.2)]">
+                <div className="container mx-auto px-4 m-4">
+                    <div className="relative flex flex-col md:flex-row items-center justify-center gap-6 lg:gap-8">
+                        {/* Texte et bouton */}
+                        <div className="text-center ">
+                            <h2 className="text-justify text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-[#8C97C3] leading-snug lg:leading-tight mr-24 opacity-0 animate-fade-in-up animation-delay-100">
+                                    Intégrez notre réseau dès aujourd'hui et <br className="hidden sm:inline"/>partagez vos services avec notre clientèle<br className="hidden sm:inline"/> grandissante !
+                                </h2>
+                            <button className="mt-10 ml-28 px-6 py-3 mx-auto md:mr-[350px] text-white rounded-full shadow-md bg-[#5869A3] hover:bg-[#9BA5C8] opacity-0 animate-fade-in-up animation-delay-200">
+                                Proposer vos services
+                            </button>
+                        </div>
 
-                    <div className="flex flex-col gap-2 ">
-                        <img 
-                            src={rectangle4}
-                            alt="Technicien installant une climatisation"
-                            className="w-full max-w-[192px] md:w-48 md:h-48 object-cover rounded-xl mx-auto md:mx-0"
-                        />
-                        <img 
-                            src={rectangle5}
-                            alt="Livreur sonnant à une porte"
-                            className="w-full max-w-[160px] md:w-40 md:h-40 object-cover rounded-xl mx-auto md:mx-0"
-                        />
+                        {/* Images */}
+                        <div className="flex flex-col gap-3 sm:gap-4 w-full md:w-auto">
+                            <div className="flex justify-center md:justify-end gap-3 sm:gap-4">
+                                <img 
+                                    src={rectangle4}
+                                    alt="Technicien installant une climatisation"
+                                    className="w-36 h-36 sm:w-40 sm:h-40 md:w-44 md:h-44 lg:w-48 lg:h-48 object-cover rounded-xl opacity-0 animate-fade-in-up animation-delay-300"
+                                />
+                                <img 
+                                    src={rectangle5}
+                                    alt="Livreur sonnant à une porte"
+                                    className="w-32 h-32 sm:w-36 sm:h-36 md:w-40 md:h-40 lg:w-44 lg:h-44 object-cover rounded-xl mt-8 sm:mt-10 md:mt-12 opacity-0 animate-fade-in-up animation-delay-300"
+                                />
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -464,16 +477,16 @@ const Accueil = () => {
 
            
             {/* partie 8  */}   
-            <div className="mx-auto bg-white rounded-lg shadow-md overflow-hidden p-20 text-center ">
-                <h1 className="text-4xl font-bold text-[#6977AF] mb-6">Inscrivez-vous maintenant sur <span className='text-[#475489]'>Manzo ?</span></h1>
+            <div className="mx-auto bg-white rounded-lg shadow-md overflow-hidden p-20 text-center opacity-0 animate-fade-in-up animation-delay-100">
+                <h1 className="text-4xl font-bold text-[#6977AF] mb-6 opacity-0 animate-fade-in-up animation-delay-200">Inscrivez-vous maintenant sur <span className='text-[#475489]'>Manzo ?</span></h1>
                 <div className='flex flex-col items-center space-y-4'>
                     <Link to='/CreerCompte'>
-                        <button className="w-[200px] bg-[#5869A3] hover:bg-[#9BA5C8] text-white font-semibold py-2 px-4 transition duration-200 rounded-full">
+                        <button className="w-[200px] bg-[#5869A3] hover:bg-[#9BA5C8] text-white font-semibold py-2 px-4 transition duration-200 rounded-full opacity-0 animate-fade-in-up animation-delay-300">
                             Inscrivez-vous
                         </button>
                     </Link>
                     <Link to='/Seconnecter'>
-                        <button className="w-[200px] bg-gray-200 hover:bg-gray-300 text-[#475489] border-4 border-[#475489] font-semibold py-2 px-4  transition duration-200 rounded-full">
+                        <button className="w-[200px] bg-gray-200 hover:bg-gray-300 text-[#475489] border-4 border-[#475489] font-semibold py-2 px-4 transition duration-200 rounded-full opacity-0 animate-fade-in-up animation-delay-400">
                             Connecter-vous
                         </button>
                     </Link>
