@@ -4,6 +4,10 @@ import Header from "./components/Header";
 import Footer from "./components/Footer";
 import Accueil from "./pages/Accueil.js";
 import Contact from "./pages/Contact.js";
+import CreerCompte from "./components/creerCompte";
+import Connexion from "./components/connexion";
+import InscriptionClient from "./components/inscriptionClient";
+import Dashboard from "./pages/Page_Prestataire/Dashboard";
 import DevenirPres from "./pages/DevenirPres.js"
 
 
@@ -14,14 +18,21 @@ const AppRoutes = () => {
     <BrowserRouter>
       <Header/>
       <Routes>
-        <Route path="/" element=""/>
+        <Route path="/" element={<Accueil/> }/>
         <Route path="/DevenirPres" element={<DevenirPres />} />
         <Route path="/Contact" element={<Contact />} />
         <Route path="/serviceFixe" element="" />
         <Route path="/serviceDevis" element="" />
-        <Route path="/Seconnecter" element="" />
-        <Route path="/CreerCompte" element="" />
 
+        {/* connexion inscription */}
+        <Route path="/CreerCompte" element={<CreerCompte/>} />
+        <Route path="/InscriptionClient" element={<InscriptionClient/>} />
+        <Route path="/InscriptionPrestataire" element=''/>
+        <Route path="/Seconnecter" element={<Connexion/>}/>
+
+        {/* partie prestataire */}
+        <Route path="/Dashboard" element={<Dashboard/>}/>
+      
       </Routes>
       <Footer/>
     </BrowserRouter>
