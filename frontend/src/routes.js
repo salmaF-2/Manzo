@@ -3,10 +3,11 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
 import Accueil from "./pages/Accueil";
-import CreerCompte from "./components/creerCompte";
-import Connexion from "./components/connexion";
-import InscriptionClient from "./components/inscriptionClient";
+import CreerCompte from "./auth/creerCompte";
+import Connexion from "./auth/connexion";
+import InscriptionClient from "./auth/inscriptionClient";
 import Dashboard from "./pages/Page_Prestataire/Dashboard";
+import HeaderRole from "./components/HeaderRole";
 
 
 
@@ -14,7 +15,7 @@ import Dashboard from "./pages/Page_Prestataire/Dashboard";
 const AppRoutes = () => {
   return (
     <BrowserRouter>
-      <Header/>
+      <HeaderRole/>
       <Routes>
         {/* accueil */}
         <Route path="/" element={<Accueil/> }/>
@@ -31,6 +32,8 @@ const AppRoutes = () => {
 
         {/* partie prestataire */}
         <Route path="/Dashboard" element={<Dashboard/>}/>
+
+        {/* partie Clients */}
       
       </Routes>
       <Footer/>
