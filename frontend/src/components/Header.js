@@ -99,6 +99,7 @@ const Header = () => {
             </div>
             )}
 
+
             {/* Navigation 2 => navigation normal*/}
             <nav className='hidden md:flex items-center space-x-2'>
                 <Link to="/" className='text-[#5869A3] font-medium hover:bg-[#5869A3] hover:text-white rounded-full px-4 py-2 transition duration-300'>Accueil</Link>
@@ -156,6 +157,10 @@ const Header = () => {
                     <div className="absolute right-0 mt-7 w-48 bg-white shadow-lg rounded-lg p-2 z-50">
                     <Link to="/Seconnecter" onClick={() => setIsOpen(false)} className="block w-full px-4 py-2 text-center text-white bg-[#5869A3] rounded-md hover:bg-[#48578A]">Se connecter</Link>
                     <Link to="/CreerCompte" onClick={() => setIsOpen(false)} className="block w-full px-4 py-2 mt-2 text-center border border-[#5869A3] text-[#5869A3] rounded-md hover:bg-indigo-100">Créer un compte</Link>
+
+                    {/* <Link to="/Dashboard" onClick={() => setIsOpen(false)} className="block w-full px-4 py-2 mt-2 text-center border border-[#5869A3] text-[#5869A3] rounded-md hover:bg-indigo-100">Tableau de bord</Link>
+                    <Link to="/Deconnexion" onClick={() => setIsOpen(false)} className="block w-full px-4 py-2 mt-2 text-center text-white bg-[#5869A3] rounded-md hover:bg-[#48578A]">Déconnexion</Link> */}
+
                     </div>
                 )}
                 </div>
