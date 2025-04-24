@@ -106,41 +106,6 @@ const Header = () => {
             )}
 
             {/* Navigation 2*/}
-            {/* <nav className='hidden md:flex items-center space-x-2'>
-
-                <Link to="/" className='text-[#5869A3] font-medium hover:bg-[#5869A3] hover:text-white rounded-full px-4 py-2 transition duration-300'>Accueil</Link>
-                <Link to="/DevenirPres" className='text-[#5869A3] font-medium hover:bg-[#5869A3] hover:text-white rounded-full px-4 py-2 transition duration-300'>Devenir prestataire</Link>
-                <Link to="/Contact" className='text-[#5869A3] font-medium hover:bg-[#5869A3] hover:text-white rounded-full px-4 py-2 transition duration-300'>Contacter-nous</Link>
-
-                <div className="relative" ref={servicesRef}>
-                    <button onClick={() => setServicesOpen(!servicesOpen)} className="flex items-center text-[#5869A3] font-medium hover:bg-[#5869A3] hover:text-white rounded-full px-4 py-2 transition duration-300">
-                        Services <ChevronDown className="ml-2 w-5 h-5" />
-                    </button>
-                    {servicesOpen && (
-                        <div className="absolute left-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-50">
-                            <ul className="py-2">
-                                <Link to="/serviceFixe" onClick={() => setServicesOpen(false)}><li className="px-4 py-2 hover:bg-gray-100 cursor-pointer">Services Fixe</li></Link>
-                                <Link to="/serviceDevis" onClick={() => setServicesOpen(false)}><li className="px-4 py-2 hover:bg-gray-100 cursor-pointer">Services Devis</li></Link>
-                            </ul>
-                        </div>
-                    )}
-                </div>
-                
-
-                <div className='relative' ref={userMenuRef}>
-                    <button onClick={() => setIsOpen(!isOpen)} className='p-4 rounded-full bg-gray-200 hover:bg-gray-300 mr-10'>
-                        <FaUser className='text-[#5869A3]' />
-                    </button>
-                    {isOpen && (
-                        <div className='absolute right-0 mt-7 w-48 bg-white shadow-lg rounded-lg p-2 z-50'>
-                            <Link to="/Seconnecter"  onClick={() => setIsOpen(false)}  className='block w-full px-4 py-2 text-center text-white bg-[#5869A3] rounded-md hover:bg-[#48578A]'>Se connecter</Link>
-                            <Link to="/CreerCompte"  onClick={() => setIsOpen(false)}  className='block w-full px-4 py-2 mt-2 text-center border border-[#5869A3] text-[#5869A3] rounded-md hover:bg-indigo-100'>Créer un compte</Link>
-                            <Link to="/Dashboard"  onClick={() => setIsOpen(false)}  className='block w-full px-4 py-2 mt-2 text-center border border-[#5869A3] text-[#5869A3] rounded-md hover:bg-indigo-100'>Tableau de bord</Link>
-                            <Link to="/Deconnexion"  onClick={() => setIsOpen(false)}  className='block w-full px-4 py-2 mt-2 text-center text-white bg-[#5869A3] rounded-md hover:bg-[#48578A]'>Déconnexion</Link>
-                        </div>
-                    )}
-                </div>
-            </nav> */}
             <nav className='hidden md:flex items-center space-x-2'>
                 <Link to="/" className='text-[#5869A3] font-medium hover:bg-[#5869A3] hover:text-white rounded-full px-4 py-2 transition duration-300'>Accueil</Link>
                 <Link to="/DevenirPres" className='text-[#5869A3] font-medium hover:bg-[#5869A3] hover:text-white rounded-full px-4 py-2 transition duration-300'>Devenir prestataire</Link>
@@ -157,7 +122,7 @@ const Header = () => {
                     setServicesOpen(false);
                     }, 300); 
                     
-                }}
+                }} 
                 >
                 <button className="flex items-center text-[#5869A3] font-medium hover:bg-[#5869A3] hover:text-white rounded-full px-4 py-2 transition duration-300">
                     Services <ChevronDown className="ml-2 w-5 h-5" />
@@ -197,8 +162,8 @@ const Header = () => {
                     <div className="absolute right-0 mt-7 w-48 bg-white shadow-lg rounded-lg p-2 z-50">
                     <Link to="/Seconnecter" onClick={() => setIsOpen(false)} className="block w-full px-4 py-2 text-center text-white bg-[#5869A3] rounded-md hover:bg-[#48578A]">Se connecter</Link>
                     <Link to="/CreerCompte" onClick={() => setIsOpen(false)} className="block w-full px-4 py-2 mt-2 text-center border border-[#5869A3] text-[#5869A3] rounded-md hover:bg-indigo-100">Créer un compte</Link>
-                    <Link to="/Dashboard" onClick={() => setIsOpen(false)} className="block w-full px-4 py-2 mt-2 text-center border border-[#5869A3] text-[#5869A3] rounded-md hover:bg-indigo-100">Tableau de bord</Link>
-                    <Link to="/Deconnexion" onClick={() => setIsOpen(false)} className="block w-full px-4 py-2 mt-2 text-center text-white bg-[#5869A3] rounded-md hover:bg-[#48578A]">Déconnexion</Link>
+                    {/* <Link to="/Dashboard" onClick={() => setIsOpen(false)} className="block w-full px-4 py-2 mt-2 text-center border border-[#5869A3] text-[#5869A3] rounded-md hover:bg-indigo-100">Tableau de bord</Link>
+                    <Link to="/Deconnexion" onClick={() => setIsOpen(false)} className="block w-full px-4 py-2 mt-2 text-center text-white bg-[#5869A3] rounded-md hover:bg-[#48578A]">Déconnexion</Link> */}
                     </div>
                 )}
                 </div>
