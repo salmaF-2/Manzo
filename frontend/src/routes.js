@@ -8,6 +8,8 @@ import Connexion from "./auth/connexion";
 import InscriptionClient from "./auth/inscriptionClient";
 import Dashboard from "./pages/Page_Prestataire/Dashboard";
 import HeaderRole from "./components/HeaderRole";
+import ProfilP from "./pages/Page_Prestataire/Profil";
+import ModifierProfil from "./pages/Page_Prestataire/ModifierProfil";
 
 
 
@@ -15,7 +17,7 @@ import HeaderRole from "./components/HeaderRole";
 const AppRoutes = () => {
   return (
     <BrowserRouter>
-      <HeaderRole/>
+      <HeaderRole role='prestataire'/>
       <Routes>
         {/* accueil */}
         <Route path="/" element={<Accueil/> }/>
@@ -31,12 +33,21 @@ const AppRoutes = () => {
         <Route path="/Seconnecter" element={<Connexion/>}/>
 
         {/* partie prestataire */}
-        <Route path="/Dashboard" element={<Dashboard/>}/>
+        <Route path="/DashboardPrestataire" element={<Dashboard/>}/>
+        <Route path="/ProfilPrestataire" element={<ProfilP/>} />
+        <Route path="/modifierProfil" element={<ModifierProfil/>} />
+        <Route path="/Services-Prestataire" element=""/>
+        <Route path="/Demandes-Prestataire" element=""/>
+        <Route path="/Rendez-vous-Prestataire" element=""/>
+        <Route path="/Historique-Prestataire" element=""/>
+        <Route path="/Messages-Prestataire" element=""/>
+        <Route path="/Paiemant-Prestataire" element=""/>
+        <Route path="/Parametre-Prestataire" element=""/>
 
         {/* partie Clients */}
       
       </Routes>
-      <Footer/>
+      {/* <Footer/> */}
     </BrowserRouter>
   );
 };

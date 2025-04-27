@@ -142,7 +142,7 @@ const HeaderRole = ({ role = 'guest' }) => {
     // Menu utilisateur pour prestataire
     const renderPrestataireUserMenu = () => (
         <>
-            <Link to="/dashboard-prestataire" onClick={() => setIsOpen(false)} className="flex items-center px-4 py-2 text-[#5869A3] hover:bg-gray-100 rounded-md">
+            <Link to="/DashboardPrestataire" onClick={() => setIsOpen(false)} className="flex items-center px-4 py-2 text-[#5869A3] hover:bg-gray-100 rounded-md">
                 <FaHome className="mr-3" /> Tableau de bord
             </Link>
             <Link to="/messages-prestataire" onClick={() => setIsOpen(false)} className="flex items-center px-4 py-2 text-[#5869A3] hover:bg-gray-100 rounded-md">
@@ -157,7 +157,7 @@ const HeaderRole = ({ role = 'guest' }) => {
             <Link to="/payouts" onClick={() => setIsOpen(false)} className="flex items-center px-4 py-2 text-[#5869A3] hover:bg-gray-100 rounded-md">
                 <FaMoneyBillWave className="mr-3" /> Paiements
             </Link>
-            <Link to="/mon-compte-prestataire" onClick={() => setIsOpen(false)} className="flex items-center px-4 py-2 text-[#5869A3] hover:bg-gray-100 rounded-md">
+            <Link to="/ProfilPrestataire" onClick={() => setIsOpen(false)} className="flex items-center px-4 py-2 text-[#5869A3] hover:bg-gray-100 rounded-md">
                 <FaUser className="mr-3" /> Informations du compte
             </Link>
             <div className="border-t border-gray-200 mt-2"></div>
@@ -248,7 +248,7 @@ const HeaderRole = ({ role = 'guest' }) => {
                         
                         {role === 'client' && (
                             <>
-                                <Link to="/dashboard" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center px-4 py-2 text-[#5869A3] hover:bg-gray-100 rounded-md">
+                                <Link to="/dashboardClient" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center px-4 py-2 text-[#5869A3] hover:bg-gray-100 rounded-md">
                                     <FaHome className="mr-3" /> Tableau de bord
                                 </Link>
                                 <Link to="/messages" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center px-4 py-2 text-[#5869A3] hover:bg-gray-100 rounded-md">
@@ -268,7 +268,7 @@ const HeaderRole = ({ role = 'guest' }) => {
                         
                         {role === 'prestataire' && (
                             <>
-                                <Link to="/dashboard-prestataire" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center px-4 py-2 text-[#5869A3] hover:bg-gray-100 rounded-md">
+                                <Link to="/DashboardPrestataire" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center px-4 py-2 text-[#5869A3] hover:bg-gray-100 rounded-md">
                                     <FaHome className="mr-3" /> Tableau de bord
                                 </Link>
                                 <Link to="/messages-prestataire" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center px-4 py-2 text-[#5869A3] hover:bg-gray-100 rounded-md">
@@ -283,7 +283,7 @@ const HeaderRole = ({ role = 'guest' }) => {
                                 <Link to="/payouts" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center px-4 py-2 text-[#5869A3] hover:bg-gray-100 rounded-md">
                                     <FaMoneyBillWave className="mr-3" /> Paiements
                                 </Link>
-                                <Link to="/mon-compte-prestataire" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center px-4 py-2 text-[#5869A3] hover:bg-gray-100 rounded-md">
+                                <Link to="/ProfilPrestataire" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center px-4 py-2 text-[#5869A3] hover:bg-gray-100 rounded-md">
                                     <FaUser className="mr-3" /> Informations du compte
                                 </Link>
                             </>
