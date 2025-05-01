@@ -2,7 +2,8 @@ import React, { useEffect } from "react";
 import { FaArrowLeft } from "react-icons/fa";
 import { Link, useLocation } from "react-router-dom";
 import SideBar from "./SideBar";
-import image1 from '../../assets/images/image1.png';
+import { motion } from "framer-motion";
+
 
 const ModifierProfil = () => {
     useEffect(() => {
@@ -12,7 +13,8 @@ const ModifierProfil = () => {
   const from = location.state?.from || '/ProfilPrestataire';
 
   return (
-    <div className="flex bg-[rgba(188,208,234,0.20)] min-h-[calc(100vh-5rem)] mt-20">
+    // bg-[rgba(188,208,234,0.20)]
+    <div className="flex bg-gradient-to-br from-[#BCD0EA50] to-indigo-50 min-h-[calc(100vh-5rem)] mt-20">
       <SideBar />
       
       <div className="flex-1 ml-60 p-6 mt-4">
@@ -24,7 +26,9 @@ const ModifierProfil = () => {
         </Link>
 
         {/* titre */}
-        <h1 className="text-2xl font-bold mb-6">Modifier le profil</h1>
+        <motion.h1  initial={{ opacity: 0, x: -20 }}  animate={{ opacity: 1, x: 0 }}  transition={{ duration: 0.5 }} className="text-3xl font-bold mb-8 text-gray-800">
+            Modifier le profil
+        </motion.h1>
         
         {/* Partie 1 => formulaire de modification */}
         <div className="bg-white rounded-2xl shadow p-6">
@@ -130,31 +134,31 @@ const ModifierProfil = () => {
 
             {/* Services proposés */}
             <div className="bg-white rounded-2xl shadow p-6">
-            <h2 className="text-xl font-semibold mb-4">Services proposés</h2>
+                <h2 className="text-xl font-semibold mb-4">Services proposés</h2>
 
-            {/* Champ pour ajouter un service */}
-            <div className="flex gap-2 mb-4">
-                <input
-                type="text"
-                placeholder="Nouveau service"
-                className="border rounded-lg p-2 flex-1"
-                />
-                <button className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg">
-                Ajouter
-                </button>
-            </div>
+                {/* Champ pour ajouter un service */}
+                <div className="flex gap-2 mb-4">
+                    <input
+                    type="text"
+                    placeholder="Nouveau service"
+                    className="border rounded-lg p-2 flex-1"
+                    />
+                    <button className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg">
+                    Ajouter
+                    </button>
+                </div>
 
-            {/* Liste des services */}
-            <div className="space-y-2">
-                <div className="flex justify-between items-center bg-gray-100 p-3 rounded-lg">
-                <span>Plomberie générale</span>
-                <button className="text-red-500 hover:text-red-700">🗑️</button>
+                {/* Liste des services */}
+                <div className="space-y-2">
+                    <div className="flex justify-between items-center bg-gray-100 p-3 rounded-lg">
+                    <span>Plomberie générale</span>
+                    <button className="text-red-500 hover:text-red-700">🗑️</button>
+                    </div>
+                    <div className="flex justify-between items-center bg-gray-100 p-3 rounded-lg">
+                    <span>Installation sanitaire</span>
+                    <button className="text-red-500 hover:text-red-700">🗑️</button>
+                    </div>
                 </div>
-                <div className="flex justify-between items-center bg-gray-100 p-3 rounded-lg">
-                <span>Installation sanitaire</span>
-                <button className="text-red-500 hover:text-red-700">🗑️</button>
-                </div>
-            </div>
             </div>
 
         </div>

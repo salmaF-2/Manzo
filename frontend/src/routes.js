@@ -10,6 +10,15 @@ import Dashboard from "./pages/Page_Prestataire/Dashboard";
 import HeaderRole from "./components/HeaderRole";
 import ProfilP from "./pages/Page_Prestataire/Profil";
 import ModifierProfil from "./pages/Page_Prestataire/ModifierProfil";
+import ServicesP from "./pages/Page_Prestataire/PageServices";
+import AjouterService from "./pages/Page_Prestataire/Ajouter_service";
+import ModifierService from "./pages/Page_Prestataire/Modifier_service";
+import DemandesS from "./pages/Page_Prestataire/DemandesS";
+import ParametreP from "./pages/Page_Prestataire/ParametreP";
+import MessagesP from "./pages/Page_Prestataire/MessagesP";
+import PaiementP from "./pages/Page_Prestataire/Paiements";
+import RendezVousP from "./pages/Page_Prestataire/Rendez-vousP";
+import HistoriqueP from "./pages/Page_Prestataire/HistoriqueP";
 
 
 
@@ -36,13 +45,16 @@ const AppRoutes = () => {
         <Route path="/DashboardPrestataire" element={<Dashboard/>}/>
         <Route path="/ProfilPrestataire" element={<ProfilP/>} />
         <Route path="/modifierProfil" element={<ModifierProfil/>} />
-        <Route path="/Services-Prestataire" element=""/>
-        <Route path="/Demandes-Prestataire" element=""/>
-        <Route path="/Rendez-vous-Prestataire" element=""/>
-        <Route path="/Historique-Prestataire" element=""/>
-        <Route path="/Messages-Prestataire" element=""/>
-        <Route path="/Paiemant-Prestataire" element=""/>
-        <Route path="/Parametre-Prestataire" element=""/>
+        <Route path="/Services-Prestataire" element={<ServicesP/>}/>
+        <Route path="/Ajouter_service" element={<AjouterService/>}/>
+        <Route path="/Modifier_service" element={<ModifierService/>}/>
+
+        <Route path="/Demandes-Prestataire" element={<DemandesS/>}/>
+        <Route path="/Rendez-vous-Prestataire" element={<RendezVousP/>}/>
+        <Route path="/Historique-Prestataire" element={<HistoriqueP/>}/>
+        <Route path="/Messages-Prestataire" element={<MessagesP/>}/>
+        <Route path="/Paiemant-Prestataire" element={<PaiementP/>}/>
+        <Route path="/Parametre-Prestataire" element={<ParametreP/>}/>
 
         {/* partie Clients */}
       
