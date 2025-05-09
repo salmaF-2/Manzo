@@ -192,7 +192,7 @@ const ParametreP = () => {
           transition={{ duration: 0.5 }} 
           className="text-3xl font-bold mb-8 text-gray-800"
         >
-          Paramètres
+          ⚙️ Paramètres
           <p className="text-sm text-gray-500">Gérez vos paramètres de compte et préférences</p>
         </motion.h1>
 
