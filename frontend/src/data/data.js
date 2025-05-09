@@ -69,7 +69,7 @@ import {
         description: "Garde d'animaux à domicile (1 visite par jour)",
         price: 120,
         duration: "1 heure/jour",
-        image: "petsitting.jpg",
+        image: "petsitting.avif",
         rating: 4.8,
         category: "animaux",
         icon: <FaPaw className="text-2xl text-[#5869A3]" />
@@ -157,7 +157,7 @@ import {
         description: "Garde d'enfants à domicile (jusqu'à 3 enfants, 4 heures)",
         price: 150,
         duration: "4 heures",
-        image: "garde.jpg",
+        image: "babysitting.jpg",
         rating: 4.8,
         category: "famille",
         icon: <FaBaby className="text-2xl text-[#5869A3]" />
@@ -233,7 +233,7 @@ import {
         description: "Installation d'un climatiseur mural (fourni par le client)",
         price: 450,
         duration: "3 heures",
-        image: "climatiseur.jpg",
+        image: "climatisation.jpg",
         rating: 4.6,
         category: "bricolage",
         icon: <FaSnowflake className="text-2xl text-[#5869A3]" />
@@ -655,17 +655,6 @@ import {
       },
       {
         id: 29,
-        title: "Cave à vin climatisée",
-        description: "Aménagement professionnel pour conservation optimale",
-        startingPrice: 15000,
-        details: "Capacité de 100 à 300 bouteilles",
-        image: "cave-vin.jpg",
-        rating: 4.8,
-        category: "amenagement",
-        icon: <FaWineBottle className="text-2xl text-[#5869A3]" />
-      },
-      {
-        id: 30,
         title: "Studio indépendant",
         description: "Construction d'un studio dans le jardin",
         startingPrice: 60000,
@@ -676,164 +665,441 @@ import {
         icon: <FaHome className="text-2xl text-[#5869A3]" />
       }]
 
-  export const prestataires = {
-    Marrakech: [
-      {
-        id: 1,
-        nom: 'Hamid Services',
-        service: 'menage',
-        note: 4.7,
-        avis: 128,
-        distance: '2.5 km',
-        prix: '200-400 MAD',
-        photo: 'https://randomuser.me/api/portraits/men/1.jpg',
-        localisation: [31.6295, -7.9811],
-        email: 'hamid@manzo.ma',
-        description: 'Plombier professionnel avec 10 ans d\'expérience.',
-        disponibilite: 'Lun-Ven: 8h-20h'
-      },
-      {
-        id: 2,
-        nom: 'Fatima Ménage',
-        service: 'menage',
-        note: 4.9,
-        avis: 215,
-        distance: '1.2 km',
-        prix: '150-300 MAD',
-        photo: 'https://randomuser.me/api/portraits/women/1.jpg',
-        localisation: [31.6250, -7.9830],
-        email: 'fatima@manzo.ma',
-        description: 'Service de ménage complet avec produits écologiques.',
-        disponibilite: 'Tous les jours: 7h-22h'
-      }
-    ],
-    Casablanca: [
-      {
-        id: 3,
-        nom: 'Karim Électricité',
-        service: 'renovation',
-        note: 4.5,
-        avis: 95,
-        distance: '3.1 km',
-        prix: '250-500 MAD',
-        photo: 'https://randomuser.me/api/portraits/men/32.jpg',
-        localisation: [33.5731, -7.5898],
-        email: 'karim@manzo.ma',
-        description: 'Électricien certifié pour installations domestiques.',
-        disponibilite: 'Lun-Sam: 9h-19h'
-      }
-    ],Rabat: [
-        {
-          id: 4,
-          nom: 'Leila Couture',
-          service: 'Couture',
-          note: 4.8,
-          avis: 142,
-          distance: '1.5 km',
-          prix: '80-200 MAD',
-          photo: 'https://randomuser.me/api/portraits/women/42.jpg',
-          localisation: [34.0209, -6.8416],
-          email: 'leila@manzo.ma',
-          description: 'Couturière expérimentée pour retouches et créations sur mesure.',
-          disponibilite: 'Mar-Sam: 9h-18h'
-        },
-        {
-          id: 5,
-          nom: 'Mehdi Informatique',
-          service: 'Informatique',
-          note: 4.7,
-          avis: 98,
-          distance: '2.3 km',
-          prix: '200-500 MAD',
-          photo: 'https://randomuser.me/api/portraits/men/45.jpg',
-          localisation: [34.0250, -6.8350],
-          email: 'mehdi@manzo.ma',
-          description: 'Dépannage informatique à domicile pour particuliers et professionnels.',
-          disponibilite: 'Lun-Ven: 8h-20h'
-        }
-      ],
-      Tanger: [
-        {
-          id: 6,
-          nom: 'Youssef Jardinage',
-          service: 'Jardinage',
-          note: 4.6,
-          avis: 87,
-          distance: '3.0 km',
-          prix: '150-350 MAD',
-          photo: 'https://randomuser.me/api/portraits/men/60.jpg',
-          localisation: [35.7595, -5.8340],
-          email: 'youssef@manzo.ma',
-          description: 'Entretien de jardins et espaces verts avec matériel professionnel.',
-          disponibilite: 'Lun-Sam: 7h-17h'
-        }
-      ],
-      Agadir: [
-        {
-          id: 7,
-          nom: 'Nadia Massage',
-          service: 'Bien-être',
-          note: 4.9,
-          avis: 156,
-          distance: '1.8 km',
-          prix: '250-400 MAD',
-          photo: 'https://randomuser.me/api/portraits/women/65.jpg',
-          localisation: [30.4278, -9.5981],
-          email: 'nadia@manzo.ma',
-          description: 'Massothérapeute diplômée, spécialisée en massage relaxant et sportif.',
-          disponibilite: 'Tous les jours: 9h-21h'
-        },
-        {
-          id: 8,
-          nom: 'Karim Climatisation',
-          service: 'Climatisation',
-          note: 4.7,
-          avis: 112,
-          distance: '4.2 km',
-          prix: '300-600 MAD',
-          photo: 'https://randomuser.me/api/portraits/men/70.jpg',
-          localisation: [30.4300, -9.6000],
-          email: 'karim-clim@manzo.ma',
-          description: 'Installation et réparation de climatiseurs toutes marques.',
-          disponibilite: 'Lun-Dim: 8h-20h'
-        }
-      ],
-      Fes: [
-        {
-          id: 9,
-          nom: 'Ahmed Peinture',
-          service: 'Peinture',
-          note: 4.5,
-          avis: 76,
-          distance: '2.7 km',
-          prix: '180-400 MAD',
-          photo: 'https://randomuser.me/api/portraits/men/80.jpg',
-          localisation: [34.0333, -5.0000],
-          email: 'ahmed-peintre@manzo.ma',
-          description: 'Peintre professionnel pour intérieur et extérieur.',
-          disponibilite: 'Lun-Sam: 8h-19h'
-        }
-      ],
-      Oujda: [
-        {
-          id: 10,
-          nom: 'Samira Ménage',
-          service: 'Ménage',
-          note: 4.8,
-          avis: 134,
-          distance: '1.1 km',
-          prix: '120-250 MAD',
-          photo: 'https://randomuser.me/api/portraits/women/75.jpg',
-          localisation: [34.6867, -1.9114],
-          email: 'samira@manzo.ma',
-          description: 'Service de ménage complet avec produits naturels.',
-          disponibilite: 'Lun-Ven: 7h-18h'
-        }
-      ]
-  };
-  
-  export const villes = Object.keys(prestataires);
-  
+      export const prestataires = {
+        Marrakech: [
+          {
+            id: 1,
+            nom: 'Hamid Services',
+            service: 'Plomberie',
+            note: 4.7,
+            avis: 128,
+            distance: '2.5 km',
+            prix: '200-400 MAD',
+            pricingType: 'fixed', // Prix fixe pour les interventions standard
+            photo: 'https://randomuser.me/api/portraits/men/1.jpg',
+            localisation: [31.6295, -7.9811],
+            email: 'hamid@manzo.ma',
+            description: 'Plombier professionnel avec 10 ans d\'expérience.',
+            disponibilite: 'Lun-Ven: 8h-20h',
+            details: {
+              certifications: ['CAP Plomberie', 'Certification Gaz'],
+              equipement: 'Matériel professionnel complet',
+              garantie: '1 an sur les interventions',
+              photosTravaux: [
+                'https://example.com/plomberie1.jpg',
+                'https://example.com/plomberie2.jpg'
+              ]
+            }
+          },
+          {
+            id: 2,
+            nom: 'Fatima Ménage',
+            service: 'Ménage',
+            note: 4.9,
+            avis: 215,
+            distance: '1.2 km',
+            prix: '150-300 MAD',
+            pricingType: 'fixed', // Service standard avec prix fixe
+            photo: 'https://randomuser.me/api/portraits/women/1.jpg',
+            localisation: [31.6250, -7.9830],
+            email: 'fatima@manzo.ma',
+            description: 'Service de ménage complet avec produits écologiques.',
+            disponibilite: 'Tous les jours: 7h-22h',
+            details: {
+              certifications: ['Certification Eco-label'],
+              produitsEco: true,
+              photosTravaux: [
+                'https://example.com/menage1.jpg'
+              ]
+            }
+          },
+          {
+            id: 101,
+            nom: 'Youssef Jardinage',
+            service: 'Jardinage',
+            note: 4.6,
+            avis: 92,
+            distance: '3.2 km',
+            prix: '180-350 MAD',
+            pricingType: 'fixed', // Prix fixe pour l'entretien régulier
+            photo: 'https://randomuser.me/api/portraits/men/22.jpg',
+            localisation: [31.6200, -7.9900],
+            email: 'youssef@manzo.ma',
+            description: 'Entretien de jardins et espaces verts avec matériel professionnel.',
+            disponibilite: 'Lun-Sam: 7h-18h',
+            details: {
+              equipement: 'Tondeuse, taille-haie, souffleur',
+              produitsBio: true
+            }
+          },
+          {
+            id: 102,
+            nom: 'Karim Electric',
+            service: 'Électricité',
+            note: 4.8,
+            avis: 145,
+            distance: '2.8 km',
+            prix: '250-600 MAD',
+            pricingType: 'fixed', // Prix fixe pour les interventions standard
+            photo: 'https://randomuser.me/api/portraits/men/33.jpg',
+            localisation: [31.6300, -7.9750],
+            email: 'karim@manzo.ma',
+            description: 'Électricien certifié pour installations et dépannages.',
+            disponibilite: 'Lun-Ven: 8h-19h',
+            details: {
+              certifications: ['BEP Électricité', 'Certification NFC 15-100']
+            }
+          }
+        ],
+        Casablanca: [
+          {
+            id: 3,
+            nom: 'Karim Électricité',
+            service: 'Électricité',
+            note: 4.5,
+            avis: 95,
+            distance: '3.1 km',
+            prix: '250-500 MAD',
+            pricingType: 'fixed', // Prix fixe pour les dépannages
+            photo: 'https://randomuser.me/api/portraits/men/32.jpg',
+            localisation: [33.5731, -7.5898],
+            email: 'karim@manzo.ma',
+            description: 'Électricien certifié pour installations domestiques.',
+            disponibilite: 'Lun-Sam: 9h-19h',
+            details: {
+              certifications: ['BEP Électricité', 'Certification NFC 15-100'],
+              garantie: '2 ans sur les installations'
+            }
+          },
+          {
+            id: 201,
+            nom: 'Leila Nettoyage',
+            service: 'Ménage',
+            note: 4.7,
+            avis: 178,
+            distance: '1.5 km',
+            prix: '160-320 MAD',
+            pricingType: 'fixed', // Service standard avec prix fixe
+            photo: 'https://randomuser.me/api/portraits/women/25.jpg',
+            localisation: [33.5700, -7.5800],
+            email: 'leila@manzo.ma',
+            description: 'Service de ménage complet avec produits écologiques.',
+            disponibilite: 'Lun-Sam: 8h-20h',
+            details: {
+              produitsEco: true,
+              equipement: 'Aspirateur professionnel'
+            }
+          },
+          {
+            id: 202,
+            nom: 'Mehdi Informatique',
+            service: 'Informatique',
+            note: 4.9,
+            avis: 210,
+            distance: '2.3 km',
+            prix: '300-800 MAD',
+            pricingType: 'quote', // Dépannage informatique peut nécessiter un devis
+            photo: 'https://randomuser.me/api/portraits/men/45.jpg',
+            localisation: [33.5750, -7.5850],
+            email: 'mehdi@manzo.ma',
+            description: 'Dépannage informatique à domicile pour particuliers et professionnels.',
+            disponibilite: 'Lun-Dim: 9h-21h',
+            details: {
+              specialites: ['Hardware', 'Réseaux', 'Logiciels']
+            }
+          }
+        ],
+        Rabat: [
+          {
+            id: 301,
+            nom: 'Leila Couture',
+            service: 'Couture',
+            note: 4.8,
+            avis: 142,
+            distance: '1.5 km',
+            prix: '80-200 MAD',
+            pricingType: 'fixed', // Prix fixe pour les retouches standard
+            photo: 'https://randomuser.me/api/portraits/women/42.jpg',
+            localisation: [34.0209, -6.8416],
+            email: 'leila@manzo.ma',
+            description: 'Couturière expérimentée pour retouches et créations sur mesure.',
+            disponibilite: 'Mar-Sam: 9h-18h',
+            details: {
+              specialites: ['Retouches', 'Habits traditionnels', 'Création sur mesure']
+            }
+          },
+          {
+            id: 302,
+            nom: 'Mehdi Informatique',
+            service: 'Informatique',
+            note: 4.7,
+            avis: 98,
+            distance: '2.3 km',
+            prix: '200-500 MAD',
+            pricingType: 'quote', // Dépannage peut nécessiter un devis
+            photo: 'https://randomuser.me/api/portraits/men/45.jpg',
+            localisation: [34.0250, -6.8350],
+            email: 'mehdi@manzo.ma',
+            description: 'Dépannage informatique à domicile pour particuliers et professionnels.',
+            disponibilite: 'Lun-Ven: 8h-20h',
+            details: {
+              certifications: ['CISCO', 'Microsoft']
+            }
+          },
+          {
+            id: 303,
+            nom: 'Hassan Plomberie',
+            service: 'Plomberie',
+            note: 4.6,
+            avis: 115,
+            distance: '3.0 km',
+            prix: '220-450 MAD',
+            pricingType: 'fixed', // Prix fixe pour les interventions standard
+            photo: 'https://randomuser.me/api/portraits/men/50.jpg',
+            localisation: [34.0180, -6.8500],
+            email: 'hassan@manzo.ma',
+            description: 'Plombier professionnel pour dépannages et installations.',
+            disponibilite: 'Lun-Sam: 8h-19h'
+          }
+        ],
+        Tanger: [
+          {
+            id: 401,
+            nom: 'Youssef Jardinage',
+            service: 'Jardinage',
+            note: 4.6,
+            avis: 87,
+            distance: '3.0 km',
+            prix: '150-350 MAD',
+            pricingType: 'fixed', // Prix fixe pour l'entretien régulier
+            photo: 'https://randomuser.me/api/portraits/men/60.jpg',
+            localisation: [35.7595, -5.8340],
+            email: 'youssef@manzo.ma',
+            description: 'Entretien de jardins et espaces verts avec matériel professionnel.',
+            disponibilite: 'Lun-Sam: 7h-17h',
+            details: {
+              equipement: 'Tondeuse, taille-haie, souffleur'
+            }
+          },
+          {
+            id: 402,
+            nom: 'Nadia Beauté',
+            service: 'Coiffure',
+            note: 4.8,
+            avis: 134,
+            distance: '1.8 km',
+            prix: '120-300 MAD',
+            pricingType: 'fixed', // Prix fixe pour les services de coiffure
+            photo: 'https://randomuser.me/api/portraits/women/55.jpg',
+            localisation: [35.7600, -5.8300],
+            email: 'nadia@manzo.ma',
+            description: 'Coiffeuse à domicile pour femmes et enfants.',
+            disponibilite: 'Mar-Sam: 9h-19h'
+          }
+        ],
+        Agadir: [
+          {
+            id: 501,
+            nom: 'Nadia Massage',
+            service: 'Bien-être',
+            note: 4.9,
+            avis: 156,
+            distance: '1.8 km',
+            prix: '250-400 MAD',
+            pricingType: 'fixed', // Prix fixe pour les massages
+            photo: 'https://randomuser.me/api/portraits/women/65.jpg',
+            localisation: [30.4278, -9.5981],
+            email: 'nadia@manzo.ma',
+            description: 'Massothérapeute diplômée, spécialisée en massage relaxant et sportif.',
+            disponibilite: 'Tous les jours: 9h-21h',
+            details: {
+              certifications: ['Diplôme de massothérapie'],
+              typesMassage: ['Relaxant', 'Sportif', 'Ayurvédique']
+            }
+          },
+          {
+            id: 502,
+            nom: 'Karim Climatisation',
+            service: 'Climatisation',
+            note: 4.7,
+            avis: 112,
+            distance: '4.2 km',
+            prix: '300-600 MAD',
+            pricingType: 'quote', // Installation peut nécessiter un devis
+            photo: 'https://randomuser.me/api/portraits/men/70.jpg',
+            localisation: [30.4300, -9.6000],
+            email: 'karim-clim@manzo.ma',
+            description: 'Installation et réparation de climatiseurs toutes marques.',
+            disponibilite: 'Lun-Dim: 8h-20h',
+            details: {
+              marques: ['Daikin', 'LG', 'Samsung']
+            }
+          },
+          {
+            id: 503,
+            nom: 'Said Peinture',
+            service: 'Peinture',
+            note: 4.5,
+            avis: 89,
+            distance: '2.5 km',
+            prix: '200-500 MAD',
+            pricingType: 'quote', // Peinture peut nécessiter un devis selon surface
+            photo: 'https://randomuser.me/api/portraits/men/75.jpg',
+            localisation: [30.4250, -9.5950],
+            email: 'said@manzo.ma',
+            description: 'Peintre professionnel pour intérieur et extérieur.',
+            disponibilite: 'Lun-Sam: 8h-18h'
+          }
+        ],
+        Fes: [
+          {
+            id: 601,
+            nom: 'Ahmed Peinture',
+            service: 'Peinture',
+            note: 4.5,
+            avis: 76,
+            distance: '2.7 km',
+            prix: '180-400 MAD',
+            pricingType: 'quote', // Peinture nécessite généralement un devis
+            photo: 'https://randomuser.me/api/portraits/men/80.jpg',
+            localisation: [34.0333, -5.0000],
+            email: 'ahmed-peintre@manzo.ma',
+            description: 'Peintre professionnel pour intérieur et extérieur.',
+            disponibilite: 'Lun-Sam: 8h-19h',
+            details: {
+              typesPeinture: ['Acrylique', 'Glycéro', 'Naturelle']
+            }
+          },
+          {
+            id: 602,
+            nom: 'Fatima Ménage',
+            service: 'Ménage',
+            note: 4.7,
+            avis: 102,
+            distance: '1.2 km',
+            prix: '130-280 MAD',
+            pricingType: 'fixed', // Service standard avec prix fixe
+            photo: 'https://randomuser.me/api/portraits/women/85.jpg',
+            localisation: [34.0300, -5.0100],
+            email: 'fatima@manzo.ma',
+            description: 'Service de ménage complet avec produits naturels.',
+            disponibilite: 'Lun-Ven: 7h-18h'
+          }
+        ],
+        Oujda: [
+          {
+            id: 701,
+            nom: 'Samira Ménage',
+            service: 'Ménage',
+            note: 4.8,
+            avis: 134,
+            distance: '1.1 km',
+            prix: '120-250 MAD',
+            pricingType: 'fixed', // Service standard avec prix fixe
+            photo: 'https://randomuser.me/api/portraits/women/75.jpg',
+            localisation: [34.6867, -1.9114],
+            email: 'samira@manzo.ma',
+            description: 'Service de ménage complet avec produits naturels.',
+            disponibilite: 'Lun-Ven: 7h-18h',
+            details: {
+              produitsEco: true,
+              equipement: 'Aspirateur professionnel'
+            }
+          },
+          {
+            id: 702,
+            nom: 'Mohamed Electric',
+            service: 'Électricité',
+            note: 4.6,
+            avis: 87,
+            distance: '2.5 km',
+            prix: '200-450 MAD',
+            pricingType: 'fixed', // Prix fixe pour les interventions standard
+            photo: 'https://randomuser.me/api/portraits/men/90.jpg',
+            localisation: [34.6800, -1.9100],
+            email: 'mohamed@manzo.ma',
+            description: 'Électricien professionnel pour installations et dépannages.',
+            disponibilite: 'Lun-Sam: 8h-18h'
+          }
+        ],
+        Meknes: [
+          {
+            id: 801,
+            nom: 'Khalid Plomberie',
+            service: 'Plomberie',
+            note: 4.7,
+            avis: 112,
+            distance: '2.0 km',
+            prix: '180-400 MAD',
+            pricingType: 'fixed', // Prix fixe pour les interventions standard
+            photo: 'https://randomuser.me/api/portraits/men/95.jpg',
+            localisation: [33.8920, -5.5400],
+            email: 'khalid@manzo.ma',
+            description: 'Plombier professionnel pour dépannages et installations.',
+            disponibilite: 'Lun-Sam: 8h-19h'
+          },
+          {
+            id: 802,
+            nom: 'Aicha Couture',
+            service: 'Couture',
+            note: 4.9,
+            avis: 156,
+            distance: '1.3 km',
+            prix: '70-180 MAD',
+            pricingType: 'fixed', // Prix fixe pour les retouches standard
+            photo: 'https://randomuser.me/api/portraits/women/95.jpg',
+            localisation: [33.8950, -5.5350],
+            email: 'aicha@manzo.ma',
+            description: 'Couturière expérimentée pour retouches et créations.',
+            disponibilite: 'Mar-Sam: 9h-17h'
+          }
+        ],
+        Tetouan: [
+          {
+            id: 901,
+            nom: 'Yassin Jardinage',
+            service: 'Jardinage',
+            note: 4.5,
+            avis: 78,
+            distance: '3.2 km',
+            prix: '160-320 MAD',
+            pricingType: 'fixed', // Prix fixe pour l'entretien régulier
+            photo: 'https://randomuser.me/api/portraits/men/100.jpg',
+            localisation: [35.5762, -5.3684],
+            email: 'yassin@manzo.ma',
+            description: 'Entretien de jardins et espaces verts.',
+            disponibilite: 'Lun-Ven: 8h-17h'
+          },
+          {
+            id: 902,
+            nom: 'Leila Ménage',
+            service: 'Ménage',
+            note: 4.7,
+            avis: 98,
+            distance: '1.5 km',
+            prix: '140-260 MAD',
+            pricingType: 'fixed', // Service standard avec prix fixe
+            photo: 'https://randomuser.me/api/portraits/women/100.jpg',
+            localisation: [35.5800, -5.3700],
+            email: 'leila@manzo.ma',
+            description: 'Service de ménage complet avec produits écologiques.',
+            disponibilite: 'Lun-Sam: 8h-18h'
+          }
+        ]
+      };
+      export const villes = Object.keys(prestataires);
+
+      export const cityCoordinates = {
+        Marrakech: { lat: 31.6295, lng: -7.9811, zoom: 13 },
+        Casablanca: { lat: 33.5731, lng: -7.5898, zoom: 12 },
+        Rabat: { lat: 34.0209, lng: -6.8416, zoom: 13 },
+        Tanger: { lat: 35.7595, lng: -5.8340, zoom: 13 },
+        Agadir: { lat: 30.4278, lng: -9.5981, zoom: 13 },
+        Fes: { lat: 34.0333, lng: -5.0000, zoom: 13 },
+        Oujda: { lat: 34.6867, lng: -1.9114, zoom: 13 },
+        Meknes: { lat: 33.8920, lng: -5.5400, zoom: 13 },
+        Tetouan: { lat: 35.5762, lng: -5.3684, zoom: 13 }
+      };
   export const categories = [
     { id: 'all', name: 'Tous les services', icon: <FaHome /> },
     { id: 'menage', name: 'Ménage', icon: <FaTshirt /> },

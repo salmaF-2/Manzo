@@ -4,14 +4,14 @@ import Header from "./components/Header";
 import Footer from "./components/Footer";
 import ServiceFixe from "./pages/ServiceFixe";
 import ServiceDevis from "./pages/ServiceDevis";
-import ResultatsRecherche from "./pages/services/ResultatsRecherche";
+import ResultatsRecherche from "./pages/ResultatsRecherche";
 import Accueil from "./pages/Accueil";
 import CreerCompte from "./components/creerCompte";
 import Connexion from "./components/connexion";
 import InscriptionClient from "./components/inscriptionClient";
 
-
-
+import PrestatairesList from './pages/PrestatairesList';
+import VilleDetail from "./components/VilleDetail";
 
 const AppRoutes = () => {
   return (
@@ -29,7 +29,8 @@ const AppRoutes = () => {
         <Route path="/InscriptionClient" element={<InscriptionClient/>} />
         <Route path="/InscriptionPrestataire" element=''/>
         <Route path="/Seconnecter" element={<Connexion/>}/>
-
+        <Route path="/prestataires" element={<PrestatairesList />} />
+        <Route path="/ville/:ville" element={<VilleDetail />} />
       </Routes>
       <Footer/>
     </BrowserRouter>

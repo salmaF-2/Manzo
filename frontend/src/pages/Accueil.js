@@ -6,6 +6,7 @@ import image1 from '../assets/images/image1.png';
 import image2 from '../assets/images/image2.png';
 import PetitLogo from "../assets/images/manzo logo.png";
 // villes
+import {villes} from '../../src/data/data'
 import Agadir from "../assets/ImagesVilles/Agadir.jpeg";
 import CasaBlanca from "../assets/ImagesVilles/casa.jpeg";
 import Marrakech from "../assets/ImagesVilles/kesh.jpeg";
@@ -153,6 +154,11 @@ const Accueil = () => {
     const [index, setIndex] = useState(0);
     const [itemsPerPage, setItemsPerPage] = useState(4); 
 
+//lier avec la page de recherche
+        const [service, setService] = useState('');
+        const [location, setLocation] = useState('');
+
+
     useEffect(() => {
         const handleResize = () => {
             setItemsPerPage(window.innerWidth >= 1024 ? 8 : 4);
@@ -207,7 +213,7 @@ const Accueil = () => {
                     </div>
                     
                     {/* Formulaire sous le texte */}
-                    <div className="relative z-10 mt-6 bg-white p-5 shadow-lg flex flex-col sm:flex-row text-[#9BA5C8] w-full lg:w-[140%] rounded-lg overflow-visible gap-4" style={{ borderRadius: '50px' }}>
+                    {/* <div className="relative z-10 mt-6 bg-white p-5 shadow-lg flex flex-col sm:flex-row text-[#9BA5C8] w-full lg:w-[140%] rounded-lg overflow-visible gap-4" style={{ borderRadius: '50px' }}>
                         <div className="flex items-center flex-1 p-3 border rounded-lg lg:rounded-l-lg bg-white" style={{ borderRadius: '50px' }}>
                             <FaUser className="mr-2" />
                             <select className="flex-1 bg-transparent focus:outline-none">
@@ -224,7 +230,48 @@ const Accueil = () => {
                             <span className="mr-2">Recherche</span>
                             <FaSearch />
                         </button>
-                    </div>
+                    </div> */}
+<div className="relative z-10 mt-6 bg-white p-5 shadow-lg flex flex-col sm:flex-row text-[#9BA5C8] w-full lg:w-[140%] rounded-lg overflow-visible gap-4" style={{ borderRadius: '50px' }}>
+                <div className="flex items-center flex-1 p-3 border rounded-lg lg:rounded-l-lg bg-white" style={{ borderRadius: '50px' }}>
+                    <FaUser className="mr-2" />
+                    <select 
+                        className="flex-1 bg-transparent focus:outline-none"
+                        value={service}
+                        onChange={(e) => setService(e.target.value)}
+                    >
+                        <option value="" disabled>Sélectionner un service</option>
+                        <option value="Plomberie">Plomberie</option>
+                        <option value="Ménage">Ménage</option>
+                        <option value="Électricité">Électricité</option>
+                        <option value="Couture">Couture</option>
+                        <option value="Jardinage">Jardinage</option>
+                        <option value="Informatique">Informatique</option>
+                    </select>
+                </div>
+                <div className="flex items-center flex-1 p-3 border rounded-lg lg:rounded-none bg-white" style={{ borderRadius: '50px' }}>
+                    <FaMapMarkerAlt className="mr-2" />
+                    <select 
+                        className="flex-1 bg-transparent focus:outline-none"
+                        value={location}
+                        onChange={(e) => setLocation(e.target.value)}
+                    >
+                        <option value="">Sélectionner l'emplacement</option>
+                        {villes.sort().map((ville) => (
+    <option key={ville} value={ville}>{ville}</option>
+))}
+                    </select>
+                </div>
+                <Link 
+    to={service && location 
+        ? `/recherche?service=${encodeURIComponent(service)}&location=${encodeURIComponent(location)}`
+        : '#'}
+    className={`text-white px-6 py-3 flex items-center justify-center rounded-lg lg:rounded-r-lg ${!service || !location ? 'opacity-50 cursor-not-allowed' : ''}`} 
+    style={{ backgroundColor: '#434F83', borderRadius: '50px'}}
+>
+    <span className="mr-2">Recherche</span>
+    <FaSearch />
+</Link>
+            </div>
 
                 </div>      
                 {/* Images à droite */}
@@ -238,7 +285,7 @@ const Accueil = () => {
 
          
             {/* Partout Au Maroc  Partie 2 */}
-            <div className="relative bg-white">
+            {/* <div className="relative bg-white">
                 <div className="absolute top-0 left-0 right-0 flex justify-center z-20">
                     <img src={PetitLogo} alt="Manzo Logo" className="h-24 max-w-xs" />
                 </div>
@@ -268,8 +315,43 @@ const Accueil = () => {
                         </div>
                     </div>
                 </div>
-            </div> 
-            
+            </div>  */}
+           {/* Partout Au Maroc  Partie 2 */}
+<div className="relative bg-white">
+  <div className="absolute top-0 left-0 right-0 flex justify-center z-20">
+    <img src={PetitLogo} alt="Manzo Logo" className="h-24 max-w-xs" />
+  </div>
+
+  <div className="relative">
+    <img src={Vector2} alt="Background Image" className="w-full h-auto min-h-[1100px] object-cover z-10" />
+    <div className="absolute inset-0 flex items-center justify-center z-10 pt-16 pb-18 h-[900px]">
+      <div className="py-12 w-full max-w-6xl mx-auto rounded-lg px-4">
+        <div className="text-center">
+          <h2 className="text-4xl font-bold text-[#475489] mb-19 pt-24">PARTOUT AU MAROC</h2>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6 pt-10">
+            {services.map((service, index) => (
+              <Link 
+                key={index} 
+                to={`/ville/${service.city}`}
+                className="relative group overflow-hidden rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300"
+              >
+                <img 
+                  src={service.image} 
+                  alt={service.city} 
+                  className="w-full h-32 md:h-40 object-cover transition-transform duration-500 group-hover:scale-110"
+                />
+                <div className="absolute inset-0 bg-black bg-opacity-40 flex items-end p-4">
+                  <p className="text-white font-semibold text-sm md:text-base">Service à {service.city}</p>
+                </div>
+              </Link>
+            ))}
+          </div>
+         
+        </div>
+      </div>
+    </div>
+  </div>
+</div> 
 
 
             {/* PArtie 3  */}
