@@ -48,7 +48,6 @@ const AppRoutes = () => {
         <Route path="/Services-Prestataire" element={<ServicesP/>}/>
         <Route path="/Ajouter_service" element={<AjouterService/>}/>
         <Route path="/Modifier_service" element={<ModifierService/>}/>
-
         <Route path="/Demandes-Prestataire" element={<DemandesS/>}/>
         <Route path="/Rendez-vous-Prestataire" element={<RendezVousP/>}/>
         <Route path="/Historique-Prestataire" element={<HistoriqueP/>}/>
