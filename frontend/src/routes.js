@@ -26,7 +26,7 @@ import HistoriqueP from "./pages/Page_Prestataire/HistoriqueP";
 const AppRoutes = () => {
   return (
     <BrowserRouter>
-      <HeaderRole role='prestataire'/>
+      <HeaderRole/>
       <Routes>
         {/* accueil */}
         <Route path="/" element={<Accueil/> }/>
