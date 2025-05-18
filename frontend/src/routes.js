@@ -2,6 +2,11 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
+// salma fadili
+import ServiceFixe from "./pages/ServiceFixe";
+import ServiceDevis from "./pages/ServiceDevis";
+import ResultatsRecherche from "./pages/ResultatsRecherche";
+// salma 
 import Accueil from "./pages/Accueil";
 import CreerCompte from "./auth/creerCompte";
 import Connexion from "./auth/connexion";
@@ -23,6 +28,9 @@ import HistoriqueP from "./pages/Page_Prestataire/HistoriqueP";
 
 
 
+import PrestatairesList from './pages/PrestatairesList';
+import VilleDetail from "./components/VilleDetail";
+
 const AppRoutes = () => {
   return (
     <BrowserRouter>
@@ -32,16 +40,24 @@ const AppRoutes = () => {
         <Route path="/" element={<Accueil/> }/>
         <Route path="/DevenirPres" element="" />
         <Route path="/Contact" element="" />
-        <Route path="/serviceFixe" element="" />
-        <Route path="/serviceDevis" element="" />
 
-        {/* connexion inscription */}
+        {/* salma fadili */}
+        <Route path="/serviceFixe" element={<ServiceFixe/>} />
+        <Route path="/serviceDevis" element={<ServiceDevis/>} />
+        <Route path="/recherche" element={<ResultatsRecherche/>} />
+        {/* <Route path="/services/tout-le-maroc" element={<ServicesTousMaroc/>} /> */}
+        
+
+
+        {/* connexion inscription s*/}
         <Route path="/CreerCompte" element={<CreerCompte/>} />
         <Route path="/InscriptionClient" element={<InscriptionClient/>} />
         <Route path="/InscriptionPrestataire" element=''/>
         <Route path="/Seconnecter" element={<Connexion/>}/>
+        <Route path="/prestataires" element={<PrestatairesList />} />
+        <Route path="/ville/:ville" element={<VilleDetail />} />
 
-        {/* partie prestataire */}
+        {/* partie prestataire  s*/}
         <Route path="/DashboardPrestataire" element={<Dashboard/>}/>
         <Route path="/ProfilPrestataire" element={<ProfilP/>} />
         <Route path="/modifierProfil" element={<ModifierProfil/>} />
