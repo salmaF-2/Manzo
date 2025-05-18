@@ -178,7 +178,9 @@ const Accueil = () => {
     };
 
     
-
+    useEffect(() => {
+        window.scrollTo(0, 0);
+    }, []);
     //avis 
     const StarRating = ({ rating }) => {
         return (
