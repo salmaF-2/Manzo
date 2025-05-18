@@ -26,24 +26,25 @@ const ServiceDetails = () => {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <div className="bg-white rounded-xl shadow-md p-6 mb-8">
-        <div className="flex flex-col md:flex-row gap-6">
-          <div className="md:w-1/3">
-            <div className="bg-gray-200 h-64 rounded-lg flex items-center justify-center">
-              <Icon className="text-5xl text-blue-600" />
+      {/* Section détail du service */}
+      <div className="bg-white rounded-xl shadow-lg p-6 mb-8">
+        <div className="flex flex-col md:flex-row gap-6 items-center">
+          <div className="md:w-1/4">
+            <div className="bg-gradient-to-br from-blue-50 to-blue-100 h-48 w-full rounded-lg flex items-center justify-center">
+              <Icon className="text-6xl text-blue-600" />
             </div>
           </div>
           
-          <div className="md:w-2/3">
-            <h1 className="text-3xl font-bold mb-2">{service.title}</h1>
-            <p className="text-gray-600 mb-4">{service.description}</p>
+          <div className="md:w-3/4">
+            <h1 className="text-3xl font-bold mb-2 text-gray-800">{service.title}</h1>
+            <p className="text-gray-600 mb-4 text-lg">{service.description}</p>
             
-            <div className="mb-6">
-              <label className="block text-gray-700 mb-2">Ville :</label>
+            <div className="mb-4">
+              <label className="block text-gray-700 font-medium mb-2">Choisissez votre ville :</label>
               <select
                 value={city}
                 onChange={(e) => setCity(e.target.value)}
-                className="border border-gray-300 rounded-lg px-4 py-2 w-full md:w-auto"
+                className="border border-gray-300 rounded-lg px-4 py-2 w-full md:w-64 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
               >
                 {villes.map(ville => (
                   <option key={ville} value={ville}>{ville}</option>
@@ -54,23 +55,37 @@ const ServiceDetails = () => {
         </div>
       </div>
 
-      <h2 className="text-2xl font-semibold mb-6">
-        Prestataires disponibles à {city}
-      </h2>
-      
-      <div className="space-y-6">
+      {/* Section prestataires */}
+      <div className="mb-8">
+        <h2 className="text-2xl font-semibold mb-6 text-gray-800 border-b pb-2">
+          {filteredPrestataires.length} Prestataire{filteredPrestataires.length !== 1 ? 's' : ''} disponible{filteredPrestataires.length !== 1 ? 's' : ''} à {city}
+        </h2>
+        
         {filteredPrestataires.length > 0 ? (
-          filteredPrestataires.map(prestataire => (
-            <PrestataireCard 
-              key={prestataire.id} 
-              prestataire={prestataire}
-              city={city}
-            />
-          ))
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filteredPrestataires.map(prestataire => (
+              <PrestataireCard 
+                key={prestataire.id} 
+                prestataire={prestataire}
+                city={city}
+              />
+            ))}
+          </div>
         ) : (
-          <div className="bg-white p-8 rounded-xl shadow-md text-center">
-            <h3 className="text-xl font-bold mb-2">Aucun prestataire disponible</h3>
-            <p className="text-gray-600">Essayez de modifier la ville ou revenez plus tard.</p>
+          <div className="bg-white p-8 rounded-xl shadow-md text-center max-w-2xl mx-auto">
+            <div className="text-blue-500 mb-4">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-16 w-16 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            <h3 className="text-xl font-bold mb-2 text-gray-800">Aucun prestataire disponible</h3>
+            <p className="text-gray-600 mb-4">Essayez de modifier la ville ou revenez plus tard.</p>
+            <button 
+              onClick={() => setCity('Marrakech')} 
+              className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+            >
+              Réinitialiser la ville
+            </button>
           </div>
         )}
       </div>

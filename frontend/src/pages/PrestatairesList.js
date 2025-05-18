@@ -1,6 +1,7 @@
+import { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { prestataires } from '../data/data';
-import { FaStar, FaMapMarkerAlt, FaArrowLeft, FaCalendarAlt } from 'react-icons/fa';
+import { FaStar, FaMapMarkerAlt, FaArrowLeft, FaCalendarAlt, FaChevronLeft, FaChevronRight } from 'react-icons/fa';
 import { IoMdChatboxes } from 'react-icons/io';
 import { motion } from 'framer-motion';
 import { fadeIn, staggerContainer } from '../utils/motion';
@@ -23,23 +24,35 @@ const PrestatairesList = () => {
   const navigate = useNavigate();
   const { service: serviceFromState, pricingType } = location.state || {};
   
+  // État pour la pagination
+  const [currentPage, setCurrentPage] = useState(1);
+  const [prestatairesPerPage] = useState(9);
+  const [prestatairesByCity, setPrestatairesByCity] = useState({});
+
   const getProviderServiceName = () => serviceMapping[serviceFromState] || serviceFromState;
   const allPrestataires = Object.values(prestataires).flat();
   const providerServiceName = getProviderServiceName();
 
-  const filteredPrestataires = allPrestataires.filter(prestataire => {
-    return prestataire.service === providerServiceName && 
-          (!pricingType || prestataire.pricingType === pricingType);
-  });
+  useEffect(() => {
+    // Filtrer les prestataires
+    const filteredPrestataires = allPrestataires.filter(prestataire => {
+      return prestataire.service === providerServiceName && 
+            (!pricingType || prestataire.pricingType === pricingType);
+    });
 
-  const prestatairesByCity = filteredPrestataires.reduce((acc, prestataire) => {
-    const city = Object.keys(prestataires).find(city => 
-      prestataires[city].some(p => p.id === prestataire.id)
-    ) || 'Autre';
-    if (!acc[city]) acc[city] = [];
-    acc[city].push(prestataire);
-    return acc;
-  }, {});
+    // Grouper par ville
+    const groupedByCity = filteredPrestataires.reduce((acc, prestataire) => {
+      const city = Object.keys(prestataires).find(city => 
+        prestataires[city].some(p => p.id === prestataire.id)
+      ) || 'Autre';
+      if (!acc[city]) acc[city] = [];
+      acc[city].push(prestataire);
+      return acc;
+    }, {});
+
+    setPrestatairesByCity(groupedByCity);
+    setCurrentPage(1); // Réinitialiser la pagination quand les filtres changent
+  }, [serviceFromState, pricingType]);
 
   const handleReservation = (prestataireId) => {
     navigate('/reservation', { state: { prestataireId } });
@@ -47,6 +60,94 @@ const PrestatairesList = () => {
 
   const handleChat = (prestataireId) => {
     navigate('/chat', { state: { prestataireId } });
+  };
+
+  // Pagination logic
+  const paginate = (cityPrestataires, pageNumber) => {
+    const startIndex = (pageNumber - 1) * prestatairesPerPage;
+    return cityPrestataires.slice(startIndex, startIndex + prestatairesPerPage);
+  };
+
+  const totalPages = (prestataires) => Math.ceil(prestataires.length / prestatairesPerPage);
+
+  const PaginationControls = ({ currentPage, totalPages, onPageChange }) => {
+    const maxVisiblePages = 5;
+    let startPage, endPage;
+    
+    if (totalPages <= maxVisiblePages) {
+      startPage = 1;
+      endPage = totalPages;
+    } else {
+      const maxPagesBeforeCurrent = Math.floor(maxVisiblePages / 2);
+      const maxPagesAfterCurrent = Math.ceil(maxVisiblePages / 2) - 1;
+      
+      if (currentPage <= maxPagesBeforeCurrent) {
+        startPage = 1;
+        endPage = maxVisiblePages;
+      } else if (currentPage + maxPagesAfterCurrent >= totalPages) {
+        startPage = totalPages - maxVisiblePages + 1;
+        endPage = totalPages;
+      } else {
+        startPage = currentPage - maxPagesBeforeCurrent;
+        endPage = currentPage + maxPagesAfterCurrent;
+      }
+    }
+
+    const pages = Array.from({ length: (endPage - startPage + 1) }, (_, i) => startPage + i);
+
+    return (
+      <div className="flex items-center justify-center mt-8">
+        <button
+          onClick={() => onPageChange(Math.max(1, currentPage - 1))}
+          disabled={currentPage === 1}
+          className={`mx-1 px-3 py-1 rounded-lg ${currentPage === 1 ? 'text-gray-400 cursor-not-allowed' : 'text-[#5869A3] hover:bg-[#5869A3]/10'}`}
+        >
+          <FaChevronLeft />
+        </button>
+
+        {startPage > 1 && (
+          <>
+            <button
+              onClick={() => onPageChange(1)}
+              className={`mx-1 px-3 py-1 rounded-lg ${1 === currentPage ? 'bg-[#5869A3] text-white' : 'text-[#5869A3] hover:bg-[#5869A3]/10'}`}
+            >
+              1
+            </button>
+            {startPage > 2 && <span className="mx-1">...</span>}
+          </>
+        )}
+
+        {pages.map(page => (
+          <button
+            key={page}
+            onClick={() => onPageChange(page)}
+            className={`mx-1 px-3 py-1 rounded-lg ${page === currentPage ? 'bg-[#5869A3] text-white' : 'text-[#5869A3] hover:bg-[#5869A3]/10'}`}
+          >
+            {page}
+          </button>
+        ))}
+
+        {endPage < totalPages && (
+          <>
+            {endPage < totalPages - 1 && <span className="mx-1">...</span>}
+            <button
+              onClick={() => onPageChange(totalPages)}
+              className={`mx-1 px-3 py-1 rounded-lg ${totalPages === currentPage ? 'bg-[#5869A3] text-white' : 'text-[#5869A3] hover:bg-[#5869A3]/10'}`}
+            >
+              {totalPages}
+            </button>
+          </>
+        )}
+
+        <button
+          onClick={() => onPageChange(Math.min(totalPages, currentPage + 1))}
+          disabled={currentPage === totalPages}
+          className={`mx-1 px-3 py-1 rounded-lg ${currentPage === totalPages ? 'text-gray-400 cursor-not-allowed' : 'text-[#5869A3] hover:bg-[#5869A3]/10'}`}
+        >
+          <FaChevronRight />
+        </button>
+      </div>
+    );
   };
 
   return (
@@ -73,117 +174,132 @@ const PrestatairesList = () => {
             Prestataires pour {serviceFromState}
           </h1>
           <p className="text-lg text-gray-600">
-            {filteredPrestataires.length} prestataires disponibles
+            {Object.values(prestatairesByCity).flat().length} prestataires disponibles
             {pricingType === 'fixed' && ' (Prix fixes)'}
             {pricingType === 'quote' && ' (Sur devis)'}
           </p>
         </motion.div>
 
-        {Object.entries(prestatairesByCity).map(([city, prestataires], index) => (
-          <motion.div 
-            key={city}
-            variants={fadeIn('up', 'spring', index * 0.1, 0.75)}
-            className="mb-16"
-          >
-            <h2 className="text-2xl font-semibold text-[#5869A3] mb-6 flex items-center">
-              <FaMapMarkerAlt className="mr-2" />
-              {city}
-            </h2>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {prestataires.map((prestataire, idx) => (
-                <motion.div
-                  key={prestataire.id}
-                  whileHover={{ y: -10, boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1)" }}
-                  whileTap={{ scale: 0.98 }}
-                  initial={{ opacity: 0, y: 50 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: idx * 0.1 }}
-                  className="bg-white rounded-2xl overflow-hidden shadow-lg transition-all duration-300 border border-gray-200 hover:border-[#5869A3]/30 relative"
-                >
-                  <div className="relative h-40 bg-gradient-to-r from-[#5869A3] to-[#48578A]">
-                    <div className="absolute -bottom-6 left-6 z-10">
-                      <motion.div 
-                        whileHover={{ scale: 1.05 }}
-                        className="relative"
-                      >
-                        <div className="w-16 h-16 rounded-full border-4 border-white shadow-xl overflow-hidden">
-                          <img
-                            src={prestataire.photo}
-                            alt={prestataire.nom}
-                            className="w-full h-full object-cover"
-                            onError={(e) => e.target.src = '/default-profile.jpg'}
-                          />
-                        </div>
-                        <div className="absolute -bottom-1 -right-1 bg-yellow-400 text-white rounded-full p-1 shadow-md">
-                          <FaStar className="text-xs" />
-                        </div>
-                      </motion.div>
-                    </div>
-                  </div>
-                  
-                  <div className="p-6 pt-10">
-                    <div className="flex justify-between items-start mb-3">
-                      <motion.h3 
-                        whileHover={{ color: '#48578A' }}
-                        className="text-xl font-bold text-gray-800 transition-colors duration-300"
-                      >
-                        {prestataire.nom}
-                      </motion.h3>
-                      <div className="flex items-center bg-yellow-50 px-3 py-1 rounded-full shadow-inner">
-                        <FaStar className="text-yellow-500 mr-1 text-sm" />
-                        <span className="text-sm font-medium">{prestataire.note}</span>
+        {Object.entries(prestatairesByCity).map(([city, cityPrestataires], index) => {
+          const totalCityPages = totalPages(cityPrestataires);
+          const paginatedPrestataires = totalCityPages > 1 
+            ? paginate(cityPrestataires, currentPage) 
+            : cityPrestataires;
+
+          return (
+            <motion.div 
+              key={city}
+              variants={fadeIn('up', 'spring', index * 0.1, 0.75)}
+              className="mb-16"
+            >
+              <h2 className="text-2xl font-semibold text-[#5869A3] mb-6 flex items-center">
+                <FaMapMarkerAlt className="mr-2" />
+                {city} <span className="ml-2 text-sm font-normal text-gray-500">({cityPrestataires.length} prestataires)</span>
+              </h2>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {paginatedPrestataires.map((prestataire, idx) => (
+                  <motion.div
+                    key={prestataire.id}
+                    whileHover={{ y: -10, boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1)" }}
+                    whileTap={{ scale: 0.98 }}
+                    initial={{ opacity: 0, y: 50 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5, delay: idx * 0.1 }}
+                    className="bg-white rounded-2xl overflow-hidden shadow-lg transition-all duration-300 border border-gray-200 hover:border-[#5869A3]/30 relative"
+                  >
+                    <div className="relative h-40 bg-gradient-to-r from-[#5869A3] to-[#48578A]">
+                      <div className="absolute -bottom-6 left-6 z-10">
+                        <motion.div 
+                          whileHover={{ scale: 1.05 }}
+                          className="relative"
+                        >
+                          <div className="w-16 h-16 rounded-full border-4 border-white shadow-xl overflow-hidden">
+                            <img
+                              src={prestataire.photo}
+                              alt={prestataire.nom}
+                              className="w-full h-full object-cover"
+                              onError={(e) => e.target.src = '/default-profile.jpg'}
+                            />
+                          </div>
+                          <div className="absolute -bottom-1 -right-1 bg-yellow-400 text-white rounded-full p-1 shadow-md">
+                            <FaStar className="text-xs" />
+                          </div>
+                        </motion.div>
                       </div>
                     </div>
                     
-                    <motion.p 
-                      whileHover={{ color: '#5869A3' }}
-                      className="text-gray-600 text-sm mb-4 transition-colors duration-300 min-h-[60px]"
-                    >
-                      {prestataire.description}
-                    </motion.p>
-                    
-                    <div className="flex items-center text-gray-500 text-sm mb-4">
-                      <FaMapMarkerAlt className="mr-2 text-[#5869A3]" />
-                      <span>{prestataire.distance}</span>
-                    </div>
-                    
-                    <div className="flex justify-between items-center mb-6">
-                      <span className="text-lg font-bold text-[#5869A3]">
-                        {prestataire.prix}
-                        {prestataire.pricingType === 'quote' && ' (sur devis)'}
-                      </span>
-                      <span className="text-xs bg-gray-100 text-gray-600 px-3 py-1 rounded-full">
-                        {prestataire.disponibilite}
-                      </span>
-                    </div>
-                    
-                    <div className="flex gap-3">
-                      <motion.button
-                        whileHover={{ scale: 1.05, backgroundColor: '#F0F4FF' }}
-                        whileTap={{ scale: 0.95 }}
-                        onClick={() => handleChat(prestataire.id)}
-                        className="flex-1 bg-white border-2 border-[#5869A3] text-[#5869A3] hover:text-[#48578A] py-2 rounded-xl font-medium transition-all duration-300 flex items-center justify-center"
+                    <div className="p-6 pt-10">
+                      <div className="flex justify-between items-start mb-3">
+                        <motion.h3 
+                          whileHover={{ color: '#48578A' }}
+                          className="text-xl font-bold text-gray-800 transition-colors duration-300"
+                        >
+                          {prestataire.nom}
+                        </motion.h3>
+                        <div className="flex items-center bg-yellow-50 px-3 py-1 rounded-full shadow-inner">
+                          <FaStar className="text-yellow-500 mr-1 text-sm" />
+                          <span className="text-sm font-medium">{prestataire.note}</span>
+                        </div>
+                      </div>
+                      
+                      <motion.p 
+                        whileHover={{ color: '#5869A3' }}
+                        className="text-gray-600 text-sm mb-4 transition-colors duration-300 min-h-[60px]"
                       >
-                        <IoMdChatboxes className="mr-2 text-lg" /> Chat
-                      </motion.button>
-                      <motion.button
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                        onClick={() => handleReservation(prestataire.id)}
-                        className="flex-1 bg-gradient-to-r from-[#5869A3] to-[#48578A] hover:from-[#48578A] hover:to-[#5869A3] text-white py-2 rounded-xl font-medium transition-all duration-300 flex items-center justify-center shadow-md"
-                      >
-                        <FaCalendarAlt className="mr-2" /> Réserver
-                      </motion.button>
+                        {prestataire.description}
+                      </motion.p>
+                      
+                      <div className="flex items-center text-gray-500 text-sm mb-4">
+                        <FaMapMarkerAlt className="mr-2 text-[#5869A3]" />
+                        <span>{prestataire.distance}</span>
+                      </div>
+                      
+                      <div className="flex justify-between items-center mb-6">
+                        <span className="text-lg font-bold text-[#5869A3]">
+                          {prestataire.prix}
+                          {prestataire.pricingType === 'quote' && ' (sur devis)'}
+                        </span>
+                        <span className="text-xs bg-gray-100 text-gray-600 px-3 py-1 rounded-full">
+                          {prestataire.disponibilite}
+                        </span>
+                      </div>
+                      
+                      <div className="flex gap-3">
+                        <motion.button
+                          whileHover={{ scale: 1.05, backgroundColor: '#F0F4FF' }}
+                          whileTap={{ scale: 0.95 }}
+                          onClick={() => handleChat(prestataire.id)}
+                          className="flex-1 bg-white border-2 border-[#5869A3] text-[#5869A3] hover:text-[#48578A] py-2 rounded-xl font-medium transition-all duration-300 flex items-center justify-center"
+                        >
+                          <IoMdChatboxes className="mr-2 text-lg" /> Chat
+                        </motion.button>
+                        <motion.button
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                          onClick={() => handleReservation(prestataire.id)}
+                          className="flex-1 bg-gradient-to-r from-[#5869A3] to-[#48578A] hover:from-[#48578A] hover:to-[#5869A3] text-white py-2 rounded-xl font-medium transition-all duration-300 flex items-center justify-center shadow-md"
+                        >
+                          <FaCalendarAlt className="mr-2" /> Réserver
+                        </motion.button>
+                      </div>
                     </div>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
-          </motion.div>
-        ))}
+                  </motion.div>
+                ))}
+              </div>
 
-        {filteredPrestataires.length === 0 && (
+              {totalCityPages > 1 && (
+                <PaginationControls 
+                  currentPage={currentPage} 
+                  totalPages={totalCityPages} 
+                  onPageChange={setCurrentPage} 
+                />
+              )}
+            </motion.div>
+          );
+        })}
+
+        {Object.values(prestatairesByCity).flat().length === 0 && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}

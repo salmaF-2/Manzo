@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { prestataires, servicesFixes, servicesDevis } from '../data/data';
 import { FaStar, FaMapMarkerAlt, FaClock, FaQuoteLeft } from 'react-icons/fa';
@@ -99,6 +99,11 @@ const VilleDetail = () => {
   const [currentSlide, setCurrentSlide] = React.useState(0);
   const [serviceType, setServiceType] = React.useState('all');
   
+  // Effet pour scroller vers le haut au chargement
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [ville]);
+
   const filteredServices = [...servicesFixes, ...servicesDevis].filter(
     service => service.ville === ville
   );
@@ -121,129 +126,122 @@ const VilleDetail = () => {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      {/* En-tête avec image de la ville - Animation de fondu et zoom */}
-      <div className="relative h-96 rounded-lg overflow-hidden mb-8 shadow-lg group">
+      {/* En-tête avec image de la ville - Version corrigée */}
+      <div className="relative h-64 md:h-96 rounded-xl overflow-hidden mb-8 shadow-lg">
         <img 
           src={villeImages[ville]} 
           alt={ville}
-          className="w-full h-full object-cover brightness-75 transition-all duration-500 group-hover:scale-105"
+          className="w-full h-full object-cover brightness-75"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-black to-transparent flex items-end p-6">
-          <div className="w-full transform transition-all duration-700 delay-100 translate-y-10 group-hover:translate-y-0">
-            <h1 className="text-4xl md:text-5xl font-bold text-white mb-2 animate-fade-in">Services à {ville}</h1>
-            <p className="text-xl text-white opacity-90 animate-fade-in animate-delay-100">
-              Trouvez les meilleurs prestataires près de chez vous
-            </p>
-          </div>
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/80 flex flex-col justify-end p-6">
+          <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-2">
+            Services à {ville}
+          </h1>
+          <p className="text-lg md:text-xl text-white/90">
+            Trouvez les meilleurs prestataires près de chez vous
+          </p>
         </div>
       </div>
 
-      {/* Description de la ville - Animation de glissement */}
-      <div className="bg-white rounded-lg p-6 shadow-md mb-8 transition-all duration-500 hover:shadow-xl transform hover:-translate-y-1">
-        <h2 className="text-2xl font-semibold text-[#475489] mb-4 animate-fade-in">Découvrez {ville}</h2>
-        <p className="text-gray-600 animate-fade-in animate-delay-100">
+      {/* Description de la ville */}
+      <div className="bg-white rounded-lg p-6 shadow-sm mb-8">
+        <h2 className="text-2xl font-semibold text-gray-800 mb-4">Découvrez {ville}</h2>
+        <p className="text-gray-600">
           {ville} est une ville dynamique offrant une gamme complète de services à domicile. 
           Nos prestataires sont soigneusement sélectionnés pour leur professionnalisme et leur savoir-faire.
           Trouvez ci-dessous les services disponibles dans votre région.
         </p>
       </div>
 
-      {/* Liste des prestataires - Animation de carrousel */}
-      <section className="mb-12 animate-fade-in-up">
-        <h2 className="text-2xl font-bold text-[#475489] mb-6 animate-fade-in">Prestataires vérifiés à {ville}</h2>
-        <div className="relative">
-          <div className="flex overflow-x-auto scrollbar-hide space-x-4 pb-4">
-            {villeData.slice(currentSlide, currentSlide + 4).map((prestataire, index) => (
-              <div 
-                key={index} 
-                className="flex-shrink-0 w-72 bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-all duration-300 hover:scale-105"
-              >
-                <div className="relative h-48 group">
-                  <img 
-                    src={serviceImages[prestataire.service] || villeImages[ville]} 
-                    alt={prestataire.service}
-                    className="w-full h-full object-cover brightness-50 group-hover:brightness-75 transition-all duration-300"
-                  />
-                  <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 transition-all duration-500 group-hover:scale-110">
-                    <img 
-                      src={prestataire.photo} 
-                      alt={prestataire.nom}
-                      className="w-20 h-20 rounded-full border-4 border-white object-cover shadow-md"
-                    />
-                  </div>
-                  <div className="absolute top-2 right-2 bg-white rounded-full p-1 transition-all duration-300 hover:scale-110">
-                    <CheckCircleIcon className="h-5 w-5 text-green-500" />
-                  </div>
-                </div>
-                <div className="p-4 text-center transition-all duration-300 group-hover:bg-gray-50">
-                  <h3 className="font-bold text-lg animate-fade-in">{prestataire.nom}</h3>
-                  <p className="text-sm text-gray-600 mb-2 animate-fade-in animate-delay-100">{prestataire.service}</p>
-                  <div className="flex justify-center items-center mb-2 animate-fade-in animate-delay-150">
-                    <FaStar className="text-yellow-400 mr-1 animate-bounce" />
-                    <span className="font-semibold">{prestataire.note}</span>
-                    <span className="text-gray-500 text-sm ml-1">({prestataire.avis} avis)</span>
-                  </div>
-                  <div className="flex justify-center items-center animate-fade-in animate-delay-200">
-                    <span className="text-sm text-gray-600">
-                      <FaMapMarkerAlt className="inline mr-1" />
-                      {prestataire.distance}
-                    </span>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
+      {/* Liste des prestataires */}
+      <section className="mb-12">
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-2xl font-bold text-gray-800">Prestataires vérifiés à {ville}</h2>
           {villeData.length > 4 && (
-            <>
+            <div className="flex space-x-2">
               <button 
                 onClick={prevSlide}
-                className="absolute left-0 top-1/2 -translate-y-1/2 bg-white rounded-full p-2 shadow-md hover:bg-gray-100 z-10 transition-all duration-300 hover:scale-110"
+                className="p-2 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors"
                 disabled={currentSlide === 0}
               >
-                <ChevronLeftIcon className="h-6 w-6 text-gray-700" />
+                <ChevronLeftIcon className="h-5 w-5 text-gray-700" />
               </button>
               <button 
                 onClick={nextSlide}
-                className="absolute right-0 top-1/2 -translate-y-1/2 bg-white rounded-full p-2 shadow-md hover:bg-gray-100 z-10 transition-all duration-300 hover:scale-110"
+                className="p-2 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors"
                 disabled={currentSlide >= villeData.length - 4}
               >
-                <ChevronRightIcon className="h-6 w-6 text-gray-700" />
+                <ChevronRightIcon className="h-5 w-5 text-gray-700" />
               </button>
-            </>
+            </div>
           )}
+        </div>
+        
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          {villeData.slice(currentSlide, currentSlide + 4).map((prestataire, index) => (
+            <div 
+              key={index} 
+              className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow"
+            >
+              <div className="relative h-48">
+                <img 
+                  src={serviceImages[prestataire.service] || villeImages[ville]} 
+                  alt={prestataire.service}
+                  className="w-full h-full object-cover"
+                />
+                <div className="absolute -bottom-6 left-1/2 transform -translate-x-1/2">
+                  <div className="w-12 h-12 rounded-full border-4 border-white bg-white shadow-md overflow-hidden">
+                    <img 
+                      src={prestataire.photo} 
+                      alt={prestataire.nom}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                </div>
+              </div>
+              <div className="pt-8 pb-4 px-4 text-center">
+                <h3 className="font-bold text-lg mb-1">{prestataire.nom}</h3>
+                <p className="text-sm text-gray-600 mb-3">{prestataire.service}</p>
+                <div className="flex justify-center items-center mb-2">
+                  <FaStar className="text-yellow-400 mr-1" />
+                  <span className="font-semibold">{prestataire.note}</span>
+                  <span className="text-gray-500 text-sm ml-1">({prestataire.avis} avis)</span>
+                </div>
+                <div className="text-sm text-gray-600">
+                  <FaMapMarkerAlt className="inline mr-1" />
+                  {prestataire.distance}
+                </div>
+              </div>
+            </div>
+          ))}
         </div>
       </section>
 
-      {/* Liste des services - Animation de grille */}
+      {/* Liste des services */}
       <section className="mb-12">
-        <h2 className="text-2xl font-bold text-[#475489] mb-6 animate-fade-in">Services disponibles</h2>
+        <h2 className="text-2xl font-bold text-gray-800 mb-6">Services disponibles</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {servicesToDisplay.map((service, index) => (
             <div 
               key={index} 
-              className="bg-white rounded-lg shadow-md overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1 animate-fade-in-up"
-              style={{ animationDelay: `${index * 100}ms` }}
+              className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow"
             >
-              <div className="h-48 overflow-hidden relative group">
+              <div className="h-48 overflow-hidden">
                 <img 
                   src={villeImages[ville]} 
                   alt={service.title}
-                  className="w-full h-full object-cover brightness-75 transition-all duration-500 group-hover:scale-110"
+                  className="w-full h-full object-cover"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black to-transparent flex items-end p-4">
-                  <h3 className="font-bold text-lg text-white transform transition-all duration-500 translate-y-5 group-hover:translate-y-0">
-                    {service.title}
-                  </h3>
-                </div>
               </div>
-              <div className="p-4 transition-all duration-300 group-hover:bg-gray-50">
-                <p className="text-gray-600 text-sm mb-3 animate-fade-in">{service.description}</p>
-                <div className="flex justify-between items-center animate-fade-in animate-delay-100">
-                  <span className="text-sm text-gray-600">
+              <div className="p-4">
+                <h3 className="font-bold text-lg mb-2">{service.title}</h3>
+                <p className="text-gray-600 text-sm mb-3">{service.description}</p>
+                <div className="flex justify-between items-center text-sm">
+                  <span className="text-gray-600">
                     <FaClock className="inline mr-1" />
                     {service.duration}
                   </span>
-                  <span className="font-semibold text-[#475489]">
+                  <span className="font-semibold text-blue-600">
                     {service.price ? `${service.price} MAD` : 'Sur devis'}
                   </span>
                 </div>
@@ -253,36 +251,35 @@ const VilleDetail = () => {
         </div>
       </section>
 
-      {/* Avis des clients - Animation de carte */}
+      {/* Avis des clients */}
       {villeAvis[ville] && (
         <section className="mb-12">
-          <h2 className="text-2xl font-bold text-[#475489] mb-6 animate-fade-in">Avis des clients à {ville}</h2>
+          <h2 className="text-2xl font-bold text-gray-800 mb-6">Avis des clients à {ville}</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {villeAvis[ville].map((avis, index) => (
               <div 
                 key={index} 
-                className="bg-white rounded-lg shadow-md p-6 transition-all duration-300 hover:shadow-xl hover:-translate-y-1 animate-fade-in-up"
-                style={{ animationDelay: `${index * 150}ms` }}
+                className="bg-white rounded-lg shadow-md p-6"
               >
                 <div className="flex items-center mb-4">
                   <div className="flex items-center mr-4">
                     {[...Array(5)].map((_, i) => (
                       <FaStar 
                         key={i} 
-                        className={`text-xl transition-all duration-300 ${i < Math.floor(avis.note) ? 'text-yellow-400 hover:scale-125' : 'text-gray-300 hover:scale-110'}`}
+                        className={`${i < Math.floor(avis.note) ? 'text-yellow-400' : 'text-gray-300'}`}
                       />
                     ))}
                   </div>
                   <span className="font-semibold">{avis.note}/5</span>
                 </div>
-                <div className="relative mb-4 group">
-                  <FaQuoteLeft className="text-gray-300 text-3xl absolute -top-2 -left-2 transition-all duration-300 group-hover:text-[#475489]" />
-                  <p className="text-gray-600 pl-6 italic transition-all duration-300 group-hover:text-gray-800">
+                <div className="relative mb-4">
+                  <FaQuoteLeft className="text-gray-300 text-3xl absolute -top-2 -left-2" />
+                  <p className="text-gray-600 pl-6 italic">
                     {avis.commentaire}
                   </p>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="font-semibold text-gray-700 transition-all duration-300 hover:text-[#475489]">
+                  <span className="font-semibold text-gray-700">
                     {avis.nom}
                   </span>
                   <span className="text-sm text-gray-500">
@@ -295,33 +292,33 @@ const VilleDetail = () => {
         </section>
       )}
 
-      {/* Pagination - Animation de boutons */}
+      {/* Pagination */}
       {servicesToDisplay.length > 9 && (
-        <div className="flex justify-center mb-8 animate-fade-in">
+        <div className="flex justify-center mb-8">
           <nav className="flex items-center space-x-2">
-            <button className="px-3 py-1 rounded-md bg-gray-200 text-gray-700 transition-all duration-300 hover:bg-gray-300 hover:scale-105">
+            <button className="px-3 py-1 rounded-md bg-gray-200 text-gray-700 hover:bg-gray-300">
               &laquo;
             </button>
-            <button className="px-3 py-1 rounded-md bg-[#5869A3] text-white transition-all duration-300 transform hover:scale-110">
+            <button className="px-3 py-1 rounded-md bg-blue-600 text-white">
               1
             </button>
             {servicesToDisplay.length > 9 && (
-              <button className="px-3 py-1 rounded-md bg-gray-200 text-gray-700 transition-all duration-300 hover:bg-gray-300 hover:scale-105">
+              <button className="px-3 py-1 rounded-md bg-gray-200 text-gray-700 hover:bg-gray-300">
                 2
               </button>
             )}
-            <button className="px-3 py-1 rounded-md bg-gray-200 text-gray-700 transition-all duration-300 hover:bg-gray-300 hover:scale-105">
+            <button className="px-3 py-1 rounded-md bg-gray-200 text-gray-700 hover:bg-gray-300">
               &raquo;
             </button>
           </nav>
         </div>
       )}
 
-      {/* Lien de retour - Animation de bouton */}
-      <div className="mt-8 text-center animate-fade-in">
+      {/* Lien de retour */}
+      <div className="text-center">
         <Link 
           to="/" 
-          className="inline-flex items-center px-4 py-2 bg-[#5869A3] text-white rounded-full hover:bg-[#475489] transition-all duration-300 transform hover:scale-105 shadow-md hover:shadow-lg"
+          className="inline-flex items-center px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors shadow-md"
         >
           Retour à l'accueil
         </Link>

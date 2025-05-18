@@ -691,6 +691,7 @@ import {
               ]
             }
           },
+          
           {
             id: 2,
             nom: 'Fatima Ménage',
@@ -749,7 +750,38 @@ import {
             details: {
               certifications: ['BEP Électricité', 'Certification NFC 15-100']
             }
-          }
+          },{
+  id: 2,
+  nom: 'Karim Plomberie Express',
+  service: 'Plomberie',
+  note: 4.9,
+  avis: 215,
+  distance: '1.8 km',
+  prix: '150-350 MAD',
+  pricingType: 'fixed',
+  photo: 'https://randomuser.me/api/portraits/men/32.jpg',
+  localisation: [31.6259, -7.9893],
+  email: 'karim@plomberie-express.ma',
+  description: 'Service rapide et efficace 24h/24 pour vos urgences plomberie.',
+  disponibilite: '7j/7 - 24h/24',
+  details: {
+    specialites: ['Dépannage urgent', 'Chauffe-eau', 'Canalisations'],
+    certifications: ['BTS Fluides', 'Certifié Vinci Energies'],
+    equipement: 'Camion atelier équipé',
+    garantie: '2 ans sur les installations',
+    langues: ['Arabe', 'Français', 'Anglais'],
+    photosTravaux: [
+      'https://example.com/karim1.jpg',
+      'https://example.com/karim2.jpg'
+    ],
+    services: [
+      'Réparation fuites',
+      'Installation sanitaire',
+      'Détection fuites',
+      'Débouchage'
+    ]
+  }
+},
         ],
         Casablanca: [
           {
@@ -949,7 +981,99 @@ import {
             email: 'said@manzo.ma',
             description: 'Peintre professionnel pour intérieur et extérieur.',
             disponibilite: 'Lun-Sam: 8h-18h'
-          }
+          },{
+  id: 504,
+  nom: 'Nettoyage Express Agadir',
+  service: 'Ménage',
+  note: 4.5,
+  avis: 89,
+  distance: '1.2 km',
+  prix: '120-200 MAD',
+  pricingType: 'fixed',
+  photo: 'https://randomuser.me/api/portraits/women/22.jpg',
+  localisation: [31.6287, -7.9881],
+  description: 'Service de ménage complet pour particuliers avec produits écologiques.',
+  disponibilite: 'Lun-Sam: 8h-18h',
+  details: {
+    servicesInclus: [
+      'Dépoussiérage complet',
+      'Nettoyage sols',
+      'Nettoyage salle de bain',
+      'Nettoyage cuisine'
+    ],
+    equipement: 'Apporte tous les produits et matériels',
+    produits: 'Écologiques (certifiés EcoLabel)',
+    dureeMoyenne: '2-3 heures pour 50m²'
+  }
+},
+{
+  id: 505,
+  nom: 'Clean Luxury Services',
+  service: 'Ménage',
+  note: 4.9,
+  avis: 156,
+  distance: '2.8 km',
+  prix: '300-500 MAD',
+  pricingType: 'fixed',
+  photo: 'https://randomuser.me/api/portraits/women/45.jpg',
+  localisation: [31.6243, -7.9836],
+  description: 'Service haut de gamme avec protocole de nettoyage professionnel pour résidences et villas.',
+  disponibilite: '7j/7 sur rendez-vous',
+  premium: true,
+  details: {
+    protocole: [
+      'Méthode en 7 étapes',
+      'Nettoyage profond',
+      'Désinfection aux UV',
+      'Aspiration HEPA'
+    ],
+    certifications: ['Certification ISSA', 'Formation Hygiène Hospitalière'],
+    cibles: ['Résidences haut standing', 'Airbnb premium', 'Bureaux'],
+    garantie: 'Satisfait ou nettoyage gratuit'
+  },
+  inclus: [
+    'Nettoyage vitres',
+    'Désinfection',
+    'Rangement',
+    'Produits luxe'
+  ]
+},
+{
+  id: 506,
+  nom: 'Fatima Ménage & Repassage',
+  service: 'Ménage',
+  note: 4.7,
+  avis: 203,
+  distance: '0.8 km',
+  prix: '150-250 MAD',
+  pricingType: 'fixed',
+  photo: 'https://randomuser.me/api/portraits/women/63.jpg',
+  localisation: [31.6302, -7.9847],
+  description: 'Service complet de ménage incluant repassage avec une équipe de 2 professionnelles.',
+  disponibilite: 'Lun-Ven: 7h-20h',
+  equipe: true,
+  details: {
+    services: {
+      menage: [
+        'Nettoyage complet',
+        'Changement linge',
+        'Rangement',
+        'Aspiration'
+      ],
+      repassage: [
+        'Jusqu\'à 10 kg inclus',
+        'Pliage professionnel',
+        'Repassage délicat'
+      ]
+    },
+    avantages: [
+      'Même équipe à chaque visite',
+      'Clé remise en sécurité',
+      'Flexibilité horaire'
+    ]
+  },
+ 
+}
         ],
         Fes: [
           {
