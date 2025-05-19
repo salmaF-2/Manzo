@@ -1,18 +1,12 @@
-// module.exports = {
-//   content: [
-//     "./src/**/*.{html,js,jsx,ts,tsx}",
-//   ],
-//   theme: {
-//     extend: {},
-//   },
-//   plugins: [],
-// }
 module.exports = {
   content: [
     "./src/**/*.{html,js,jsx,ts,tsx}",
   ],
   theme: {
     extend: {
+      fontFamily: {
+        modak: ['Modak', 'cursive'],
+      },
       keyframes: {
         'fade-up': {
           '0%': { opacity: '0', transform: 'translateY(20px)' },
@@ -41,4 +35,3 @@ module.exports = {
   },
   plugins: [],
 }
-

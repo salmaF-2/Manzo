@@ -1,7 +1,8 @@
 // Configuration des routes
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
+
 // salma fadili
 import ServiceFixe from "./pages/ServiceFixe";
 import ServiceDevis from "./pages/ServiceDevis";
@@ -24,59 +25,112 @@ import MessagesP from "./pages/Page_Prestataire/MessagesP";
 import PaiementP from "./pages/Page_Prestataire/Paiements";
 import RendezVousP from "./pages/Page_Prestataire/Rendez-vousP";
 import HistoriqueP from "./pages/Page_Prestataire/HistoriqueP";
-
-
-
-
-import PrestatairesList from './pages/PrestatairesList';
+import PrestatairesList from "./pages/PrestatairesList";
 import VilleDetail from "./components/VilleDetail";
+// youness
+import AboutPage from "./pages/savoirplus";
+import CentreAide from "./pages/centreAide";
+import PFAQProfessional from "./pages/ProFAQCategories";
+import CFAQProfessional from "./pages/ClientFAQCategories";
+import FAQcompte from "./pages/FAQ/FAQcompte";
+import FAQgeneral from "./pages/FAQ/FAQgeneral";
+import FAQpaiement from "./pages/FAQ/FAQpaiement";
+import FAQdemandeService from "./pages/FAQ/FAQservice";
+import FAQevaluation from "./pages/FAQ/FAQevaluation";
+import FAQabsenceAnnulation from "./pages/FAQ/FAQcancel";
+import FAQannexes from "./pages/FAQ/FAQannex";
+import FAQadhesion from "./pages/FAQ/FAQadhesion";
+import FAQpostAdhesion from "./pages/FAQ/FAQpostAdhesion";
+import FAQpaiementP from "./pages/FAQ/FAQpaiementP";
+import FAQnotation from "./pages/FAQ/FAQnotation";
+import FAQevaluationP from "./pages/FAQ/FAQevaluationP";
 
-const AppRoutes = () => {
+import ProfileP from "./pages/lockedprofileP";
+import Mainprofile from "./pages/profile";
+
+const AppWrapper = () => {
   return (
     <BrowserRouter>
-      <HeaderRole/>
-      <Routes>
-        {/* accueil */}
-        <Route path="/" element={<Accueil/> }/>
-        <Route path="/DevenirPres" element="" />
-        <Route path="/Contact" element="" />
-
-        {/* salma fadili */}
-        <Route path="/serviceFixe" element={<ServiceFixe/>} />
-        <Route path="/serviceDevis" element={<ServiceDevis/>} />
-        <Route path="/recherche" element={<ResultatsRecherche/>} />
-        {/* <Route path="/services/tout-le-maroc" element={<ServicesTousMaroc/>} /> */}
-        
-
-
-        {/* connexion inscription s*/}
-        <Route path="/CreerCompte" element={<CreerCompte/>} />
-        <Route path="/InscriptionClient" element={<InscriptionClient/>} />
-        <Route path="/InscriptionPrestataire" element=''/>
-        <Route path="/Seconnecter" element={<Connexion/>}/>
-        <Route path="/prestataires" element={<PrestatairesList />} />
-        <Route path="/ville/:ville" element={<VilleDetail />} />
-
-        {/* partie prestataire  s*/}
-        <Route path="/DashboardPrestataire" element={<Dashboard/>}/>
-        <Route path="/ProfilPrestataire" element={<ProfilP/>} />
-        <Route path="/modifierProfil" element={<ModifierProfil/>} />
-        <Route path="/Services-Prestataire" element={<ServicesP/>}/>
-        <Route path="/Ajouter_service" element={<AjouterService/>}/>
-        <Route path="/Modifier_service" element={<ModifierService/>}/>
-        <Route path="/Demandes-Prestataire" element={<DemandesS/>}/>
-        <Route path="/Rendez-vous-Prestataire" element={<RendezVousP/>}/>
-        <Route path="/Historique-Prestataire" element={<HistoriqueP/>}/>
-        <Route path="/Messages-Prestataire" element={<MessagesP/>}/>
-        <Route path="/Paiemant-Prestataire" element={<PaiementP/>}/>
-        <Route path="/Parametre-Prestataire" element={<ParametreP/>}/>
-
-        {/* partie Clients */}
-      
-      </Routes>
-      {/* <Footer/> */}
+      <App />
     </BrowserRouter>
   );
 };
 
-export default AppRoutes;
+const App = () => {
+  const location = useLocation();
+
+  const shouldShowHeaderFooter =
+    location.pathname.toLowerCase() !== "/faq" &&
+    location.pathname.toLowerCase() !== "/faq-professional";
+
+  return (
+    <>
+      {shouldShowHeaderFooter && <Header />}
+      <HeaderRole />
+
+      <Routes>
+        {/* accueil */}
+        <Route path="/" element={<Accueil />} />
+        <Route path="/about" element={<AboutPage />} />
+        <Route path="/DevenirPres" element="" />
+        <Route path="/Contact" element="" />
+
+        {/* salma fadili */}
+        <Route path="/serviceFixe" element={<ServiceFixe />} />
+        <Route path="/serviceDevis" element={<ServiceDevis />} />
+        <Route path="/recherche" element={<ResultatsRecherche />} />
+
+        {/* Auth */}
+        <Route path="/CreerCompte" element={<CreerCompte />} />
+        <Route path="/InscriptionClient" element={<InscriptionClient />} />
+        <Route path="/InscriptionPrestataire" element="" />
+        <Route path="/Seconnecter" element={<Connexion />} />
+
+        {/* Prestataires */}
+        <Route path="/prestataires" element={<PrestatairesList />} />
+        <Route path="/ville/:ville" element={<VilleDetail />} />
+
+        {/* Partie Prestataire */}
+        <Route path="/DashboardPrestataire" element={<Dashboard />} />
+        <Route path="/ProfilPrestataire" element={<ProfilP />} />
+        <Route path="/modifierProfil" element={<ModifierProfil />} />
+        <Route path="/Services-Prestataire" element={<ServicesP />} />
+        <Route path="/Ajouter_service" element={<AjouterService />} />
+        <Route path="/Modifier_service" element={<ModifierService />} />
+        <Route path="/Demandes-Prestataire" element={<DemandesS />} />
+        <Route path="/Rendez-vous-Prestataire" element={<RendezVousP />} />
+        <Route path="/Historique-Prestataire" element={<HistoriqueP />} />
+        <Route path="/Messages-Prestataire" element={<MessagesP />} />
+        <Route path="/Paiemant-Prestataire" element={<PaiementP />} />
+        <Route path="/Parametre-Prestataire" element={<ParametreP />} />
+
+        {/* FAQ Pages - Clients */}
+        <Route path="/faq" element={<CentreAide />} />
+        <Route path="/faq-client" element={<CFAQProfessional />} />
+        <Route path="/faq-client/compte" element={<FAQcompte />} />
+        <Route path="/faq-client/general" element={<FAQgeneral />} />
+        <Route path="/faq-client/paiement" element={<FAQpaiement />} />
+        <Route path="/faq-client/service" element={<FAQdemandeService />} />
+        <Route path="/faq-client/evaluation" element={<FAQevaluation />} />
+        <Route path="/faq-client/absences" element={<FAQabsenceAnnulation />} />
+        <Route path="/faq-client/annexes" element={<FAQannexes />} />
+
+        {/* FAQ Pages - Professionnels */}
+        <Route path="/faq-professional" element={<PFAQProfessional />} />
+        <Route path="/faq-professional/adhesion" element={<FAQadhesion />} />
+        <Route path="/faq-professional/post-adhesion" element={<FAQpostAdhesion />} />
+        <Route path="/faq-professional/paiement" element={<FAQpaiementP />} />
+        <Route path="/faq-professional/notation" element={<FAQnotation />} />
+        <Route path="/faq-professional/evaluation" element={<FAQevaluationP />} />
+
+        {/* Profile pages */}
+        <Route path="/profile-locked" element={<ProfileP />} />
+        <Route path="/profile" element={<Mainprofile />} />
+      </Routes>
+
+      {shouldShowHeaderFooter && <Footer />}
+    </>
+  );
+};
+
+export default AppWrapper;
