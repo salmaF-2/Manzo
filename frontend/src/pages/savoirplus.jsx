@@ -19,7 +19,8 @@ import { Link } from "react-router-dom";
 
 const AboutPage = () => {
   return (
-    <div className="font-sans text-gray-800 leading-relaxed">
+
+    <div className="font-sans text-gray-800 leading-relaxed pt-[60px]">
       <section className="py-16">
         <div className="container mx-auto px-5 max-w-6xl">
           <h1 className="text-4xl font-black text-center mb-5 text-[#8C97C3]">

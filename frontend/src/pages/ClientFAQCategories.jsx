@@ -58,7 +58,9 @@ const CFAQCategories = () => {
   return (
     <div>
       <Faqheader />
-      <div className="max-w-4xl mx-auto py-8 px-4 -[8%]">
+
+      <div className="max-w-4xl mx-auto py-8 px-4 mt-[8%]">
+
         <div className="space-y-6 flex flex-col items-center">
           {categories.map((category, index) => (
             <div
