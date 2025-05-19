@@ -32,8 +32,8 @@ const Footer = () => {
                     <div className="text-center md:text-left">
                         <h3 className="font-semibold mb-2 underline">Liens utiles</h3>
                         <ul className="space-y-1 text-sm">
-                            <Link to="/"><li>Qui nous sommes</li></Link>
-                            <Link to="/"><li>FAQ / Centre d'aide</li></Link>
+                            <Link to="/about"><li>Qui nous sommes</li></Link>
+                            <Link to="/faq"><li>FAQ / Centre d'aide</li></Link>
                             <Link to="/"><li>Politique de confidentialité</li></Link>
                             <Link to="/"><li>Mentions légales</li></Link>
                             <Link to="/"><li>CGV</li></Link>
