@@ -32,7 +32,7 @@ const CreerCompte = () =>{
                     OU
                 </div>
                 
-                <Link to='/InscriptionPrestataire'>
+                <Link to='/DevenirPres'>
                     <div className="border rounded-lg shadow-lg p-6 w-full md:w-[320px] h-[300px] text-center transition-transform transform hover:scale-105 hover:shadow-2xl">
                         <div className="flex justify-center mb-10">
                             <img src={prestataire} alt="Prestataire" className="w-16 h-16 mt-4" />

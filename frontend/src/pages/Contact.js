@@ -74,7 +74,7 @@ const Contact = () => {
       <div className="container mx-auto px-4 py-8 flex-grow">
         <div className="flex flex-col lg:flex-row gap-6 items-start">
           
-          <div className="w-full lg:w-1/2 space-y-5 pl-24 mt-12 mb-48 pr-12">
+          <div className="w-full lg:w-1/2 space-y-5 pl-24 mt-24 mb-48 pr-12">
             <div className="space-y-1.5 mb-10">
               <h1 className="text-5xl font-bold ">
                 Contactez<span className="text-blue-500">-nous</span>
@@ -231,7 +231,7 @@ const Contact = () => {
           </div>
           
           {/* IMAGE SECTION */}
-          <div className="w-full lg:w-1/2 rounded-lg relative mt-20">
+          <div className="w-full lg:w-1/2 rounded-lg relative mt-24">
             <div className="aspect-[4/3] w-full rounded-lg ">
                 <img src="/images/image 12.png"></img>
             </div>
