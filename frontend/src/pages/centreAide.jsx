@@ -1,4 +1,4 @@
-import React from "react";
+import { useEffect } from "react";
 import { Link } from "react-router-dom";
 import Vector2 from "../assets/images/Vector2.png";
 import ca1 from "../assets/images/ca1.png";
@@ -6,6 +6,10 @@ import ca2 from "../assets/images/ca2.png";
 import Faqfooter from "../components/faqfooter";
 import logo from "../assets/images/logo.png";
 export default function CentreAide() {
+
+  useEffect(() => {
+          window.scrollTo(0, 0);
+  }, []);
   return (
     <div>
       <header className="bg-white shadow-sm fixed w-full h-[100px] top-0 z-50 border border-b-[#434F84]">

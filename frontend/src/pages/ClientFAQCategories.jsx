@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Link } from "react-router-dom";
 import Faqheader from "../components/faqheader";
 import user1 from "../assets/images/user1.png";
@@ -54,7 +54,9 @@ const CFAQCategories = () => {
       image: papier,
     },
   ];
-
+useEffect(() => {
+        window.scrollTo(0, 0);
+    }, []);
   return (
     <div>
       <Faqheader />

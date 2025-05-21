@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Faqheader from "../../components/faqheader";
 
 const FAQevaluation = () => {
@@ -110,7 +110,9 @@ const FAQevaluation = () => {
       ],
     },
   ];
-
+useEffect(() => {
+        window.scrollTo(0, 0);
+    }, []);
   return (
     <div>
       <Faqheader />

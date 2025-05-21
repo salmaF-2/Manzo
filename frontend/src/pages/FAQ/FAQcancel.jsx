@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState,useEffect } from "react";
 import Faqheader from "../../components/faqheader";
 
 const FAQabsenceAnnulation = () => {
@@ -57,7 +57,9 @@ const FAQabsenceAnnulation = () => {
       ],
     },
   ];
-
+useEffect(() => {
+        window.scrollTo(0, 0);
+    }, []);
   return (
     <div>
       <Faqheader />

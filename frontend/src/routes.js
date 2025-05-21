@@ -56,13 +56,12 @@ const AppWrapper = () => {
   );
 };
 
-const App = () => {
+  const App = () => {
   const location = useLocation();
 
   const shouldShowHeaderFooter =
     location.pathname.toLowerCase() !== "/faq" &&
     location.pathname.toLowerCase() !== "/faq-professional";
-
   return (
     <>
       {shouldShowHeaderFooter && <Header />}
@@ -123,7 +122,7 @@ const App = () => {
         <Route path="/faq-professional/notation" element={<FAQnotation />} />
         <Route path="/faq-professional/evaluation" element={<FAQevaluationP />} />
 
-        {/* Profile pages */}
+        {/* les Profiles pages */}
         <Route path="/profile-locked" element={<ProfileP />} />
         <Route path="/profile" element={<Mainprofile />} />
       </Routes>

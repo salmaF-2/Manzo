@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState,useEffect } from "react";
 import Faqheader from "../../components/faqheader";
 
 const FAQannexes = () => {
@@ -37,7 +37,9 @@ const FAQannexes = () => {
       ],
     },
   ];
-
+useEffect(() => {
+            window.scrollTo(0, 0);
+    }, []);
   return (
     <div>
       <Faqheader />

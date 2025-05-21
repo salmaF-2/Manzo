@@ -1,4 +1,4 @@
-import React from "react";
+import { useEffect } from "react";
 import calendrier from "../assets/images/calendrier.png";
 import journal from "../assets/images/un-journal.png";
 import articleImage from "../assets/images/article.png";
@@ -18,6 +18,10 @@ import Loogo from "../assets/images/Logoo.png";
 import { Link } from "react-router-dom";
 
 const AboutPage = () => {
+  useEffect(() => {
+          window.scrollTo(0, 0);
+  }, []);
+
   return (
 
     <div className="font-sans text-gray-800 leading-relaxed pt-[60px]">
@@ -103,7 +107,7 @@ const AboutPage = () => {
             </div>
 
             <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-1/2">
-              <Link to="/services">
+              <Link to="/CreerCompte">
                 <button className="bg-[#434F83] w-[275px] h-[55px] rounded-full shadow-md border-2 border-[#BCD0EA] flex items-center justify-center text-white font-semibold text-[16px]">
                   Réserver un service
                 </button>
@@ -475,12 +479,12 @@ const AboutPage = () => {
             COMMENCEZ L'AVENTURE MANZO SANS PLUS TARDER
           </h2>
           <div className="flex flex-col md:flex-row justify-center gap-6 mt-12">
-            <Link to="/DevenirPres">
+            <Link to="/InscriptionPrestataire">
               <button className="text-[#475489] border-4 border-[#475489] font-bold py-4 px-8 rounded-[37.5px] text-lg w-[302px] h-[63px] hover:bg-[#475489] hover:text-white transition duration-300">
                 Devenir prestataire
               </button>
             </Link>
-            <Link to="/services">
+            <Link to="/InscriptionClient">
               <button className="bg-[#434F83] border-white text-white font-bold py-4 px-8 rounded-[37.5px] text-lg w-[302px] h-[63px] hover:bg-[#475489] transition duration-300">
                 Demander un service
               </button>

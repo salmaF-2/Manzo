@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useEffect, useState } from "react";
 import Faqheader from "../../components/faqheader";
 
 const FAQadhesion = () => {
@@ -148,6 +148,9 @@ const FAQadhesion = () => {
     },
   ];
 
+  useEffect(() => {
+            window.scrollTo(0, 0);
+    }, []);
   return (
     <div>
       <Faqheader />
