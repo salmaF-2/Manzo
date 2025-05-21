@@ -1,7 +1,7 @@
 import React , { useState, useEffect  } from 'react';
 import Shape from '../assets/images/Shape.png';
 import Vector from '../assets/images/Vector1.png';
-import Vector2 from '../assets/images/Vector2.png';
+import hahah from '../assets/images/hahah.png';
 import image1 from '../assets/images/image1.png';
 import image2 from '../assets/images/image2.png';
 import PetitLogo from "../assets/images/manzo logo.png";
@@ -325,7 +325,7 @@ const Accueil = () => {
                 </div>
 
                 <div className="relative">
-                    <img src={Vector2} alt="Background Image" className="w-full h-auto min-h-[1100px] object-cover z-10" />
+                    <img src={hahah} alt="Background Image" className="w-full h-auto min-h-[1100px] object-cover z-10" />
                     <div className="absolute inset-0 flex items-center justify-center z-10 pt-16 pb-18 h-[900px]">
                     <div className="py-12 w-full max-w-6xl mx-auto rounded-lg px-4">
                         <div className="text-center">
