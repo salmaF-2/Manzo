@@ -8,6 +8,42 @@ const InscriptionClient = () =>{
     useEffect(() => {
         window.scrollTo(0, 0);
     }, []);
+
+    const handleSubmit = async (e) =>{
+        e.preventDefault();
+        const formData = {
+            nom: document.getElementById('nom').value,
+            prenom: document.getElementById('prenom').value,
+            email: document.getElementById('email').value,
+            password: document.getElementById('password').value,
+            confirmPassword: document.getElementById('confirmPassword').value,
+            ville: document.getElementById('ville').value,
+            genre: document.getElementById('genre').value,
+            telephone: document.getElementById('telephone').value 
+        };
+
+        try {
+            const response = await fetch('http://localhost:5000/api/auth/register/client', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(formData)
+            });
+
+            const data = await response.json();
+        
+            if (!response.ok) {
+                console.error('Détails de l\'erreur:', data);
+                throw new Error(data.message || 'Erreur lors de l\'inscription');
+            }
+            console.log('Inscription réussie:', data);
+            if (data.token) localStorage.setItem('token', data.token);
+            window.location.href = '/dashboard';
+        } catch (error) {
+            console.error('Erreur complète:', error);
+            alert(`Erreur: ${error.message}\nVeuillez vérifier la console pour plus de détails`);
+        }
+    };
+
     return(
         <div className="relative min-h-screen flex items-center justify-center bg-gray-100 mt-14 px-4 sm:px-6 lg:px-8">
             <div className="absolute inset-0">
@@ -30,16 +66,34 @@ const InscriptionClient = () =>{
                         <input type="text" id="prenom" placeholder="Prénom" className="border p-2 text-sm sm:text-base rounded-full w-full" />
                     </div>
                     <div className="mb-2 sm:mb-0">
-                        <label htmlFor="dateNaissance" className="block text-gray-700 text-sm sm:text-base">Date De Naissance</label>
-                        <input type="date" id="dateNaissance" className="border p-2 text-sm sm:text-base rounded-full w-full" />
+                        <label htmlFor="telephone" className="block text-gray-700 text-sm sm:text-base">Téléphone</label>
+                        <input type="text" id="telephone" className="border p-2 text-sm sm:text-base rounded-full w-full" placeholder="Entrer votre téléphone" />
                     </div>
-                    <div className="mb-2 sm:mb-0">
+                    {/* <div className="mb-2 sm:mb-0">
                         <label htmlFor="genre" className="block text-gray-700 text-sm sm:text-base">Genre</label>
                         <input type="text" id="genre" placeholder="Genre" className="border p-2 text-sm sm:text-base rounded-full w-full" />
+                    </div> */}
+                   <div className="mb-2 sm:mb-0">
+                        <label htmlFor="genre" className="block text-gray-700 text-sm sm:text-base">Genre</label>
+                        <div className="relative">
+                            <select 
+                                id="genre" 
+                                className="border p-2 text-sm sm:text-base rounded-full w-full appearance-none pr-8"
+                            >
+                                <option value="">Le genre...</option>
+                                <option value="femme">Femme</option>
+                                <option value="homme">Homme</option>
+                            </select>
+                            <div className="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none">
+                                <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                                </svg>
+                            </div>
+                        </div>
                     </div>
                     <div className="mb-2 sm:mb-0">
-                        <label htmlFor="ville" className="block text-gray-700 text-sm sm:text-base">Sélectionner Votre Ville</label>
-                        <input type="text" id="ville" placeholder="Sélectionner Votre Ville" className="border p-2 text-sm sm:text-base rounded-full w-full" />
+                        <label htmlFor="ville" className="block text-gray-700 text-sm sm:text-base">Entrez Votre Ville</label>
+                        <input type="text" id="ville" placeholder="Entrez Votre Ville" className="border p-2 text-sm sm:text-base rounded-full w-full" />
                     </div>
                     <div className="mb-2 sm:mb-0">
                         <label htmlFor="email" className="block text-gray-700 text-sm sm:text-base">E-Mail</label>
@@ -69,7 +123,7 @@ const InscriptionClient = () =>{
                     </label>
                 </div>
 
-                <button className="mt-4 bg-[#4C5A91] text-white py-2 rounded-full shadow-sm hover:bg-[#48578A] w-full font-semibold text-sm sm:text-base">
+                <button onClick={handleSubmit} className="mt-4 bg-[#4C5A91] text-white py-2 rounded-full shadow-sm hover:bg-[#48578A] w-full font-semibold text-sm sm:text-base">
                     Créer un compte
                 </button>
             </div>

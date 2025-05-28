@@ -1,11 +1,16 @@
 import { useState, useRef, useEffect } from 'react';
 import { FaUser, FaBars, FaTimes, FaBell, FaHeart, FaEnvelope, FaHome, FaSignOutAlt, FaMoneyBillWave, FaClipboardList } from "react-icons/fa";
-import { Link } from "react-router-dom";
+import { Link ,useNavigate } from "react-router-dom";
 import { ChevronDown } from "lucide-react";
+import { useAuth } from "../context/AuthContext";
 import logo from "../assets/images/logo.png";
 
-const HeaderRole = ({ role = 'guest' }) => {
+const HeaderRole = () => {
     // États communs
+    const { user, logout } = useAuth();
+    const navigate = useNavigate();
+    const role = user?.role || 'guest';
+
     const [isOpen, setIsOpen] = useState(false);
     const [servicesOpen, setServicesOpen] = useState(false);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -48,6 +53,8 @@ const HeaderRole = ({ role = 'guest' }) => {
     // Gestion de la déconnexion
     const handleLogout = () => {
         console.log("Déconnexion...");
+        logout();
+        navigate('/');
         setIsOpen(false);
         setIsMobileMenuOpen(false);
         // Ajouter ici la logique de déconnexion réelle
@@ -117,19 +124,19 @@ const HeaderRole = ({ role = 'guest' }) => {
     // Menu utilisateur pour client
     const renderClientUserMenu = () => (
         <>
-            <Link to="/dashboard" onClick={() => setIsOpen(false)} className="flex items-center px-4 py-2 text-[#5869A3] hover:bg-gray-100 rounded-md">
+            <Link to="/DashboardClient" onClick={() => setIsOpen(false)} className="flex items-center px-4 py-2 text-[#5869A3] hover:bg-gray-100 rounded-md">
                 <FaHome className="mr-3" /> Tableau de bord
             </Link>
-            <Link to="/messages" onClick={() => setIsOpen(false)} className="flex items-center px-4 py-2 text-[#5869A3] hover:bg-gray-100 rounded-md">
+            <Link to="/Messages-Client" onClick={() => setIsOpen(false)} className="flex items-center px-4 py-2 text-[#5869A3] hover:bg-gray-100 rounded-md">
                 <FaEnvelope className="mr-3" /> Messages
             </Link>
-            <Link to="/reservations" onClick={() => setIsOpen(false)} className="flex items-center px-4 py-2 text-[#5869A3] hover:bg-gray-100 rounded-md">
+            <Link to="/Reservations-Client" onClick={() => setIsOpen(false)} className="flex items-center px-4 py-2 text-[#5869A3] hover:bg-gray-100 rounded-md">
                 <FaBell className="mr-3" /> Réservations
             </Link>
-            <Link to="/favoris" onClick={() => setIsOpen(false)} className="flex items-center px-4 py-2 text-[#5869A3] hover:bg-gray-100 rounded-md">
+            <Link to="/favoris-client" onClick={() => setIsOpen(false)} className="flex items-center px-4 py-2 text-[#5869A3] hover:bg-gray-100 rounded-md">
                 <FaHeart className="mr-3" /> Favoris
             </Link>
-            <Link to="/mon-compte" onClick={() => setIsOpen(false)} className="flex items-center px-4 py-2 text-[#5869A3] hover:bg-gray-100 rounded-md">
+            <Link to="/ProfilClient" onClick={() => setIsOpen(false)} className="flex items-center px-4 py-2 text-[#5869A3] hover:bg-gray-100 rounded-md">
                 <FaUser className="mr-3" /> Informations du compte
             </Link>
             <div className="border-t border-gray-200 mt-2"></div>
@@ -148,13 +155,13 @@ const HeaderRole = ({ role = 'guest' }) => {
             <Link to="/messages-prestataire" onClick={() => setIsOpen(false)} className="flex items-center px-4 py-2 text-[#5869A3] hover:bg-gray-100 rounded-md">
                 <FaEnvelope className="mr-3" /> Messages
             </Link>
-            <Link to="/reservations-prestataire" onClick={() => setIsOpen(false)} className="flex items-center px-4 py-2 text-[#5869A3] hover:bg-gray-100 rounded-md">
+            {/* <Link to="/reservations-prestataire" onClick={() => setIsOpen(false)} className="flex items-center px-4 py-2 text-[#5869A3] hover:bg-gray-100 rounded-md">
                 <FaBell className="mr-3" /> Réservations
-            </Link>
-            <Link to="/annonces" onClick={() => setIsOpen(false)} className="flex items-center px-4 py-2 text-[#5869A3] hover:bg-gray-100 rounded-md">
+            </Link> */}
+            <Link to="/Services-Prestataire" onClick={() => setIsOpen(false)} className="flex items-center px-4 py-2 text-[#5869A3] hover:bg-gray-100 rounded-md">
                 <FaClipboardList className="mr-3" /> Annonces
             </Link>
-            <Link to="/payouts" onClick={() => setIsOpen(false)} className="flex items-center px-4 py-2 text-[#5869A3] hover:bg-gray-100 rounded-md">
+            <Link to="/Paiemant-Prestataire" onClick={() => setIsOpen(false)} className="flex items-center px-4 py-2 text-[#5869A3] hover:bg-gray-100 rounded-md">
                 <FaMoneyBillWave className="mr-3" /> Paiements
             </Link>
             <Link to="/ProfilPrestataire" onClick={() => setIsOpen(false)} className="flex items-center px-4 py-2 text-[#5869A3] hover:bg-gray-100 rounded-md">

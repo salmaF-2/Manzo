@@ -61,7 +61,7 @@ export default function CentreAide() {
                 <img src={Vector2} alt="Flèche" />
               </div>
               <Link
-                to="/contactez-nous"
+                to="/Contact"
                 className="flex w-full justify-center sm:justify-start mt-6"
               >
                 <button className="bg-[#475489] text-white font-semibold rounded-[15.5px] w-[185px] h-[42px] mb-5 ml-[52%] ">

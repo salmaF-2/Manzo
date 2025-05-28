@@ -2,6 +2,8 @@
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
+import { AuthProvider } from "./context/AuthContext";
+import HeaderRole from "./components/HeaderRole";
 
 // salma fadili
 import ServiceFixe from "./pages/ServiceFixe";
@@ -9,11 +11,13 @@ import ServiceDevis from "./pages/ServiceDevis";
 import ResultatsRecherche from "./pages/ResultatsRecherche";
 // salma 
 import Accueil from "./pages/Accueil";
+import Contact from "./pages/Contact.js";
+import DevenirPres from "./auth/DevenirPres.js"
+
 import CreerCompte from "./auth/creerCompte";
 import Connexion from "./auth/connexion";
 import InscriptionClient from "./auth/inscriptionClient";
 import Dashboard from "./pages/Page_Prestataire/Dashboard";
-import HeaderRole from "./components/HeaderRole";
 import ProfilP from "./pages/Page_Prestataire/Profil";
 import ModifierProfil from "./pages/Page_Prestataire/ModifierProfil";
 import ServicesP from "./pages/Page_Prestataire/PageServices";
@@ -47,61 +51,101 @@ import FAQevaluationP from "./pages/FAQ/FAQevaluationP";
 
 import ProfileP from "./pages/lockedprofileP";
 import Mainprofile from "./pages/profile";
+import DashboardClient from "./pages/page_Clients/DashboardClient.js";
+import MotDePasseOublie from "./auth/MotdePasseOublier.js";
+import ProtectedRoute from "./components/ProtectedRoute.js";
 
 const AppWrapper = () => {
-  return (
-    <BrowserRouter>
-      <App />
-    </BrowserRouter>
-  );
+    return (
+        <BrowserRouter>
+            <AuthProvider>
+                <App />
+            </AuthProvider>
+        </BrowserRouter>
+    );
 };
 
-  const App = () => {
+const App = () => {
   const location = useLocation();
 
-  const shouldShowHeaderFooter =
-    location.pathname.toLowerCase() !== "/faq" &&
-    location.pathname.toLowerCase() !== "/faq-professional";
+  const shouldShowHeaderFooter = () => {
+    const path = location.pathname.toLowerCase();
+     // const shouldShowHeaderFooter =
+    //   location.pathname.toLowerCase() !== "/faq" &&
+    //   location.pathname.toLowerCase() !== "/faq-professional";
+    
+    // Liste des routes où on ne veut pas afficher Header/Footer
+    const excludedRoutes = [
+      // Pages FAQ
+      "/faq",
+      "/faq-professional",
+      
+      // Routes prestataires
+      "/dashboardprestataire",
+      "/profilprestataire",
+      "/modifierprofil",
+      "/services-prestataire",
+      "/ajouter_service",
+      "/modifier_service",
+      "/demandes-prestataire",
+      "/rendez-vous-prestataire",
+      "/historique-prestataire",
+      "/messages-prestataire",
+      "/paiemant-prestataire",
+      "/parametre-prestataire",
+      
+      // Routes clients
+      "/dashboardclient"
+    ];
+    
+    return !excludedRoutes.some(route => path.startsWith(route));
+  };
+
   return (
     <>
-      {shouldShowHeaderFooter && <Header />}
+      {shouldShowHeaderFooter() && <Header />}
       <HeaderRole />
 
       <Routes>
         {/* accueil */}
         <Route path="/" element={<Accueil />} />
         <Route path="/about" element={<AboutPage />} />
-        <Route path="/DevenirPres" element="" />
-        <Route path="/Contact" element="" />
-
-        {/* salma fadili */}
+        <Route path="/DevenirPres" element={<DevenirPres />} />
+        <Route path="/Contact" element={<Contact />} />
         <Route path="/serviceFixe" element={<ServiceFixe />} />
         <Route path="/serviceDevis" element={<ServiceDevis />} />
         <Route path="/recherche" element={<ResultatsRecherche />} />
-
-        {/* Auth */}
-        <Route path="/CreerCompte" element={<CreerCompte />} />
-        <Route path="/InscriptionClient" element={<InscriptionClient />} />
-        <Route path="/InscriptionPrestataire" element="" />
-        <Route path="/Seconnecter" element={<Connexion />} />
-
+        
         {/* Prestataires */}
         <Route path="/prestataires" element={<PrestatairesList />} />
         <Route path="/ville/:ville" element={<VilleDetail />} />
 
+        {/* Auth */}
+        <Route path="/CreerCompte" element={<CreerCompte />} />
+        <Route path="/InscriptionClient" element={<InscriptionClient />} />
+        <Route path="/Seconnecter" element={<Connexion />} />
+        <Route path="/MotDePasseOublie" element={<MotDePasseOublie />} />
+
         {/* Partie Prestataire */}
-        <Route path="/DashboardPrestataire" element={<Dashboard />} />
-        <Route path="/ProfilPrestataire" element={<ProfilP />} />
-        <Route path="/modifierProfil" element={<ModifierProfil />} />
-        <Route path="/Services-Prestataire" element={<ServicesP />} />
-        <Route path="/Ajouter_service" element={<AjouterService />} />
-        <Route path="/Modifier_service" element={<ModifierService />} />
-        <Route path="/Demandes-Prestataire" element={<DemandesS />} />
-        <Route path="/Rendez-vous-Prestataire" element={<RendezVousP />} />
-        <Route path="/Historique-Prestataire" element={<HistoriqueP />} />
-        <Route path="/Messages-Prestataire" element={<MessagesP />} />
-        <Route path="/Paiemant-Prestataire" element={<PaiementP />} />
-        <Route path="/Parametre-Prestataire" element={<ParametreP />} />
+        <Route element={<ProtectedRoute allowedRoles={['prestataire']} />}>
+            <Route path="/DashboardPrestataire" element={<Dashboard />} />
+            <Route path="/ProfilPrestataire" element={<ProfilP />} />
+            <Route path="/modifierProfil" element={<ModifierProfil />} />
+            <Route path="/Services-Prestataire" element={<ServicesP />} />
+            <Route path="/Ajouter_service" element={<AjouterService />} />
+            <Route path="/Modifier_service" element={<ModifierService />} />
+            <Route path="/Demandes-Prestataire" element={<DemandesS />} />
+            <Route path="/Rendez-vous-Prestataire" element={<RendezVousP />} />
+            <Route path="/Historique-Prestataire" element={<HistoriqueP />} />
+            <Route path="/Messages-Prestataire" element={<MessagesP />} />
+            <Route path="/Paiemant-Prestataire" element={<PaiementP />} />
+            <Route path="/Parametre-Prestataire" element={<ParametreP />} />
+        </Route>
+        
+        {/* Partie Client */}
+        <Route element={<ProtectedRoute allowedRoles={['client']} />}>
+          <Route path="/DashboardClient" element={<DashboardClient />} />
+        </Route>
 
         {/* FAQ Pages - Clients */}
         <Route path="/faq" element={<CentreAide />} />
@@ -127,7 +171,7 @@ const AppWrapper = () => {
         <Route path="/profile" element={<Mainprofile />} />
       </Routes>
 
-      {shouldShowHeaderFooter && <Footer />}
+      {shouldShowHeaderFooter() && <Footer />}
     </>
   );
 };
