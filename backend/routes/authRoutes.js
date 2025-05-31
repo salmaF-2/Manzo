@@ -1,7 +1,9 @@
 const express = require('express');
 const router = express.Router();
 const authController = require('../controllers/authController');
-const upload = require('../config/multer');
+const { upload, profilePicUpload } = require('../config/multer');
+const { requireClientAuth } = require('../middleware/authMiddleware');
+const authMiddleware = require('../middleware/authMiddleware');
 
 // Inscription client
 router.post('/register/client', authController.registerClient);
@@ -20,4 +22,17 @@ router.post('/register/prestataire',
     authController.registerPrestataire
 );
 
+
+
+
+// Client ---------------------------------------------------------------
+// Récupérer le profil client protégé par authentification
+router.get('/client/profile', requireClientAuth, authController.getClientProfile);
+// Mettre à jour le profil client protégé par authentification
+router.put(
+  '/client/profile',
+  authMiddleware.requireClientAuth,
+  profilePicUpload.single('photo'),
+  authController.updateClientProfile
+);
 module.exports = router;

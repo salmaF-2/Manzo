@@ -1,54 +1,337 @@
-import { FaHome, FaTools, FaCalendarAlt, FaHistory, FaComments, FaMoneyBill, FaCog, FaSignOutAlt, FaUserAlt } from "react-icons/fa";
+// import { FaHome, FaTools, FaCalendarAlt, FaHistory, FaComments, FaMoneyBill, FaCog, FaSignOutAlt, FaUserAlt } from "react-icons/fa";
+// import { MdDashboard } from "react-icons/md";
+// import { NavLink, useLocation, useNavigate } from "react-router-dom";
+// import { useEffect, useState } from "react";
+// import { useAuth } from "../../context/AuthContext";
+
+// const SideBarClient = () => {
+//     const location = useLocation();
+//     const navigate = useNavigate();
+//     const { logout } = useAuth();
+//     const [userData, setUserData] = useState({
+//         nom: '',
+//         prenom: '',
+//         photo: null
+//     });
+
+//     // Récupérer les données du client
+//     useEffect(() => {
+//         const fetchProfile = async () => {
+//             try {
+//                 const token = localStorage.getItem('token');
+//                 const response = await fetch('http://localhost:5000/api/auth/client/profile', {
+//                     headers: {
+//                         'Authorization': `Bearer ${token}`
+//                     }
+//                 });
+                
+//                 if (response.ok) {
+//                     const data = await response.json();
+//                     setUserData({
+//                         nom: data.nom || '',
+//                         prenom: data.prenom || '',
+//                         photo: data.photo || null
+//                     });
+//                 }
+//             } catch (error) {
+//                 console.error('Erreur lors du chargement du profil:', error);
+//             }
+//         };
+
+//         fetchProfile();
+//     }, []);
+
+//     // Gestion de la déconnexion
+//     const handleLogout = () => {
+//         logout();
+//         navigate('/');
+//     };
+
+//     return (
+//         <div className="fixed left-0 top-20 h-[calc(100vh-5rem)] w-60 bg-white border-r border-gray-200 flex flex-col p-6">
+//             {/* Profile section with subtle shadow */}
+//             <div className="flex items-center space-x-3 mb-8 p-3 bg-white rounded-lg shadow-sm">
+//                 <img 
+//                     src={
+//                         userData.photo 
+//                             ? userData.photo.startsWith('/uploads/') 
+//                                 ? `http://localhost:5000${userData.photo}`
+//                                 : userData.photo
+//                             : "https://i.pravatar.cc/40"
+//                     } 
+//                     alt="Avatar" 
+//                     className="w-10 h-10 rounded-full border-2 border-blue-200 object-cover" 
+//                 />
+//                 <div>
+//                     <h4 className="text-sm font-semibold text-gray-800">
+//                         {userData.prenom} {userData.nom}
+//                     </h4>
+//                     <span className="text-xs bg-green-100 text-green-700 px-1.5 py-0.5 rounded-full">Bienvenue</span>
+//                 </div>
+//             </div>
+
+//             {/* Navigation links with modern design */}
+//             <nav className="flex-1 overflow-y-auto">
+//                 <ul className="space-y-1 text-sm">
+//                     <NavLink to='/DashboardClient' 
+//                         className={({isActive}) => 
+//                             `flex items-center space-x-2 hover:bg-blue-100/50 cursor-pointer p-2.5 rounded-lg transition-all ${
+//                                 isActive 
+//                                 ? 'bg-blue-100 text-blue-600 font-medium border-l-4 border-blue-500' 
+//                                 : 'text-gray-600 hover:text-blue-600'
+//                             }`}>
+//                         <li className="flex items-center space-x-2">
+//                             <MdDashboard className="text-blue-500" />
+//                             <span>Tableau de bord</span>
+//                         </li>
+//                     </NavLink>
+
+//                     <NavLink to='/Reservations-Client'
+//                         className={({ isActive }) => 
+//                             `flex items-center space-x-2 hover:bg-blue-100/50 cursor-pointer p-2.5 rounded-lg transition-all ${
+//                             isActive || 
+//                             location.pathname === '/Ajouter_service' || 
+//                             location.pathname === '/Modifier_service'
+//                                 ? 'bg-blue-100 text-blue-600 font-medium border-l-4 border-blue-500' 
+//                                 : 'text-gray-600 hover:text-blue-600'
+//                             }`}
+//                         >
+//                         <FaTools className="text-blue-500" />
+//                         <span>Mes réservations</span>
+//                     </NavLink>
+
+//                     <NavLink to='/demande-envoyer-Client' 
+//                         className={({isActive}) => 
+//                             `flex items-center space-x-2 hover:bg-blue-100/50 cursor-pointer p-2.5 rounded-lg transition-all ${
+//                                 isActive 
+//                                 ? 'bg-blue-100 text-blue-600 font-medium border-l-4 border-blue-500' 
+//                                 : 'text-gray-600 hover:text-blue-600'
+//                             }`}>
+//                         <li className="flex items-center space-x-2">
+//                             <FaCalendarAlt className="text-blue-500" />
+//                             <span>Demandes envoyées</span>
+//                         </li>
+//                     </NavLink>
+
+//                     <NavLink to='/avis-Client' 
+//                         className={({isActive}) => 
+//                             `flex items-center space-x-2 hover:bg-blue-100/50 cursor-pointer p-2.5 rounded-lg transition-all ${
+//                                 isActive 
+//                                 ? 'bg-blue-100 text-blue-600 font-medium border-l-4 border-blue-500' 
+//                                 : 'text-gray-600 hover:text-blue-600'
+//                             }`}>
+//                         <li className="flex items-center space-x-2">
+//                             <FaHistory className="text-blue-500" />
+//                             <span>Avis & Évaluations</span>
+//                         </li>
+//                     </NavLink>
+
+//                     <NavLink to='/Messages-Client' 
+//                         className={({isActive}) => 
+//                             `flex items-center space-x-2 hover:bg-blue-100/50 cursor-pointer p-2.5 rounded-lg transition-all ${
+//                                 isActive 
+//                                 ? 'bg-blue-100 text-blue-600 font-medium border-l-4 border-blue-500' 
+//                                 : 'text-gray-600 hover:text-blue-600'
+//                             }`}>
+//                         <li className="flex items-center space-x-2">
+//                             <FaComments className="text-blue-500" />
+//                             <span>Messages</span>
+//                         </li>
+//                     </NavLink>
+
+//                     <NavLink to='/Paiemant-Client' 
+//                         className={({isActive}) => 
+//                             `flex items-center space-x-2 hover:bg-blue-100/50 cursor-pointer p-2.5 rounded-lg transition-all ${
+//                                 isActive 
+//                                 ? 'bg-blue-100 text-blue-600 font-medium border-l-4 border-blue-500' 
+//                                 : 'text-gray-600 hover:text-blue-600'
+//                             }`}>
+//                         <li className="flex items-center space-x-2">
+//                             <FaMoneyBill className="text-blue-500" />
+//                             <span>Paiements</span>
+//                         </li>
+//                     </NavLink>
+                    
+//                     <NavLink to='/ProfilClient'
+//                         className={({isActive}) => 
+//                             `flex items-center space-x-2 hover:bg-blue-100/50 cursor-pointer p-2.5 rounded-lg transition-all ${
+//                                 isActive || location.pathname === '/modifierProfil' 
+//                                 ? 'bg-blue-100 text-blue-600 font-medium border-l-4 border-blue-500' 
+//                                 : 'text-gray-600 hover:text-blue-600'
+//                             }`}
+//                         >
+//                         <li className="flex items-center space-x-2">
+//                             <FaUserAlt className="text-blue-500" />
+//                             <span>Profil</span>
+//                         </li>
+//                     </NavLink>
+
+//                     <NavLink to='/Parametre-Client' 
+//                         className={({isActive}) => 
+//                             `flex items-center space-x-2 hover:bg-blue-100/50 cursor-pointer p-2.5 rounded-lg transition-all ${
+//                                 isActive 
+//                                 ? 'bg-blue-100 text-blue-600 font-medium border-l-4 border-blue-500' 
+//                                 : 'text-gray-600 hover:text-blue-600'
+//                             }`}>
+//                         <li className="flex items-center space-x-2">
+//                             <FaCog className="text-blue-500" />
+//                             <span>Paramètres</span>
+//                         </li>
+//                     </NavLink>
+//                 </ul>
+//             </nav>
+
+//             {/* Logout button with modern style */}
+//             <div className="mt-auto pt-4">
+//                 <button 
+//                     onClick={handleLogout}
+//                     className="flex items-center space-x-2 text-red-500 hover:text-red-600 text-sm p-2.5 rounded-lg hover:bg-red-50/80 w-full transition-all border border-red-100 hover:border-red-200"
+//                 >
+//                     <FaSignOutAlt />
+//                     <span>Déconnexion</span>
+//                 </button>
+//             </div>
+//         </div>
+//     );
+// }
+
+// export default SideBarClient;
+
+
+import { 
+  FaHome, 
+  FaTools, 
+  FaCalendarAlt, 
+  FaHistory, 
+  FaComments, 
+  FaMoneyBill, 
+  FaCog, 
+  FaSignOutAlt, 
+  FaUserAlt,
+  FaFemale,
+  FaMale
+} from "react-icons/fa";
 import { MdDashboard } from "react-icons/md";
-import { NavLink, useLocation } from "react-router-dom";
+import { NavLink, useLocation, useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useAuth } from "../../context/AuthContext";
 
 const SideBarClient = () => {
     const location = useLocation();
+    const navigate = useNavigate();
+    const { logout } = useAuth();
+    const [userData, setUserData] = useState({
+        nom: '',
+        prenom: '',
+        photo: null,
+        genre: 'femme',
+        email: ''
+    });
+
+    // Récupérer les données du client
+    useEffect(() => {
+        const fetchProfile = async () => {
+            try {
+                const token = localStorage.getItem('token');
+                const response = await fetch('http://localhost:5000/api/auth/client/profile', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    setUserData({
+                        nom: data.nom || '',
+                        prenom: data.prenom || '',
+                        photo: data.photo || null,
+                        genre: data.genre || 'femme',
+                        email: data.email || ''
+                    });
+                }
+            } catch (error) {
+                console.error('Erreur lors du chargement du profil:', error);
+            }
+        };
+
+        fetchProfile();
+    }, []);
+
+    // Gestion de la déconnexion
+    const handleLogout = () => {
+        logout();
+        navigate('/');
+    };
+
+    // Affichage conditionnel de l'avatar
+    const renderAvatar = () => {
+        if (userData.photo) {
+            return (
+                <img 
+                    src={
+                        userData.photo.startsWith('/uploads/') 
+                            ? `http://localhost:5000${userData.photo}`
+                            : userData.photo
+                    }
+                    alt="Profil"
+                    className="w-10 h-10 rounded-full border-2 border-blue-200 object-cover"
+                    onError={(e) => {
+                        e.target.style.display = 'none';
+                        e.target.nextElementSibling.style.display = 'flex';
+                    }}
+                />
+            );
+        }
+        
+        return (
+            <div className={`w-10 h-10 rounded-full border-2 flex items-center justify-center ${
+                userData.genre === 'homme' 
+                    ? 'border-blue-200 bg-blue-50 text-blue-500' 
+                    : 'border-pink-200 bg-pink-50 text-pink-500'
+            }`}>
+                {userData.genre === 'homme' ? (
+                    <FaMale className="text-lg" />
+                ) : (
+                    <FaFemale className="text-lg" />
+                )}
+            </div>
+        );
+    };
+
     return (
-        <div className="fixed left-0 top-20 h-[calc(100vh-5rem)] w-60 bg-white border-r border-gray-200 flex flex-col p-6">
-
-
-            {/* Profile section with subtle shadow */}
+        <div className="fixed left-0 top-20 h-[calc(100vh-5rem)] w-60 bg-white border-r border-gray-200 flex flex-col p-6 z-40">
+            {/* Section profil */}
             <div className="flex items-center space-x-3 mb-8 p-3 bg-white rounded-lg shadow-sm">
-                <img src="https://i.pravatar.cc/40" alt="Avatar" className="w-10 h-10 rounded-full border-2 border-blue-200" />
-                <div>
-                    <h4 className="text-sm font-semibold text-gray-800">Salma IKSOD</h4>
-                    <span className="text-xs bg-green-100 text-green-700 px-1.5 py-0.5 rounded-full">✔ Vérifié</span>
+                {renderAvatar()}
+                <div className="min-w-0">
+                    <h4 className="text-sm font-semibold text-gray-800 truncate">
+                        {userData.prenom} {userData.nom}
+                    </h4>
+                    <p className="text-xs text-gray-500 truncate">{userData.email}</p>
+                    <span className="text-xs bg-green-100 text-green-700 px-1.5 py-0.5 rounded-full mt-1 inline-block">
+                        Bienvenue
+                    </span>
                 </div>
             </div>
 
-            {/* Navigation links with modern design */}
+            {/* Navigation */}
             <nav className="flex-1 overflow-y-auto">
                 <ul className="space-y-1 text-sm">
-
-                    <NavLink to='/ProfilClient'
-                        className={({isActive}) => 
-                            `flex items-center space-x-2 hover:bg-blue-100/50 cursor-pointer p-2.5 rounded-lg transition-all ${
-                                isActive || location.pathname === '/modifierProfil' 
-                                ? 'bg-blue-100 text-blue-600 font-medium border-l-4 border-blue-500' 
-                                : 'text-gray-600 hover:text-blue-600'
-                            }`}
-                        >
-                        <li className="flex items-center space-x-2">
-                            <FaUserAlt className="text-blue-500" />
-                            <span>Profil</span>
-                        </li>
-                    </NavLink>
-
-                    <NavLink to='/DashboardClient' 
+                    <NavLink 
+                        to='/DashboardClient' 
                         className={({isActive}) => 
                             `flex items-center space-x-2 hover:bg-blue-100/50 cursor-pointer p-2.5 rounded-lg transition-all ${
                                 isActive 
                                 ? 'bg-blue-100 text-blue-600 font-medium border-l-4 border-blue-500' 
                                 : 'text-gray-600 hover:text-blue-600'
-                            }`}>
-                        <li className="flex items-center space-x-2">
-                            <MdDashboard className="text-blue-500" />
-                            <span>Tableau de bord</span>
-                        </li>
+                            }`}
+                    >
+                        <MdDashboard className="text-blue-500 min-w-[20px]" />
+                        <span className="truncate">Tableau de bord</span>
                     </NavLink>
 
-                    <NavLink to='/Reservations-Client'
+                    <NavLink 
+                        to='/Reservations-Client'
                         className={({ isActive }) => 
                             `flex items-center space-x-2 hover:bg-blue-100/50 cursor-pointer p-2.5 rounded-lg transition-all ${
                             isActive || 
@@ -57,87 +340,103 @@ const SideBarClient = () => {
                                 ? 'bg-blue-100 text-blue-600 font-medium border-l-4 border-blue-500' 
                                 : 'text-gray-600 hover:text-blue-600'
                             }`}
-                        >
-                        <FaTools className="text-blue-500" />
-                        <span>Mes réservations</span>
+                    >
+                        <FaTools className="text-blue-500 min-w-[20px]" />
+                        <span className="truncate">Mes réservations</span>
                     </NavLink>
 
-                    <NavLink to='/demande-envoyer-Client' 
+                    <NavLink 
+                        to='/demande-envoyer-Client' 
                         className={({isActive}) => 
                             `flex items-center space-x-2 hover:bg-blue-100/50 cursor-pointer p-2.5 rounded-lg transition-all ${
                                 isActive 
                                 ? 'bg-blue-100 text-blue-600 font-medium border-l-4 border-blue-500' 
                                 : 'text-gray-600 hover:text-blue-600'
-                            }`}>
-                        <li className="flex items-center space-x-2">
-                            <FaCalendarAlt className="text-blue-500" />
-                            <span>Demandes envoyées</span>
-                        </li>
+                            }`}
+                    >
+                        <FaCalendarAlt className="text-blue-500 min-w-[20px]" />
+                        <span className="truncate">Demandes envoyées</span>
                     </NavLink>
 
-                    <NavLink to='/avis-Client' 
+                    <NavLink 
+                        to='/avis-Client' 
                         className={({isActive}) => 
                             `flex items-center space-x-2 hover:bg-blue-100/50 cursor-pointer p-2.5 rounded-lg transition-all ${
                                 isActive 
                                 ? 'bg-blue-100 text-blue-600 font-medium border-l-4 border-blue-500' 
                                 : 'text-gray-600 hover:text-blue-600'
-                            }`}>
-                        <li className="flex items-center space-x-2">
-                            <FaHistory className="text-blue-500" />
-                            <span>Avis & Évaluations</span>
-                        </li>
+                            }`}
+                    >
+                        <FaHistory className="text-blue-500 min-w-[20px]" />
+                        <span className="truncate">Avis & Évaluations</span>
                     </NavLink>
 
-                    <NavLink to='/Messages-Client' 
+                    <NavLink 
+                        to='/Messages-Client' 
                         className={({isActive}) => 
                             `flex items-center space-x-2 hover:bg-blue-100/50 cursor-pointer p-2.5 rounded-lg transition-all ${
                                 isActive 
                                 ? 'bg-blue-100 text-blue-600 font-medium border-l-4 border-blue-500' 
                                 : 'text-gray-600 hover:text-blue-600'
-                            }`}>
-                        <li className="flex items-center space-x-2">
-                            <FaComments className="text-blue-500" />
-                            <span>Messages</span>
-                        </li>
+                            }`}
+                    >
+                        <FaComments className="text-blue-500 min-w-[20px]" />
+                        <span className="truncate">Messages</span>
                     </NavLink>
 
-                    <NavLink to='/Paiemant-Client' 
+                    <NavLink 
+                        to='/Paiemant-Client' 
                         className={({isActive}) => 
                             `flex items-center space-x-2 hover:bg-blue-100/50 cursor-pointer p-2.5 rounded-lg transition-all ${
                                 isActive 
                                 ? 'bg-blue-100 text-blue-600 font-medium border-l-4 border-blue-500' 
                                 : 'text-gray-600 hover:text-blue-600'
-                            }`}>
-                        <li className="flex items-center space-x-2">
-                            <FaMoneyBill className="text-blue-500" />
-                            <span>Paiements</span>
-                        </li>
+                            }`}
+                    >
+                        <FaMoneyBill className="text-blue-500 min-w-[20px]" />
+                        <span className="truncate">Paiements</span>
+                    </NavLink>
+                    
+                    <NavLink 
+                        to='/ProfilClient'
+                        className={({isActive}) => 
+                            `flex items-center space-x-2 hover:bg-blue-100/50 cursor-pointer p-2.5 rounded-lg transition-all ${
+                                isActive || location.pathname === '/modifierProfil' 
+                                ? 'bg-blue-100 text-blue-600 font-medium border-l-4 border-blue-500' 
+                                : 'text-gray-600 hover:text-blue-600'
+                            }`}
+                    >
+                        <FaUserAlt className="text-blue-500 min-w-[20px]" />
+                        <span className="truncate">Profil</span>
                     </NavLink>
 
-                    <NavLink to='/Parametre-Client' 
+                    <NavLink 
+                        to='/Parametre-Client' 
                         className={({isActive}) => 
                             `flex items-center space-x-2 hover:bg-blue-100/50 cursor-pointer p-2.5 rounded-lg transition-all ${
                                 isActive 
                                 ? 'bg-blue-100 text-blue-600 font-medium border-l-4 border-blue-500' 
                                 : 'text-gray-600 hover:text-blue-600'
-                            }`}>
-                        <li className="flex items-center space-x-2">
-                            <FaCog className="text-blue-500" />
-                            <span>Paramètres</span>
-                        </li>
+                            }`}
+                    >
+                        <FaCog className="text-blue-500 min-w-[20px]" />
+                        <span className="truncate">Paramètres</span>
                     </NavLink>
                 </ul>
             </nav>
 
-            {/* Logout button with modern style */}
+            {/* Bouton de déconnexion */}
             <div className="mt-auto pt-4">
-                <button className="flex items-center space-x-2 text-red-500 hover:text-red-600 text-sm p-2.5 rounded-lg hover:bg-red-50/80 w-full transition-all border border-red-100 hover:border-red-200">
-                    <FaSignOutAlt />
+                <button 
+                    onClick={handleLogout}
+                    className="flex items-center space-x-2 text-red-500 hover:text-red-600 text-sm p-2.5 rounded-lg hover:bg-red-50/80 w-full transition-all border border-red-100 hover:border-red-200"
+                >
+                    <FaSignOutAlt className="min-w-[20px]" />
                     <span>Déconnexion</span>
                 </button>
             </div>
         </div>
-    )
+    );
 }
 
 export default SideBarClient;

@@ -11,7 +11,11 @@ exports.requireClientAuth = (req, res, next) => {
             return res.status(403).json({ message: 'Accès réservé aux clients' });
         }
 
-        req.user = decoded;
+        // req.user = decoded;
+        req.user = {
+            userId: decoded.userId,
+            role: decoded.role
+        };
         next();
     } catch (error) {
         res.status(401).json({ message: 'Token invalide' });

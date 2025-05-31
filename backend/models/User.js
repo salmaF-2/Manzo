@@ -71,6 +71,8 @@ const userSchema = new mongoose.Schema({
   },
   // ville: { type: mongoose.Schema.Types.ObjectId, ref: 'City' },
   ville: String,
+  codePostal: String,
+  rue: String,
   prestataireInfo: prestataireInfoSchema,
   createdAt: { type: Date, default: Date.now }
 });

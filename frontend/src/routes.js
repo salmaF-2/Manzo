@@ -54,6 +54,7 @@ import Mainprofile from "./pages/profile";
 import DashboardClient from "./pages/page_Clients/DashboardClient.js";
 import MotDePasseOublie from "./auth/MotdePasseOublier.js";
 import ProtectedRoute from "./components/ProtectedRoute.js";
+import ProfilClient from "./pages/page_Clients/ProfilClient.js";
 
 const AppWrapper = () => {
     return (
@@ -95,7 +96,8 @@ const App = () => {
       "/parametre-prestataire",
       
       // Routes clients
-      "/dashboardclient"
+      "/dashboardclient",
+      "/profilclient"
     ];
     
     return !excludedRoutes.some(route => path.startsWith(route));
@@ -145,6 +147,7 @@ const App = () => {
         {/* Partie Client */}
         <Route element={<ProtectedRoute allowedRoles={['client']} />}>
           <Route path="/DashboardClient" element={<DashboardClient />} />
+          <Route path="/ProfilClient" element={<ProfilClient />} />
         </Route>
 
         {/* FAQ Pages - Clients */}
