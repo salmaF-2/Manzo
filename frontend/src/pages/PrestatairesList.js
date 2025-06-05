@@ -55,8 +55,11 @@ const PrestatairesList = () => {
   }, [serviceFromState, pricingType]);
 
   const handleReservation = (prestataireId) => {
-    navigate('/reservation', { state: { prestataireId } });
-  };
+  navigate('/reservation', { 
+    state: { prestataireId },
+    replace: true  // Ajoutez ceci
+  });
+};
 
   const handleChat = (prestataireId) => {
     navigate('/chat', { state: { prestataireId } });
@@ -325,3 +328,5 @@ const PrestatairesList = () => {
 };
 
 export default PrestatairesList;
+
+

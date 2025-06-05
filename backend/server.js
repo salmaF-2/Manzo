@@ -4,12 +4,16 @@
 
 // server.js
 require('dotenv').config();
+
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const path = require('path');
 
+const cityRoutes = require('./routes/cityRoutes');
+
 const authRoutes = require('./routes/authRoutes');
+const bookingRoutes = require('./routes/bookingRoutes');
 const { requireClientAuth } = require('./middleware/authMiddleware');
 const app = express();
 
@@ -33,7 +37,7 @@ mongoose.connect(process.env.MONGO_URI)
   .catch((err) => console.error("❌ Erreur de connexion MongoDB :", err));
 
 
-const cityRoutes = require('./routes/cityRoutes');
+app.use('/api/bookings', bookingRoutes);
 app.use('/api', cityRoutes);
 // Servir les fichiers statiques
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));

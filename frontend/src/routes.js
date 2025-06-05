@@ -9,6 +9,7 @@ import HeaderRole from "./components/HeaderRole";
 import ServiceFixe from "./pages/ServiceFixe";
 import ServiceDevis from "./pages/ServiceDevis";
 import ResultatsRecherche from "./pages/ResultatsRecherche";
+import ReservationPage from "./pages/Reservation.jsx";
 // salma 
 import Accueil from "./pages/Accueil";
 import Contact from "./pages/Contact.js";
@@ -120,6 +121,7 @@ const App = () => {
         
         {/* Prestataires */}
         <Route path="/prestataires" element={<PrestatairesList />} />
+        <Route path="/reservation" element={<ReservationPage />} />
         <Route path="/ville/:ville" element={<VilleDetail />} />
 
         {/* Auth */}
