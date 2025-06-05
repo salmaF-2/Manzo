@@ -277,9 +277,9 @@ const Accueil = () => {
 
                 </div>      
                 {/* Images à droite */}
-                <div className="relative w-full lg:w-1/2 flex gap-4 mr-0 lg:mr-20 order-1 lg:order-2">
-                    <img src={image1} alt="Travailleur 1" className="w-1/2 rounded-lg" />
-                    <img src={image2} alt="Travailleur 2" className="w-1/2 rounded-lg" />
+                <div className="relative w-full lg:w-1/2 flex gap-4 mr-0 lg:mr-20 order-1 lg:order-2 top-20 lg:top-0">
+                    <img src={image1} alt="Travailleur 1" className="w-full w-1/2 rounded-lg" />
+                    <img src={image2} alt="Travailleur 2" className="w-full w-1/2 rounded-lg" />
                 </div>
 
             </div>

@@ -1,7 +1,3 @@
-
-
-
-
 // server.js
 require('dotenv').config();
 const express = require('express');
@@ -12,6 +8,7 @@ const path = require('path');
 const authRoutes = require('./routes/authRoutes');
 const { requireClientAuth } = require('./middleware/authMiddleware');
 const app = express();
+const contactRoutes = require('./routes/contactRoutes');
 
 // Middlewares
 // app.use(cors());
@@ -31,6 +28,7 @@ app.use((err, req, res, next) => {
 mongoose.connect(process.env.MONGO_URI)
 .then(() => console.log("✅ Connexion à MongoDB réussie"))
   .catch((err) => console.error("❌ Erreur de connexion MongoDB :", err));
+app.use('/api', contactRoutes);
 
 
 const cityRoutes = require('./routes/cityRoutes');
@@ -42,7 +40,6 @@ app.use('/api/auth', authRoutes);
 app.get('/DashboardClient', requireClientAuth, (req, res) => {
     res.json({ message: 'Bienvenue dans votre espace client' });
 });
-
 
 
 
