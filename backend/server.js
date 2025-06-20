@@ -8,6 +8,8 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const path = require('path');
+const cityRoutes = require('./routes/cityRoutes');
+const reviewRoutes = require('./routes/reviewRoutes');
 
 const authRoutes = require('./routes/authRoutes');
 const { requireClientAuth } = require('./middleware/authMiddleware');
@@ -33,8 +35,8 @@ mongoose.connect(process.env.MONGO_URI)
   .catch((err) => console.error("❌ Erreur de connexion MongoDB :", err));
 
 
-const cityRoutes = require('./routes/cityRoutes');
 app.use('/api', cityRoutes);
+app.use('/api/reviews', reviewRoutes);
 // Servir les fichiers statiques
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 // Routes authetification
