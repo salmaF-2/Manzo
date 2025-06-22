@@ -65,6 +65,8 @@ const userSchema = new mongoose.Schema({
   prenom: String,
   telephone: String,
   photo: String,
+  bannerImage: String,
+  description: String,
   genre: {
     type: String,
     enum: ['homme', 'femme'], 
@@ -73,8 +75,18 @@ const userSchema = new mongoose.Schema({
   ville: String,
   codePostal: String,
   rue: String,
+  socialLinks: { // Nouveau champ pour les liens sociaux
+    linkedin: String,
+    instagram: String,
+    facebook: String,
+    tiktok: String
+  },
+  adresse: String,
   prestataireInfo: prestataireInfoSchema,
   createdAt: { type: Date, default: Date.now }
 });
 
 module.exports = mongoose.model('User', userSchema);
+
+
+

@@ -136,11 +136,6 @@ exports.registerPrestataire = async (req, res) => {
 
         // Récupérer les données du formulaire
         const formData = req.body;
-        
-        // Si vous utilisez express.json(), les données multipart ne seront pas parsées
-        // Donc nous devons soit :
-        // 1. Utiliser express.urlencoded({ extended: true })
-        // 2. Ou parser manuellement les champs texte
 
         // Solution alternative pour les champs texte
         const {
@@ -304,3 +299,196 @@ exports.updateClientProfile = async (req, res) => {
         res.status(500).json({ message: 'Erreur serveur', error: error.message });
     }
 };
+
+
+// 2 : Prestataire 
+// Récupérer les informations du prestataire connecté
+exports.getPrestataireProfile = async (req, res) => {
+    try {
+        // Populate les données nécessaires si vous utilisez des références
+        const user = await User.findById(req.user.userId)
+            .select('-password -createdAt -__v -prestataireInfo.detailsCarte');
+        
+        if (!user) {
+            return res.status(404).json({ message: 'Utilisateur non trouvé' });
+        }
+
+        if (user.role !== 'prestataire') {
+            return res.status(403).json({ message: 'Accès réservé aux prestataires' });
+        }
+
+        res.status(200).json(user);
+    } catch (error) {
+        console.error('Erreur lors de la récupération du profil:', error);
+        res.status(500).json({ message: 'Erreur serveur', error: error.message });
+    }
+};
+// Mettre à jour la bannière du prestataire
+exports.updatePrestataireBanner = async (req, res) => {
+    try {
+        if (!req.file) {
+            return res.status(400).json({ message: 'Aucune image téléchargée' });
+        }
+
+        const bannerPath = `/uploads/${req.file.filename}`;
+        
+        const updatedUser = await User.findByIdAndUpdate(
+            req.user.userId,
+            { bannerImage: bannerPath },
+            { new: true, select: '-password -prestataireInfo.detailsCarte -createdAt -__v' }
+        );
+
+        if (!updatedUser) {
+            return res.status(404).json({ message: 'Utilisateur non trouvé' });
+        }
+
+        res.status(200).json({
+            message: 'Bannière mise à jour avec succès',
+            bannerImage: updatedUser.bannerImage
+        });
+    } catch (error) {
+        console.error('Erreur lors de la mise à jour de la bannière:', error);
+        res.status(500).json({ 
+            message: 'Erreur serveur', 
+            error: error.message 
+        });
+    }
+};
+
+// Mettre à jour le profil prestataire
+// exports.updatePrestataireProfile = async (req, res) => {
+//     try {
+//         const {
+//             nom, prenom, telephone, ville, description,
+//             titreProfessionnel, localisation,
+//             linkedin, instagram, facebook, tiktok,
+//             adresse, email,experience, secteurActivite
+//         } = req.body;
+
+//         // Préparer les données de mise à jour
+//        const updateData = {
+//             nom,
+//             prenom,
+//             telephone,
+//             ville,
+//             description,
+//             adresse,
+//             email,
+//             prestataireInfo: {
+//                 titreProfessionnel,
+//                 localisation,
+//                 experience,
+//                 secteurActivite
+//             },
+//             socialLinks: {
+//                 linkedin,
+//                 instagram,
+//                 facebook,
+//                 tiktok
+//             }
+//         };
+
+//         // Gérer les fichiers uploadés
+//         if (req.files) {
+//             if (req.files.photoProfil) {
+//                 updateData.prestataireInfo.documents = updateData.prestataireInfo.documents || {};
+//                 updateData.prestataireInfo.documents.photoProfil = `/uploads/${req.files.photoProfil[0].filename}`;
+//             }
+//             if (req.files.banner) {
+//                 updateData.bannerImage = `/uploads/${req.files.banner[0].filename}`;
+//             }
+//         }
+
+//         // Mettre à jour l'utilisateur
+//         const updatedUser = await User.findByIdAndUpdate(
+//             req.user.userId,
+//             updateData,
+//             { new: true, select: '-password -prestataireInfo.detailsCarte -createdAt -__v' }
+//         );
+
+//         if (!updatedUser) {
+//             return res.status(404).json({ message: 'Utilisateur non trouvé' });
+//         }
+
+//         res.status(200).json({
+//             message: 'Profil mis à jour avec succès',
+//             user: updatedUser
+//         });
+
+//     } catch (error) {
+//         console.error('Erreur lors de la mise à jour du profil:', error);
+//         res.status(500).json({ 
+//             message: 'Erreur serveur', 
+//             error: error.message 
+//         });
+//     }
+// };
+exports.updatePrestataireProfile = async (req, res) => {
+    try {
+        const {
+            nom, prenom, telephone, ville, description,
+            titreProfessionnel, localisation,
+            linkedin, instagram, facebook, tiktok,
+            adresse, email,experience, secteurActivite
+        } = req.body;
+
+        // Préparer les données de mise à jour
+       const updateData = {
+            nom,
+            prenom,
+            telephone,
+            ville,
+            description,
+            adresse,
+            email,
+            prestataireInfo: {
+                titreProfessionnel,
+                localisation,
+                experience,
+                secteurActivite
+            },
+            socialLinks: {
+                linkedin,
+                instagram,
+                facebook,
+                tiktok
+            }
+        };
+
+        // Gérer les fichiers uploadés
+        if (req.files) {
+            if (req.files.photoProfil) {
+                updateData.prestataireInfo.documents = updateData.prestataireInfo.documents || {};
+                updateData.prestataireInfo.documents.photoProfil = `/uploads/${req.files.photoProfil[0].filename}`;
+            }
+            if (req.files.banner) {
+                updateData.bannerImage = `/uploads/${req.files.banner[0].filename}`;
+            }
+        }
+
+        // Mettre à jour l'utilisateur
+        const updatedUser = await User.findByIdAndUpdate(
+            req.user.userId,
+            updateData,
+            { new: true, select: '-password -prestataireInfo.detailsCarte -createdAt -__v' }
+        );
+
+        if (!updatedUser) {
+            return res.status(404).json({ message: 'Utilisateur non trouvé' });
+        }
+
+        res.status(200).json({
+            message: 'Profil mis à jour avec succès',
+            user: updatedUser
+        });
+
+    } catch (error) {
+        console.error('Erreur lors de la mise à jour du profil:', error);
+        res.status(500).json({ 
+            message: 'Erreur serveur', 
+            error: error.message 
+        });
+    }
+};
+
+

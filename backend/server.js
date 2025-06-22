@@ -6,7 +6,7 @@ const cors = require('cors');
 const path = require('path');
 
 const authRoutes = require('./routes/authRoutes');
-const { requireClientAuth } = require('./middleware/authMiddleware');
+const { requireClientAuth,requirePrestataireAuth  } = require('./middleware/authMiddleware');
 const app = express();
 const contactRoutes = require('./routes/contactRoutes');
 
@@ -40,8 +40,13 @@ app.use('/api/auth', authRoutes);
 app.get('/DashboardClient', requireClientAuth, (req, res) => {
     res.json({ message: 'Bienvenue dans votre espace client' });
 });
+app.get('/DashboardPrestataire', requirePrestataireAuth, (req, res) => {
+    res.json({ message: 'Bienvenue dans votre espace prestataire' });
+});
 
-
+app.use((req, res) => {
+  res.status(404).json({ message: 'Route non trouvée' });
+});
 
 
 // Lancement du serveur

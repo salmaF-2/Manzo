@@ -52,8 +52,24 @@ const profilePicUpload = multer({
   }
 });
 
+const bannerUpload = multer({
+  storage: storage,
+  limits: { fileSize: 10 * 1024 * 1024 }, // 10MB
+  fileFilter: (req, file, cb) => {
+    const filetypes = /jpeg|jpg|png|gif/;
+    const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
+    const mimetype = filetypes.test(file.mimetype);
+
+    if (extname && mimetype) {
+      return cb(null, true);
+    } else {
+      cb(new Error('Seules les images sont autorisées pour la bannière'));
+    }
+  }
+});
 
 module.exports = {
   upload, 
-  profilePicUpload 
+  profilePicUpload ,
+  bannerUpload
 };
