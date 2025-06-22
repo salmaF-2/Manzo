@@ -205,7 +205,10 @@ const Profil = () => {
                     {userData.prestataireInfo?.secteurActivite || 'Secteur non spécifié'} - <span></span> 
                     {userData.prestataireInfo?.experience || 'Expérience non spécifiée'} ans d'expérience
                 </p>
-                <p className="text-gray-400 flex items-center gap-1"><FaMapMarkerAlt className="mr-1" />{userData.ville}, Maroc</p>
+                <p className="text-gray-400 flex items-center gap-1">
+                    <FaMapMarkerAlt className="mr-1" />
+                    {userData.ville}, Maroc
+                </p>
                   <div className="flex gap-2 mt-2 text-gray-500">
                     {userData.socialLinks?.linkedin && (
                         <a href={ensureHttp(userData.socialLinks.linkedin)} 

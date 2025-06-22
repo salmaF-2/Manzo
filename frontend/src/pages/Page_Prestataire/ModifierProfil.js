@@ -33,6 +33,7 @@ const ModifierProfil = () => {
         }
     });
     const [loading, setLoading] = useState(true);
+    const [cities, setCities] = useState([]);
     
     const location = useLocation();
     const from = location.state?.from || '/ProfilPrestataire';
@@ -81,6 +82,19 @@ const ModifierProfil = () => {
         setLoading(false);
     }
 };
+useEffect(() => {
+    const fetchCities = async () => {
+        try {
+            const response = await axios.get('http://localhost:5000/api/auth/cities');
+            setCities(response.data);
+        } catch (error) {
+            console.error('Erreur lors de la récupération des villes:', error);
+            toast.error('Erreur de chargement des villes');
+        }
+    };
+    
+    fetchCities();
+}, []);
     const handleInputChange = (e) => {
         const { name, value } = e.target;
         setUserData(prev => ({
@@ -442,14 +456,19 @@ const handlePhotoUpload = async (e) => {
 
                             <div className="mb-4">
                                 <label className="block text-sm font-medium mb-1">Ville</label>
-                                <input 
-                                    type="text" 
+                                <select 
                                     name="ville"
                                     value={userData.ville}
                                     onChange={handleInputChange}
-                                    placeholder="Votre ville" 
-                                    className="border rounded-lg w-full p-2" 
-                                />
+                                    className="border rounded-lg w-full p-2"
+                                >
+                                    <option value="">Sélectionnez une ville</option>
+                                    {cities.map((city) => (
+                                        <option key={city._id} value={city.name}>
+                                            {city.name}
+                                        </option>
+                                    ))}
+                                </select>
                             </div>
                         </div>
                     </div>

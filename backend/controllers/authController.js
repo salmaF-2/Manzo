@@ -492,3 +492,15 @@ exports.updatePrestataireProfile = async (req, res) => {
 };
 
 
+
+// Récupérer toutes les villes
+exports.getCities = async (req, res) => {
+    try {
+        const cities = await City.find().select('name');
+        res.status(200).json(cities);
+    } catch (error) {
+        console.error('Erreur:', error);
+        res.status(500).json({ message: 'Erreur serveur', error: error.message });
+    }
+};
+

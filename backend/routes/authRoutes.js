@@ -58,5 +58,7 @@ router.put(
     ]),
     authController.updatePrestataireProfile
 );
+// Route pour récupérer les villes
+router.get('/cities', authController.getCities);
 
 module.exports = router;
