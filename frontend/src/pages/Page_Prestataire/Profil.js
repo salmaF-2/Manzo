@@ -210,43 +210,45 @@ const Profil = () => {
                     {userData.ville}, Maroc
                 </p>
                   <div className="flex gap-2 mt-2 text-gray-500">
-                    {userData.socialLinks?.linkedin && (
-                        <a href={ensureHttp(userData.socialLinks.linkedin)} 
-                            target="_blank" 
-                            rel="noopener noreferrer"
-                            className="hover:text-blue-700 transition-colors duration-300">
-                            <FaLinkedin />
-                        </a>
-                    )}
-                    {userData.socialLinks?.instagram && (
-                        <a href={ensureHttp(userData.socialLinks.instagram)} 
-                            target="_blank" 
-                            rel="noopener noreferrer"
-                            className="hover:text-pink-500 transition-colors duration-300">
-                            <FaInstagram />
-                        </a>
-                    )}
-                    {userData.socialLinks?.facebook && (
-                        <a href={ensureHttp(userData.socialLinks.facebook)} 
-                            target="_blank" 
-                            rel="noopener noreferrer"
-                            className="hover:text-blue-500 transition-colors duration-300">
-                            <FaFacebook />
-                        </a>
-                    )}
-                    {userData.socialLinks?.tiktok && (
-                        <a href={ensureHttp(userData.socialLinks.tiktok)} 
-                            target="_blank" 
-                            rel="noopener noreferrer"
-                            className="hover:text-black transition-colors duration-300">
-                            {/* Icône TikTok */}
-                        </a>
-                    )}
-                    {/*  */}
-                    <FaLinkedin className="hover:text-blue-700 cursor-pointer transition-colors duration-300" />
-                    <FaInstagram className="hover:text-pink-500 cursor-pointer transition-colors duration-300" />
-                    <FaTwitter className="hover:text-sky-400 cursor-pointer transition-colors duration-300" />
-                    <FaTiktok className="hover:text-sky-400 cursor-pointer transition-colors duration-300"/>
+                    {/* Icône LinkedIn - Toujours visible */}
+                    <a 
+                        href={userData.socialLinks?.linkedin ? ensureHttp(userData.socialLinks.linkedin) : '#'} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className={`${userData.socialLinks?.linkedin ? 'hover:text-blue-700' : 'opacity-50 cursor-default'} transition-colors duration-300`}
+                    >
+                        <FaLinkedin />
+                    </a>
+                    
+                    {/* Icône Instagram - Toujours visible */}
+                    <a 
+                        href={userData.socialLinks?.instagram ? ensureHttp(userData.socialLinks.instagram) : '#'} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className={`${userData.socialLinks?.instagram ? 'hover:text-pink-500' : 'opacity-50 cursor-default'} transition-colors duration-300`}
+                    >
+                        <FaInstagram />
+                    </a>
+                    
+                    {/* Icône Facebook - Toujours visible */}
+                    <a 
+                        href={userData.socialLinks?.facebook ? ensureHttp(userData.socialLinks.facebook) : '#'} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className={`${userData.socialLinks?.facebook ? 'hover:text-blue-500' : 'opacity-50 cursor-default'} transition-colors duration-300`}
+                    >
+                        <FaFacebook />
+                    </a>
+                    
+                    {/* Icône TikTok - Toujours visible */}
+                    <a 
+                        href={userData.socialLinks?.tiktok ? ensureHttp(userData.socialLinks.tiktok) : '#'} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className={`${userData.socialLinks?.tiktok ? 'hover:text-black' : 'opacity-50 cursor-default'} transition-colors duration-300`}
+                    >
+                        <FaTiktok />
+                    </a>
                   </div>
                 </div>
 
@@ -276,11 +278,6 @@ const Profil = () => {
 
           <div className="bg-white rounded-2xl shadow-lg p-6 transform transition-all hover:scale-[1.01] hover:shadow-xl">
             <h3 className="font-bold text-lg mb-4">Contact</h3>
-            {/* <div className="flex flex-col gap-2 text-gray-600 text-sm">
-              <div className="flex items-center gap-2 hover:text-blue-600 transition-colors duration-300"><FaPhoneAlt /> {userData.telephone || 'Non renseigné'}</div>
-              <div className="flex items-center gap-2 hover:text-blue-600 transition-colors duration-300"><FaEnvelope /> {userData.email}</div>
-              <div className="flex items-center gap-2 hover:text-blue-600 transition-colors duration-300"><FaMapMarkerAlt /> {userData.ville || 'Non renseigné'}, Maroc</div>
-            </div> */}
             <div className="flex flex-col gap-2 text-gray-600 text-sm">
                 <div className="flex items-center gap-2 hover:text-blue-600 transition-colors duration-300">
                     <FaPhoneAlt /> {userData.telephone || 'Non renseigné'}

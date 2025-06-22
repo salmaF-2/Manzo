@@ -169,10 +169,14 @@ const handleSubmit = async (e) => {
         formData.append('prestataireInfo[localisation]', userData.prestataireInfo.localisation);
         
         // Liens sociaux
-        formData.append('socialLinks[linkedin]', userData.socialLinks.linkedin || '');
-        formData.append('socialLinks[instagram]', userData.socialLinks.instagram || '');
-        formData.append('socialLinks[facebook]', userData.socialLinks.facebook || '');
-        formData.append('socialLinks[tiktok]', userData.socialLinks.tiktok || '');
+        // formData.append('socialLinks[linkedin]', userData.socialLinks.linkedin || '');
+        // formData.append('socialLinks[instagram]', userData.socialLinks.instagram || '');
+        // formData.append('socialLinks[facebook]', userData.socialLinks.facebook || '');
+        // formData.append('socialLinks[tiktok]', userData.socialLinks.tiktok || '');
+        formData.append('linkedin', userData.socialLinks.linkedin || '');
+        formData.append('instagram', userData.socialLinks.instagram || '');
+        formData.append('facebook', userData.socialLinks.facebook || '');
+        formData.append('tiktok', userData.socialLinks.tiktok || '');
 
         const response = await axios.put(
             'http://localhost:5000/api/auth/prestataire/profile',

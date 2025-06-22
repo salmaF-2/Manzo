@@ -448,10 +448,14 @@ exports.updatePrestataireProfile = async (req, res) => {
                 secteurActivite
             },
             socialLinks: {
-                linkedin,
-                instagram,
-                facebook,
-                tiktok
+                // linkedin,
+                // instagram,
+                // facebook,
+                // tiktok
+                linkedin: linkedin || null,
+                instagram: instagram || null,
+                facebook: facebook || null,
+                tiktok: tiktok || null
             }
         };
 
