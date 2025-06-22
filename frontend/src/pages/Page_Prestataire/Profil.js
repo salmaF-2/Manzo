@@ -70,7 +70,6 @@ const Profil = () => {
         },
         socialLinks: {}
     });
-    // const [userData, setUserData] = useState(null);
     const [loading, setLoading] = useState(true);
     const [showAll, setShowAll] = useState(false);
 

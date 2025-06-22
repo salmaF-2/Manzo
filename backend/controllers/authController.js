@@ -356,121 +356,61 @@ exports.updatePrestataireBanner = async (req, res) => {
 };
 
 // Mettre à jour le profil prestataire
-// exports.updatePrestataireProfile = async (req, res) => {
-//     try {
-//         const {
-//             nom, prenom, telephone, ville, description,
-//             titreProfessionnel, localisation,
-//             linkedin, instagram, facebook, tiktok,
-//             adresse, email,experience, secteurActivite
-//         } = req.body;
-
-//         // Préparer les données de mise à jour
-//        const updateData = {
-//             nom,
-//             prenom,
-//             telephone,
-//             ville,
-//             description,
-//             adresse,
-//             email,
-//             prestataireInfo: {
-//                 titreProfessionnel,
-//                 localisation,
-//                 experience,
-//                 secteurActivite
-//             },
-//             socialLinks: {
-//                 linkedin,
-//                 instagram,
-//                 facebook,
-//                 tiktok
-//             }
-//         };
-
-//         // Gérer les fichiers uploadés
-//         if (req.files) {
-//             if (req.files.photoProfil) {
-//                 updateData.prestataireInfo.documents = updateData.prestataireInfo.documents || {};
-//                 updateData.prestataireInfo.documents.photoProfil = `/uploads/${req.files.photoProfil[0].filename}`;
-//             }
-//             if (req.files.banner) {
-//                 updateData.bannerImage = `/uploads/${req.files.banner[0].filename}`;
-//             }
-//         }
-
-//         // Mettre à jour l'utilisateur
-//         const updatedUser = await User.findByIdAndUpdate(
-//             req.user.userId,
-//             updateData,
-//             { new: true, select: '-password -prestataireInfo.detailsCarte -createdAt -__v' }
-//         );
-
-//         if (!updatedUser) {
-//             return res.status(404).json({ message: 'Utilisateur non trouvé' });
-//         }
-
-//         res.status(200).json({
-//             message: 'Profil mis à jour avec succès',
-//             user: updatedUser
-//         });
-
-//     } catch (error) {
-//         console.error('Erreur lors de la mise à jour du profil:', error);
-//         res.status(500).json({ 
-//             message: 'Erreur serveur', 
-//             error: error.message 
-//         });
-//     }
-// };
 exports.updatePrestataireProfile = async (req, res) => {
     try {
-        const {
-            nom, prenom, telephone, ville, description,
-            titreProfessionnel, localisation,
-            linkedin, instagram, facebook, tiktok,
-            adresse, email,experience, secteurActivite
-        } = req.body;
+        const updateData = {};
 
-        // Préparer les données de mise à jour
-       const updateData = {
-            nom,
-            prenom,
-            telephone,
-            ville,
-            description,
-            adresse,
-            email,
-            prestataireInfo: {
-                titreProfessionnel,
-                localisation,
-                experience,
-                secteurActivite
-            },
-            socialLinks: {
-                // linkedin,
-                // instagram,
-                // facebook,
-                // tiktok
-                linkedin: linkedin || null,
-                instagram: instagram || null,
-                facebook: facebook || null,
-                tiktok: tiktok || null
-            }
-        };
-
-        // Gérer les fichiers uploadés
+        // Gestion des fichiers uploadés
         if (req.files) {
             if (req.files.photoProfil) {
-                updateData.prestataireInfo.documents = updateData.prestataireInfo.documents || {};
-                updateData.prestataireInfo.documents.photoProfil = `/uploads/${req.files.photoProfil[0].filename}`;
+                updateData.$set = updateData.$set || {};
+                updateData.$set['prestataireInfo.documents.photoProfil'] = `/uploads/${req.files.photoProfil[0].filename}`;
             }
             if (req.files.banner) {
-                updateData.bannerImage = `/uploads/${req.files.banner[0].filename}`;
+                updateData.$set = updateData.$set || {};
+                updateData.$set.bannerImage = `/uploads/${req.files.banner[0].filename}`;
             }
         }
 
-        // Mettre à jour l'utilisateur
+        // Gestion des champs texte
+        if (req.body) {
+            updateData.$set = updateData.$set || {};
+            
+            // Champs de base
+            const textFields = ['nom', 'prenom', 'telephone', 'ville', 'description', 'adresse', 'email'];
+            textFields.forEach(field => {
+                if (req.body[field] !== undefined) {
+                    updateData.$set[field] = req.body[field];
+                }
+            });
+
+            // Champs prestataireInfo
+            const prestataireFields = ['experience', 'secteurActivite', 'localisation', 'titreProfessionnel'];
+            prestataireFields.forEach(field => {
+                if (req.body[field] !== undefined || req.body[`prestataireInfo[${field}]`] !== undefined) {
+                    updateData.$set[`prestataireInfo.${field}`] = req.body[field] || req.body[`prestataireInfo[${field}]`];
+                }
+            });
+
+            // Liens sociaux - IMPORTANT
+            if (req.body.socialLinks) {
+                updateData.$set.socialLinks = {
+                    linkedin: req.body.socialLinks.linkedin || req.body['socialLinks[linkedin]'] || '',
+                    instagram: req.body.socialLinks.instagram || req.body['socialLinks[instagram]'] || '',
+                    facebook: req.body.socialLinks.facebook || req.body['socialLinks[facebook]'] || '',
+                    tiktok: req.body.socialLinks.tiktok || req.body['socialLinks[tiktok]'] || ''
+                };
+            } else {
+                // Gestion alternative pour FormData
+                updateData.$set.socialLinks = {
+                    linkedin: req.body['socialLinks[linkedin]'] || '',
+                    instagram: req.body['socialLinks[instagram]'] || '',
+                    facebook: req.body['socialLinks[facebook]'] || '',
+                    tiktok: req.body['socialLinks[tiktok]'] || ''
+                };
+            }
+        }
+
         const updatedUser = await User.findByIdAndUpdate(
             req.user.userId,
             updateData,
@@ -494,7 +434,6 @@ exports.updatePrestataireProfile = async (req, res) => {
         });
     }
 };
-
 
 
 // Récupérer toutes les villes

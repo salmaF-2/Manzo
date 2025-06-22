@@ -147,55 +147,50 @@ useEffect(() => {
             };
         });
     };
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        try {
+            const token = localStorage.getItem('token');
+            const formData = new FormData();
+            
+            // Ajoutez tous les champs texte
+            formData.append('nom', userData.nom);
+            formData.append('prenom', userData.prenom);
+            formData.append('email', userData.email);
+            formData.append('telephone', userData.telephone);
+            formData.append('ville', userData.ville);
+            formData.append('description', userData.description);
+            formData.append('adresse', userData.adresse);
+            
+            // Infos prestataire
+            formData.append('experience', userData.prestataireInfo.experience || '');
+            formData.append('secteurActivite', userData.prestataireInfo.secteurActivite || '');
+            formData.append('prestataireInfo[localisation]', userData.prestataireInfo.localisation || '');
+            
+            // Liens sociaux - IMPORTANT: utilisez cette syntaxe
+            formData.append('socialLinks[linkedin]', userData.socialLinks.linkedin || '');
+            formData.append('socialLinks[instagram]', userData.socialLinks.instagram || '');
+            formData.append('socialLinks[facebook]', userData.socialLinks.facebook || '');
+            formData.append('socialLinks[tiktok]', userData.socialLinks.tiktok || '');
 
-const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-        const token = localStorage.getItem('token');
-        const formData = new FormData();
-        
-        // Ajoutez tous les champs
-        formData.append('nom', userData.nom);
-        formData.append('prenom', userData.prenom);
-        formData.append('email', userData.email);
-        formData.append('telephone', userData.telephone);
-        formData.append('ville', userData.ville);
-        formData.append('description', userData.description);
-        formData.append('adresse', userData.adresse);
-        
-        // Infos prestataire
-        formData.append('experience', userData.prestataireInfo.experience || '');
-        formData.append('secteurActivite', userData.prestataireInfo.secteurActivite || '');
-        formData.append('prestataireInfo[localisation]', userData.prestataireInfo.localisation);
-        
-        // Liens sociaux
-        // formData.append('socialLinks[linkedin]', userData.socialLinks.linkedin || '');
-        // formData.append('socialLinks[instagram]', userData.socialLinks.instagram || '');
-        // formData.append('socialLinks[facebook]', userData.socialLinks.facebook || '');
-        // formData.append('socialLinks[tiktok]', userData.socialLinks.tiktok || '');
-        formData.append('linkedin', userData.socialLinks.linkedin || '');
-        formData.append('instagram', userData.socialLinks.instagram || '');
-        formData.append('facebook', userData.socialLinks.facebook || '');
-        formData.append('tiktok', userData.socialLinks.tiktok || '');
-
-        const response = await axios.put(
-            'http://localhost:5000/api/auth/prestataire/profile',
-            formData,
-            {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                    'Content-Type': 'multipart/form-data'
+            const response = await axios.put(
+                'http://localhost:5000/api/auth/prestataire/profile',
+                formData,
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                        'Content-Type': 'multipart/form-data'
+                    }
                 }
-            }
-        );
-        
-        toast.success('Profil mis à jour avec succès!');
-        navigate(from);
-    } catch (error) {
-        console.error('Erreur:', error);
-        toast.error(error.response?.data?.message || 'Échec de la mise à jour');
-    }
-};
+            );
+            window.dispatchEvent(new Event('profileUpdated'));
+            toast.success('Profil mis à jour avec succès!');
+            navigate(from);
+        } catch (error) {
+            console.error('Erreur:', error);
+            toast.error(error.response?.data?.message || 'Échec de la mise à jour');
+        }
+    };
     if (loading) {
         return (
             <div className="flex bg-gradient-to-br from-[#BCD0EA50] to-indigo-50 min-h-[calc(100vh-5rem)] mt-20">
@@ -206,49 +201,50 @@ const handleSubmit = async (e) => {
             </div>
         );
     }
-const handlePhotoUpload = async (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
+   const handlePhotoUpload = async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
 
-    if (file.size > 5 * 1024 * 1024) {
-        toast.error('La taille du fichier ne doit pas dépasser 5MB');
-        return;
-    }
+        if (file.size > 5 * 1024 * 1024) {
+            toast.error('La taille du fichier ne doit pas dépasser 5MB');
+            return;
+        }
 
-    try {
-        const token = localStorage.getItem('token');
-        const formData = new FormData();
-        formData.append('photoProfil', file);
-        
-        const response = await axios.put(
-            'http://localhost:5000/api/auth/prestataire/profile',
-            formData,
-            {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                    'Content-Type': 'multipart/form-data'
+        try {
+            const token = localStorage.getItem('token');
+            const formData = new FormData();
+            formData.append('photoProfil', file);
+            
+            const response = await axios.put(
+                'http://localhost:5000/api/auth/prestataire/profile',
+                formData,
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                        'Content-Type': 'multipart/form-data'
+                    }
                 }
-            }
-        );
+            );
 
-        // Mise à jour de l'état local avec la nouvelle photo
-        setUserData(prev => ({
-            ...prev,
-            prestataireInfo: {
-                ...prev.prestataireInfo,
-                documents: {
-                    ...prev.prestataireInfo.documents,
-                    photoProfil: response.data.user.prestataireInfo.documents.photoProfil
+            // Mise à jour de l'état local avec la nouvelle photo
+            setUserData(prev => ({
+                ...prev,
+                prestataireInfo: {
+                    ...prev.prestataireInfo,
+                    documents: {
+                        ...prev.prestataireInfo.documents,
+                        photoProfil: response.data.user.prestataireInfo.documents.photoProfil
+                    }
                 }
-            }
-        }));
+            }));
 
-        toast.success('Photo de profil mise à jour avec succès!');
-    } catch (error) {
-        console.error('Erreur:', error);
-        toast.error(error.response?.data?.message || 'Échec de la mise à jour');
-    }
-};
+            toast.success('Photo de profil mise à jour avec succès!');
+        } catch (error) {
+            console.error('Erreur:', error);
+            toast.error(error.response?.data?.message || 'Échec de la mise à jour');
+        }
+    };
+
     return (
         <div className="flex bg-gradient-to-br from-[#BCD0EA50] to-indigo-50 min-h-[calc(100vh-5rem)] mt-20">
             <SideBar />
