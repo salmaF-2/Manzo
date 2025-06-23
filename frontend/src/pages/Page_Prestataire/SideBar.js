@@ -1,11 +1,18 @@
 import { FaHome, FaTools, FaCalendarAlt, FaHistory, FaComments, FaMoneyBill, FaCog, FaSignOutAlt, FaUserAlt } from "react-icons/fa";
 import { MdDashboard } from "react-icons/md";
-import { NavLink, useLocation } from "react-router-dom";
+import { NavLink, useLocation,useNavigate  } from "react-router-dom";
 import { useEffect, useState } from "react";
 import axios from "axios";
+import { useAuth } from "../../context/AuthContext";
 
 const SideBar = () => {
     const location = useLocation();
+    const navigate = useNavigate();
+    const { logout } = useAuth();
+    const handleLogout = () => {
+        logout();
+        navigate("/"); // Redirection vers la page d'accueil
+    };
     const [userData, setUserData] = useState({
         nom: '',
         prenom: '',
@@ -184,11 +191,15 @@ const SideBar = () => {
 
             {/* Logout button with modern style */}
             <div className="mt-auto pt-4">
-                <button className="flex items-center space-x-2 text-red-500 hover:text-red-600 text-sm p-2.5 rounded-lg hover:bg-red-50/80 w-full transition-all border border-red-100 hover:border-red-200">
-                    <FaSignOutAlt />
-                    <span>Déconnexion</span>
+                <button 
+                    onClick={handleLogout}
+                    className="flex items-center space-x-2 text-red-500 hover:text-red-600 text-sm p-2.5 rounded-lg hover:bg-red-50/80 w-full transition-all border border-red-100 hover:border-red-200"
+                >
+                <FaSignOutAlt />
+                <span>Déconnexion</span>
                 </button>
             </div>
+
         </div>
     )
 }
