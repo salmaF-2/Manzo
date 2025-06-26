@@ -9,6 +9,8 @@ const authRoutes = require('./routes/authRoutes');
 const { requireClientAuth,requirePrestataireAuth  } = require('./middleware/authMiddleware');
 const app = express();
 const contactRoutes = require('./routes/contactRoutes');
+const serviceRoutes = require('./routes/serviceRoutes'); 
+const categoryRoutes = require('./routes/categoryRoutes'); 
 
 // Middlewares
 // app.use(cors());
@@ -33,6 +35,12 @@ app.use('/api', contactRoutes);
 
 const cityRoutes = require('./routes/cityRoutes');
 app.use('/api', cityRoutes);
+//
+app.use('/api/services', serviceRoutes);
+//
+app.use('/api/categories', categoryRoutes);
+
+
 // Servir les fichiers statiques
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 // Routes authetification
