@@ -1,11 +1,12 @@
-import React, { useEffect } from 'react';
-import { useParams } from 'react-router-dom';
-import { prestataires, servicesFixes, servicesDevis } from '../data/data';
+import React, { useEffect, useState } from 'react';
+import { useParams, Link } from 'react-router-dom';
 import { FaStar, FaMapMarkerAlt, FaClock, FaQuoteLeft } from 'react-icons/fa';
-import { ChevronLeftIcon, ChevronRightIcon, CheckCircleIcon } from "@heroicons/react/solid";
-import { Link } from 'react-router-dom';
+import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/solid";
 
-// Import des images des villes
+// Assuming these static imports are still used for fallback or services images
+import { servicesFixes, servicesDevis } from '../data/data';
+
+// Import images from local assets (can be removed if images are entirely fetched from API)
 import Agadir from "../assets/images/villes/Agadir.jpg";
 import CasaBlanca from "../assets/images/villes/Casablanca.jpg";
 import Marrakech from "../assets/images/villes/Marrakech.jpeg";
@@ -17,7 +18,7 @@ import Tanger from "../assets/images/villes/Tangier.jpeg";
 import Titouane from "../assets/images/villes/Titouan.jpg";
 import Tiznit from "../assets/images/villes/Tiznit.jpg";
 
-// Images de services pour arrière-plan
+// Images de services pour arrière-plan (might become dynamic too)
 import ServicePlomberie from "../assets/services/plomberie.jpg";
 import ServiceMenage from "../assets/services/menage.jpg";
 import ServiceJardinage from "../assets/services/jardinage.jpg";
@@ -31,8 +32,8 @@ import ServiceCuisine from "../assets/services/cuisine.jpg";
 import ServiceBabysitting from "../assets/services/babysitting.jpg";
 import ServiceCoiffure from "../assets/services/coiffure.jpg";
 
-// Mappage des noms de ville aux images importées
-const villeImages = {
+// Mappage des noms de ville aux images importées (use as fallback if cityDetails.image is not available)
+const staticVilleImages = {
   Agadir,
   Casablanca: CasaBlanca,
   Marrakech,
@@ -45,39 +46,7 @@ const villeImages = {
   Tiznit
 };
 
-// Avis clients par ville
-const villeAvis = {
-  Agadir: [
-    {
-      nom: "Karim B.",
-      note: 4.5,
-      commentaire: "Service de plomberie rapide et efficace. Le prestataire était ponctuel et professionnel.",
-      date: "15/06/2023"
-    },
-    {
-      nom: "Fatima Z.",
-      note: 5,
-      commentaire: "Ménage impeccable ! Je recommande vivement ce service.",
-      date: "22/05/2023"
-    }
-  ],
-  Casablanca: [
-    {
-      nom: "Mehdi L.",
-      note: 4,
-      commentaire: "Bon service d'électricité mais un peu cher.",
-      date: "10/07/2023"
-    },
-    {
-      nom: "Leila M.",
-      note: 5,
-      commentaire: "Super expérience avec le service de ménage. Tout était parfait.",
-      date: "05/06/2023"
-    }
-  ],
-};
-
-// Images de service par catégorie
+// Images de service par catégorie (if these are static, keep them, otherwise they'll come from API)
 const serviceImages = {
   Plomberie: ServicePlomberie,
   Ménage: ServiceMenage,
@@ -94,26 +63,70 @@ const serviceImages = {
 };
 
 const VilleDetail = () => {
-  const { ville } = useParams();
-  const villeData = prestataires[ville] || [];
-  const [currentSlide, setCurrentSlide] = React.useState(0);
-  const [serviceType, setServiceType] = React.useState('all');
-  
-  // Effet pour scroller vers le haut au chargement
-  useEffect(() => {
-    window.scrollTo(0, 0);
-  }, [ville]);
+  const { ville } = useParams(); // 'ville' from URL params, e.g., /villedetail/Casablanca
 
+  const [cityDetails, setCityDetails] = useState(null);
+  const [reviews, setReviews] = useState([]);
+  const [prestatairesInCity, setPrestatairesInCity] = useState([]); // To store prestataires fetched with city
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  const [currentSlide, setCurrentSlide] = useState(0);
+  const [serviceType, setServiceType] = useState('all');
+
+  const API_BASE_URL = 'http://localhost:5000/api'; // Ensure this matches your server.js port
+  const BASE_SERVER_URL = 'http://localhost:5000'; // <--- NEW: Define your backend server's base URL
+
+  useEffect(() => {
+    window.scrollTo(0, 0); // Scroll to top on component mount or city change
+
+    const fetchData = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        // Fetch city details and its associated prestataires
+        const cityResponse = await fetch(`${API_BASE_URL}/cities/${ville}`);
+        if (!cityResponse.ok) {
+          throw new Error(`HTTP error! status: ${cityResponse.status}`);
+        }
+        const cityData = await cityResponse.json();
+        setCityDetails(cityData);
+        // Assuming the `prestataires` array is populated by the backend
+        setPrestatairesInCity(cityData.prestataires || []);
+
+        // Fetch reviews for the city
+        const reviewsResponse = await fetch(`${API_BASE_URL}/reviews/city/${ville}`);
+        if (!reviewsResponse.ok) {
+          throw new Error(`HTTP error! status: ${reviewsResponse.status}`);
+        }
+        const reviewsData = await reviewsResponse.json();
+        setReviews(reviewsData);
+
+      } catch (err) {
+        console.error("Failed to fetch data:", err);
+        setError("Failed to load data. Please try again later.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (ville) {
+      fetchData();
+    }
+  }, [ville]); // Re-fetch when 'ville' parameter changes
+
+  // Filter services from static data (if you eventually move services to DB, this will change)
   const filteredServices = [...servicesFixes, ...servicesDevis].filter(
-    service => service.ville === ville
+    // FIX APPLIED HERE: Added '?' for safe navigation on service.ville
+    service => service.ville?.toLowerCase() === ville.toLowerCase() // Filter by city name
   );
 
-  const servicesToDisplay = serviceType === 'all' 
-    ? filteredServices 
-    : filteredServices.filter(service => service.category === serviceType);
+  const servicesToDisplay = serviceType === 'all'
+    ? filteredServices
+    : filteredServices.filter(service => service.category.toLowerCase() === serviceType.toLowerCase());
 
   const nextSlide = () => {
-    if (currentSlide < villeData.length - 4) {
+    if (currentSlide < prestatairesInCity.length - 4) {
       setCurrentSlide(currentSlide + 1);
     }
   };
@@ -124,18 +137,38 @@ const VilleDetail = () => {
     }
   };
 
+  if (loading) {
+    return <div className="container mx-auto px-4 py-8 text-center text-lg">Loading city details...</div>;
+  }
+
+  if (error) {
+    return <div className="container mx-auto px-4 py-8 text-center text-red-500 text-lg">{error}</div>;
+  }
+
+  // Fallback if no city details are found
+  if (!cityDetails) {
+    return <div className="container mx-auto px-4 py-8 text-center text-lg">City details not found for {ville}.</div>;
+  }
+
+  // Use cityDetails.image from API, fallback to static image if not found
+  // FIX: Prepend BASE_SERVER_URL if the image path is relative
+  const cityImageSrc = cityDetails.image
+    ? `${BASE_SERVER_URL}${cityDetails.image}` // <--- MODIFIED LINE: Prepends the full server URL
+    : staticVilleImages[cityDetails.name] || 'https://via.placeholder.com/1200x400?text=City+Image+Not+Found';
+
+
   return (
     <div className="container mx-auto px-4 py-8">
-      {/* En-tête avec image de la ville - Version corrigée */}
+      {/* En-tête avec image de la ville */}
       <div className="relative h-64 md:h-96 rounded-xl overflow-hidden mb-8 shadow-lg">
-        <img 
-          src={villeImages[ville]} 
-          alt={ville}
+        <img
+          src={cityImageSrc}
+          alt={cityDetails.name}
           className="w-full h-full object-cover brightness-75"
         />
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/80 flex flex-col justify-end p-6">
           <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-2">
-            Services à {ville}
+            Services à {cityDetails.name}
           </h1>
           <p className="text-lg md:text-xl text-white/90">
             Trouvez les meilleurs prestataires près de chez vous
@@ -145,90 +178,97 @@ const VilleDetail = () => {
 
       {/* Description de la ville */}
       <div className="bg-white rounded-lg p-6 shadow-sm mb-8">
-        <h2 className="text-2xl font-semibold text-gray-800 mb-4">Découvrez {ville}</h2>
+        <h2 className="text-2xl font-semibold text-gray-800 mb-4">Découvrez {cityDetails.name}</h2>
         <p className="text-gray-600">
-          {ville} est une ville dynamique offrant une gamme complète de services à domicile. 
-          Nos prestataires sont soigneusement sélectionnés pour leur professionnalisme et leur savoir-faire.
-          Trouvez ci-dessous les services disponibles dans votre région.
+          {cityDetails.description || `
+            ${cityDetails.name} est une ville dynamique offrant une gamme complète de services à domicile.
+            Nos prestataires sont soigneusement sélectionnés pour leur professionnalisme et leur savoir-faire.
+            Trouvez ci-dessous les services disponibles dans votre région.
+          `}
         </p>
       </div>
 
       {/* Liste des prestataires */}
       <section className="mb-12">
         <div className="flex justify-between items-center mb-6">
-          <h2 className="text-2xl font-bold text-gray-800">Prestataires vérifiés à {ville}</h2>
-          {villeData.length > 4 && (
+          <h2 className="text-2xl font-bold text-gray-800">Prestataires vérifiés à {cityDetails.name}</h2>
+          {prestatairesInCity.length > 4 && (
             <div className="flex space-x-2">
-              <button 
+              <button
                 onClick={prevSlide}
                 className="p-2 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors"
                 disabled={currentSlide === 0}
               >
                 <ChevronLeftIcon className="h-5 w-5 text-gray-700" />
               </button>
-              <button 
+              <button
                 onClick={nextSlide}
                 className="p-2 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors"
-                disabled={currentSlide >= villeData.length - 4}
+                disabled={currentSlide >= prestatairesInCity.length - 4}
               >
                 <ChevronRightIcon className="h-5 w-5 text-gray-700" />
               </button>
             </div>
           )}
         </div>
-        
+
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {villeData.slice(currentSlide, currentSlide + 4).map((prestataire, index) => (
-            <div 
-              key={index} 
+          {prestatairesInCity.slice(currentSlide, currentSlide + 4).map((prestataire, index) => (
+            <div
+              key={prestataire._id || index}
               className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow"
             >
               <div className="relative h-48">
-                <img 
-                  src={serviceImages[prestataire.service] || villeImages[ville]} 
+                <img
+                  // FIX: Prepend BASE_SERVER_URL to prestataire.photo if it's a relative path
+                  src={prestataire.photo ? `${BASE_SERVER_URL}${prestataire.photo}` : serviceImages[prestataire.service] || staticVilleImages[cityDetails.name] || 'https://via.placeholder.com/400x300?text=Service+Image'}
                   alt={prestataire.service}
                   className="w-full h-full object-cover"
                 />
                 <div className="absolute -bottom-6 left-1/2 transform -translate-x-1/2">
                   <div className="w-12 h-12 rounded-full border-4 border-white bg-white shadow-md overflow-hidden">
-                    <img 
-                      src={prestataire.photo} 
-                      alt={prestataire.nom}
+                    <img
+                      // FIX: Prepend BASE_SERVER_URL to prestataire.photo for profile image
+                      src={prestataire.photo ? `${BASE_SERVER_URL}${prestataire.photo}` : 'https://via.placeholder.com/100x100?text=P'} // <--- MODIFIED LINE: Prepends the full server URL
+                      alt={prestataire.name}
                       className="w-full h-full object-cover"
                     />
                   </div>
                 </div>
               </div>
               <div className="pt-8 pb-4 px-4 text-center">
-                <h3 className="font-bold text-lg mb-1">{prestataire.nom}</h3>
+                <h3 className="font-bold text-lg mb-1">{prestataire.name}</h3>
                 <p className="text-sm text-gray-600 mb-3">{prestataire.service}</p>
                 <div className="flex justify-center items-center mb-2">
                   <FaStar className="text-yellow-400 mr-1" />
-                  <span className="font-semibold">{prestataire.note}</span>
-                  <span className="text-gray-500 text-sm ml-1">({prestataire.avis} avis)</span>
+                  <span className="font-semibold">{prestataire.averageRating?.toFixed(1) || 'N/A'}</span>
+                  <span className="text-gray-500 text-sm ml-1">({prestataire.numberOfReviews || 0} avis)</span>
                 </div>
                 <div className="text-sm text-gray-600">
                   <FaMapMarkerAlt className="inline mr-1" />
-                  {prestataire.distance}
+                  {prestataire.distance || 'N/A'}
                 </div>
               </div>
             </div>
           ))}
         </div>
+        {prestatairesInCity.length === 0 && (
+          <p className="text-gray-600 text-center mt-8">Aucun prestataire trouvé pour {cityDetails.name}.</p>
+        )}
       </section>
 
-      {/* Liste des services */}
+      {/* Liste des services (still using static data filtered by city for now) */}
       <section className="mb-12">
         <h2 className="text-2xl font-bold text-gray-800 mb-6">Services disponibles</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {servicesToDisplay.map((service, index) => (
-            <div 
-              key={index} 
+            <div
+              key={index}
               className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow"
             >
               <div className="h-48 overflow-hidden">
-                <img 
-                  src={villeImages[ville]} 
+                <img
+                  src={staticVilleImages[cityDetails.name]}
                   alt={service.title}
                   className="w-full h-full object-cover"
                 />
@@ -249,23 +289,26 @@ const VilleDetail = () => {
             </div>
           ))}
         </div>
+        {servicesToDisplay.length === 0 && (
+          <p className="text-gray-600 text-center mt-8">Aucun service disponible pour {cityDetails.name} pour le moment.</p>
+        )}
       </section>
 
       {/* Avis des clients */}
-      {villeAvis[ville] && (
+      {reviews.length > 0 && (
         <section className="mb-12">
-          <h2 className="text-2xl font-bold text-gray-800 mb-6">Avis des clients à {ville}</h2>
+          <h2 className="text-2xl font-bold text-gray-800 mb-6">Avis des clients à {cityDetails.name}</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {villeAvis[ville].map((avis, index) => (
-              <div 
-                key={index} 
+            {reviews.map((avis, index) => (
+              <div
+                key={avis.id || index}
                 className="bg-white rounded-lg shadow-md p-6"
               >
                 <div className="flex items-center mb-4">
                   <div className="flex items-center mr-4">
                     {[...Array(5)].map((_, i) => (
-                      <FaStar 
-                        key={i} 
+                      <FaStar
+                        key={i}
                         className={`${i < Math.floor(avis.note) ? 'text-yellow-400' : 'text-gray-300'}`}
                       />
                     ))}
@@ -280,10 +323,10 @@ const VilleDetail = () => {
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="font-semibold text-gray-700">
-                    {avis.nom}
+                    {avis.nom} {/* This will be the client's name from populated review */}
                   </span>
                   <span className="text-sm text-gray-500">
-                    {avis.date}
+                    {new Date(avis.date).toLocaleDateString('fr-FR')} {/* Format date */}
                   </span>
                 </div>
               </div>
@@ -291,8 +334,13 @@ const VilleDetail = () => {
           </div>
         </section>
       )}
+      {reviews.length === 0 && !loading && (
+        <section className="mb-12 text-center text-gray-600">
+          <p>Aucun avis trouvé pour {cityDetails.name} pour le moment.</p>
+        </section>
+      )}
 
-      {/* Pagination */}
+      {/* Pagination (placeholder - implement actual logic if needed) */}
       {servicesToDisplay.length > 9 && (
         <div className="flex justify-center mb-8">
           <nav className="flex items-center space-x-2">
@@ -316,8 +364,8 @@ const VilleDetail = () => {
 
       {/* Lien de retour */}
       <div className="text-center">
-        <Link 
-          to="/" 
+        <Link
+          to="/"
           className="inline-flex items-center px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors shadow-md"
         >
           Retour à l'accueil

@@ -3,26 +3,6 @@ import { createContext, useContext, useState } from 'react';
 
 const AuthContext = createContext();
 
-// export const AuthProvider = ({ children }) => {
-//     const [user, setUser] = useState(null);
-
-//     const login = (userData) => {
-//         setUser(userData);
-//         // Vous pourriez aussi stocker dans localStorage/sessionStorage ici
-//     };
-
-//     const logout = () => {
-//         setUser(null);
-//         // Nettoyer le storage si nécessaire
-//     };
-
-//     return (
-//         <AuthContext.Provider value={{ user, login, logout }}>
-//             {children}
-//         </AuthContext.Provider>
-//     );
-// };
-
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(() => {
         // Optionnel: Récupérer l'utilisateur depuis localStorage au chargement
