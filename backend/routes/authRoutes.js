@@ -1,9 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const authController = require('../controllers/authController');
-const { upload, profilePicUpload } = require('../config/multer');
+const { upload, profilePicUpload, bannerUpload } = require('../config/multer');
 const { requireClientAuth } = require('../middleware/authMiddleware');
 const authMiddleware = require('../middleware/authMiddleware');
+const { requirePrestataireAuth } = require('../middleware/authMiddleware');
 
 // Inscription client
 router.post('/register/client', authController.registerClient);
@@ -35,4 +36,29 @@ router.put(
   profilePicUpload.single('photo'),
   authController.updateClientProfile
 );
+
+
+
+// Récupérer le profil prestataire
+router.get('/prestataire/profile', requirePrestataireAuth, authController.getPrestataireProfile);
+// Mettre à jour la bannière
+router.put(
+    '/prestataire/banner',
+    requirePrestataireAuth,
+    bannerUpload.single('banner'), // Utilisez bannerUpload ici
+    authController.updatePrestataireBanner
+);
+// Mettre à jour le profil prestataire
+router.put(
+    '/prestataire/profile',
+    requirePrestataireAuth,
+    upload.fields([
+        { name: 'photoProfil', maxCount: 1 },
+        { name: 'banner', maxCount: 1 }
+    ]),
+    authController.updatePrestataireProfile
+);
+// Route pour récupérer les villes
+router.get('/cities', authController.getCities);
+
 module.exports = router;

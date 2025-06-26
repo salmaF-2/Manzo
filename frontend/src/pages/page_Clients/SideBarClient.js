@@ -1,216 +1,4 @@
-// import { FaHome, FaTools, FaCalendarAlt, FaHistory, FaComments, FaMoneyBill, FaCog, FaSignOutAlt, FaUserAlt } from "react-icons/fa";
-// import { MdDashboard } from "react-icons/md";
-// import { NavLink, useLocation, useNavigate } from "react-router-dom";
-// import { useEffect, useState } from "react";
-// import { useAuth } from "../../context/AuthContext";
-
-// const SideBarClient = () => {
-//     const location = useLocation();
-//     const navigate = useNavigate();
-//     const { logout } = useAuth();
-//     const [userData, setUserData] = useState({
-//         nom: '',
-//         prenom: '',
-//         photo: null
-//     });
-
-//     // Récupérer les données du client
-//     useEffect(() => {
-//         const fetchProfile = async () => {
-//             try {
-//                 const token = localStorage.getItem('token');
-//                 const response = await fetch('http://localhost:5000/api/auth/client/profile', {
-//                     headers: {
-//                         'Authorization': `Bearer ${token}`
-//                     }
-//                 });
-                
-//                 if (response.ok) {
-//                     const data = await response.json();
-//                     setUserData({
-//                         nom: data.nom || '',
-//                         prenom: data.prenom || '',
-//                         photo: data.photo || null
-//                     });
-//                 }
-//             } catch (error) {
-//                 console.error('Erreur lors du chargement du profil:', error);
-//             }
-//         };
-
-//         fetchProfile();
-//     }, []);
-
-//     // Gestion de la déconnexion
-//     const handleLogout = () => {
-//         logout();
-//         navigate('/');
-//     };
-
-//     return (
-//         <div className="fixed left-0 top-20 h-[calc(100vh-5rem)] w-60 bg-white border-r border-gray-200 flex flex-col p-6">
-//             {/* Profile section with subtle shadow */}
-//             <div className="flex items-center space-x-3 mb-8 p-3 bg-white rounded-lg shadow-sm">
-//                 <img 
-//                     src={
-//                         userData.photo 
-//                             ? userData.photo.startsWith('/uploads/') 
-//                                 ? `http://localhost:5000${userData.photo}`
-//                                 : userData.photo
-//                             : "https://i.pravatar.cc/40"
-//                     } 
-//                     alt="Avatar" 
-//                     className="w-10 h-10 rounded-full border-2 border-blue-200 object-cover" 
-//                 />
-//                 <div>
-//                     <h4 className="text-sm font-semibold text-gray-800">
-//                         {userData.prenom} {userData.nom}
-//                     </h4>
-//                     <span className="text-xs bg-green-100 text-green-700 px-1.5 py-0.5 rounded-full">Bienvenue</span>
-//                 </div>
-//             </div>
-
-//             {/* Navigation links with modern design */}
-//             <nav className="flex-1 overflow-y-auto">
-//                 <ul className="space-y-1 text-sm">
-//                     <NavLink to='/DashboardClient' 
-//                         className={({isActive}) => 
-//                             `flex items-center space-x-2 hover:bg-blue-100/50 cursor-pointer p-2.5 rounded-lg transition-all ${
-//                                 isActive 
-//                                 ? 'bg-blue-100 text-blue-600 font-medium border-l-4 border-blue-500' 
-//                                 : 'text-gray-600 hover:text-blue-600'
-//                             }`}>
-//                         <li className="flex items-center space-x-2">
-//                             <MdDashboard className="text-blue-500" />
-//                             <span>Tableau de bord</span>
-//                         </li>
-//                     </NavLink>
-
-//                     <NavLink to='/Reservations-Client'
-//                         className={({ isActive }) => 
-//                             `flex items-center space-x-2 hover:bg-blue-100/50 cursor-pointer p-2.5 rounded-lg transition-all ${
-//                             isActive || 
-//                             location.pathname === '/Ajouter_service' || 
-//                             location.pathname === '/Modifier_service'
-//                                 ? 'bg-blue-100 text-blue-600 font-medium border-l-4 border-blue-500' 
-//                                 : 'text-gray-600 hover:text-blue-600'
-//                             }`}
-//                         >
-//                         <FaTools className="text-blue-500" />
-//                         <span>Mes réservations</span>
-//                     </NavLink>
-
-//                     <NavLink to='/demande-envoyer-Client' 
-//                         className={({isActive}) => 
-//                             `flex items-center space-x-2 hover:bg-blue-100/50 cursor-pointer p-2.5 rounded-lg transition-all ${
-//                                 isActive 
-//                                 ? 'bg-blue-100 text-blue-600 font-medium border-l-4 border-blue-500' 
-//                                 : 'text-gray-600 hover:text-blue-600'
-//                             }`}>
-//                         <li className="flex items-center space-x-2">
-//                             <FaCalendarAlt className="text-blue-500" />
-//                             <span>Demandes envoyées</span>
-//                         </li>
-//                     </NavLink>
-
-//                     <NavLink to='/avis-Client' 
-//                         className={({isActive}) => 
-//                             `flex items-center space-x-2 hover:bg-blue-100/50 cursor-pointer p-2.5 rounded-lg transition-all ${
-//                                 isActive 
-//                                 ? 'bg-blue-100 text-blue-600 font-medium border-l-4 border-blue-500' 
-//                                 : 'text-gray-600 hover:text-blue-600'
-//                             }`}>
-//                         <li className="flex items-center space-x-2">
-//                             <FaHistory className="text-blue-500" />
-//                             <span>Avis & Évaluations</span>
-//                         </li>
-//                     </NavLink>
-
-//                     <NavLink to='/Messages-Client' 
-//                         className={({isActive}) => 
-//                             `flex items-center space-x-2 hover:bg-blue-100/50 cursor-pointer p-2.5 rounded-lg transition-all ${
-//                                 isActive 
-//                                 ? 'bg-blue-100 text-blue-600 font-medium border-l-4 border-blue-500' 
-//                                 : 'text-gray-600 hover:text-blue-600'
-//                             }`}>
-//                         <li className="flex items-center space-x-2">
-//                             <FaComments className="text-blue-500" />
-//                             <span>Messages</span>
-//                         </li>
-//                     </NavLink>
-
-//                     <NavLink to='/Paiemant-Client' 
-//                         className={({isActive}) => 
-//                             `flex items-center space-x-2 hover:bg-blue-100/50 cursor-pointer p-2.5 rounded-lg transition-all ${
-//                                 isActive 
-//                                 ? 'bg-blue-100 text-blue-600 font-medium border-l-4 border-blue-500' 
-//                                 : 'text-gray-600 hover:text-blue-600'
-//                             }`}>
-//                         <li className="flex items-center space-x-2">
-//                             <FaMoneyBill className="text-blue-500" />
-//                             <span>Paiements</span>
-//                         </li>
-//                     </NavLink>
-                    
-//                     <NavLink to='/ProfilClient'
-//                         className={({isActive}) => 
-//                             `flex items-center space-x-2 hover:bg-blue-100/50 cursor-pointer p-2.5 rounded-lg transition-all ${
-//                                 isActive || location.pathname === '/modifierProfil' 
-//                                 ? 'bg-blue-100 text-blue-600 font-medium border-l-4 border-blue-500' 
-//                                 : 'text-gray-600 hover:text-blue-600'
-//                             }`}
-//                         >
-//                         <li className="flex items-center space-x-2">
-//                             <FaUserAlt className="text-blue-500" />
-//                             <span>Profil</span>
-//                         </li>
-//                     </NavLink>
-
-//                     <NavLink to='/Parametre-Client' 
-//                         className={({isActive}) => 
-//                             `flex items-center space-x-2 hover:bg-blue-100/50 cursor-pointer p-2.5 rounded-lg transition-all ${
-//                                 isActive 
-//                                 ? 'bg-blue-100 text-blue-600 font-medium border-l-4 border-blue-500' 
-//                                 : 'text-gray-600 hover:text-blue-600'
-//                             }`}>
-//                         <li className="flex items-center space-x-2">
-//                             <FaCog className="text-blue-500" />
-//                             <span>Paramètres</span>
-//                         </li>
-//                     </NavLink>
-//                 </ul>
-//             </nav>
-
-//             {/* Logout button with modern style */}
-//             <div className="mt-auto pt-4">
-//                 <button 
-//                     onClick={handleLogout}
-//                     className="flex items-center space-x-2 text-red-500 hover:text-red-600 text-sm p-2.5 rounded-lg hover:bg-red-50/80 w-full transition-all border border-red-100 hover:border-red-200"
-//                 >
-//                     <FaSignOutAlt />
-//                     <span>Déconnexion</span>
-//                 </button>
-//             </div>
-//         </div>
-//     );
-// }
-
-// export default SideBarClient;
-
-
-import { 
-  FaHome, 
-  FaTools, 
-  FaCalendarAlt, 
-  FaHistory, 
-  FaComments, 
-  FaMoneyBill, 
-  FaCog, 
-  FaSignOutAlt, 
-  FaUserAlt,
-  FaFemale,
-  FaMale
-} from "react-icons/fa";
+import { FaHome, FaTools, FaCalendarAlt, FaHistory, FaComments, FaMoneyBill, FaCog, FaSignOutAlt, FaUserAlt,FaFemale,FaMale} from "react-icons/fa";
 import { MdDashboard } from "react-icons/md";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
@@ -227,6 +15,7 @@ const SideBarClient = () => {
         genre: 'femme',
         email: ''
     });
+    const [photoVersion, setPhotoVersion] = useState(0); // Ajout d'un état pour forcer le rafraîchissement
 
     // Récupérer les données du client
     useEffect(() => {
@@ -255,6 +44,18 @@ const SideBarClient = () => {
         };
 
         fetchProfile();
+
+        // Écouter les événements de mise à jour du profil
+        const handleProfileUpdate = () => {
+            fetchProfile();
+            setPhotoVersion(prev => prev + 1); // Incrémenter pour forcer le rafraîchissement de l'image
+        };
+
+        window.addEventListener('profileUpdated', handleProfileUpdate);
+
+        return () => {
+            window.removeEventListener('profileUpdated', handleProfileUpdate);
+        };
     }, []);
 
     // Gestion de la déconnexion
@@ -270,15 +71,19 @@ const SideBarClient = () => {
                 <img 
                     src={
                         userData.photo.startsWith('/uploads/') 
-                            ? `http://localhost:5000${userData.photo}`
-                            : userData.photo
+                            ? `http://localhost:5000${userData.photo}?v=${photoVersion}`
+                            : `${userData.photo}?v=${photoVersion}`
                     }
                     alt="Profil"
                     className="w-10 h-10 rounded-full border-2 border-blue-200 object-cover"
                     onError={(e) => {
                         e.target.style.display = 'none';
-                        e.target.nextElementSibling.style.display = 'flex';
+                        const fallback = e.target.nextElementSibling;
+                        if (fallback) {
+                            fallback.style.display = 'flex';
+                        }
                     }}
+                    key={`avatar-${photoVersion}`}
                 />
             );
         }
