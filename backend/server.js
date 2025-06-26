@@ -15,6 +15,7 @@ const authRoutes = require('./routes/authRoutes');
 const { requireClientAuth } = require('./middleware/authMiddleware');
 const app = express();
 
+app.use('/uploads', express.static('uploads'));
 // Middlewares
 // app.use(cors());
 app.use(cors({
