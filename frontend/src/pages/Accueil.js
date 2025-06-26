@@ -1,4 +1,5 @@
 import React , { useState, useEffect  } from 'react';
+import axios from 'axios';
 import Shape from '../assets/images/Shape.png';
 import Vector from '../assets/images/Vector1.png';
 import hahah from '../assets/images/hahah.png';
@@ -6,7 +7,6 @@ import image1 from '../assets/images/image1.png';
 import image2 from '../assets/images/image2.png';
 import PetitLogo from "../assets/images/manzo logo.png";
 // villes
-import {villes} from '../../src/data/data'
 import Agadir from "../assets/ImagesVilles/Agadir.jpeg";
 import CasaBlanca from "../assets/ImagesVilles/casa.jpeg";
 import Marrakech from "../assets/ImagesVilles/kesh.jpeg";
@@ -50,14 +50,43 @@ import avis1 from '../assets/images/avis/avis1.png';
 import avis2 from '../assets/images/avis/avis2.png';
 import avis3 from '../assets/images/avis/avis3.png';
 
-
-
 import { Link } from 'react-router-dom';
 import { FaUser, FaMapMarkerAlt, FaSearch } from "react-icons/fa";
 import "../css/Accueil.css";
 
-
 const Accueil = () => {
+    const [backendCities, setBackendCities] = useState([]);
+    const [loadingCities, setLoadingCities] = useState(true);
+    
+    // Fetch cities from backend on component mount
+    useEffect(() => {
+        const fetchCities = async () => {
+            try {
+                const response = await axios.get('/api/cities');
+                setBackendCities(response.data);
+                setLoadingCities(false);
+            } catch (error) {
+                console.error("Error fetching cities:", error);
+                setLoadingCities(false);
+                // Fallback to local images if API fails
+                // setBackendCities([
+                //     { name: "Agadir", image: Agadir },
+                //     { name: "CasaBlanca", image: CasaBlanca },
+                //     { name: "Marrakech", image: Marrakech },
+                //     { name: "Dakhla", image: dakhla },
+                //     { name: "Fès", image: Fes },
+                //     { name: "Tanger", image: Tanger },
+                //     { name: "Kénitra", image: Knitra },
+                //     { name: "Oujda", image: Oujda },
+                //     { name: "Titouane", image: Titouane },
+                //     { name: "Tiznit", image: Tiznit }
+                // ]);
+            }
+        };
+        
+        fetchCities();
+    }, []);
+
     const services = [
         { city: "Agadir", image: Agadir },
         { city: "CasaBlanca", image: CasaBlanca },
@@ -154,10 +183,9 @@ const Accueil = () => {
     const [index, setIndex] = useState(0);
     const [itemsPerPage, setItemsPerPage] = useState(4); 
 
-//lier avec la page de recherche
-        const [service, setService] = useState('');
-        const [location, setLocation] = useState('');
-
+    // State for search form
+    const [service, setService] = useState('');
+    const [location, setLocation] = useState('');
 
     useEffect(() => {
         const handleResize = () => {
@@ -169,6 +197,7 @@ const Accueil = () => {
 
         return () => window.removeEventListener("resize", handleResize);
     }, []);
+
     const nextSlide = () => {
         if (index < prestataires.length - itemsPerPage) setIndex(index + 1);
     };
@@ -177,10 +206,10 @@ const Accueil = () => {
         if (index > 0) setIndex(index - 1);
     };
 
-    
     useEffect(() => {
         window.scrollTo(0, 0);
     }, []);
+
     //avis 
     const StarRating = ({ rating }) => {
         return (
@@ -194,7 +223,6 @@ const Accueil = () => {
         );
     };
 
-    
     return (
         <div className="overflow-hidden">
             {/* Partie 1 */}
@@ -215,24 +243,6 @@ const Accueil = () => {
                     </div>
                     
                     {/* Formulaire sous le texte */}
-                    {/* <div className="relative z-10 mt-6 bg-white p-5 shadow-lg flex flex-col sm:flex-row text-[#9BA5C8] w-full lg:w-[140%] rounded-lg overflow-visible gap-4" style={{ borderRadius: '50px' }}>
-                        <div className="flex items-center flex-1 p-3 border rounded-lg lg:rounded-l-lg bg-white" style={{ borderRadius: '50px' }}>
-                            <FaUser className="mr-2" />
-                            <select className="flex-1 bg-transparent focus:outline-none">
-                                <option value="Type de service">Type de service</option>
-                            </select>
-                        </div>
-                        <div className="flex items-center flex-1 p-3 border rounded-lg lg:rounded-none bg-white" style={{ borderRadius: '50px' }}>
-                            <FaMapMarkerAlt className="mr-2" />
-                            <select className="flex-1 bg-transparent focus:outline-none">
-                                <option>Sélectionner l'emplacement</option>
-                            </select>
-                        </div>
-                        <button className="text-white px-6 py-3 flex items-center justify-center rounded-lg lg:rounded-r-lg" style={{ backgroundColor: '#434F83', borderRadius: '50px'}}>
-                            <span className="mr-2">Recherche</span>
-                            <FaSearch />
-                        </button>
-                    </div> */}
                     <div className="relative z-10 mt-6 bg-white p-5 shadow-lg flex flex-col sm:flex-row text-[#9BA5C8] w-full lg:w-[140%] rounded-lg overflow-visible gap-4" style={{ borderRadius: '50px' }}>
                         <div className="flex items-center flex-1 p-3 border rounded-lg lg:rounded-l-lg bg-white" style={{ borderRadius: '50px' }}>
                             <FaUser className="mr-2" />
@@ -258,9 +268,15 @@ const Accueil = () => {
                                 onChange={(e) => setLocation(e.target.value)}
                             >
                                 <option value="">Sélectionner l'emplacement</option>
-                                {villes.sort().map((ville) => (
-                                    <option key={ville} value={ville}>{ville}</option>
-                                ))}
+                                {backendCities.length > 0 ? (
+                                    backendCities.sort((a, b) => a.name.localeCompare(b.name)).map((city) => (
+                                        <option key={city.name} value={city.name}>{city.name}</option>
+                                    ))
+                                ) : (
+                                    services.sort().map((service) => (
+                                        <option key={service.city} value={service.city}>{service.city}</option>
+                                    ))
+                                )}
                             </select>
                         </div>
                         <Link 
@@ -273,53 +289,17 @@ const Accueil = () => {
                             <span className="mr-2">Recherche</span>
                             <FaSearch />
                         </Link>
-            </div>
-
+                    </div>
                 </div>      
                 {/* Images à droite */}
                 <div className="relative w-full lg:w-1/2 flex gap-4 mr-0 lg:mr-20 order-1 lg:order-2 top-20 lg:top-0">
                     <img src={image1} alt="Travailleur 1" className="w-full w-1/2 rounded-lg" />
                     <img src={image2} alt="Travailleur 2" className="w-full w-1/2 rounded-lg" />
                 </div>
-
             </div>
 
-
-         
             {/* Partout Au Maroc  Partie 2 */}
-            {/* <div className="relative bg-white">
-                <div className="absolute top-0 left-0 right-0 flex justify-center z-20">
-                    <img src={PetitLogo} alt="Manzo Logo" className="h-24 max-w-xs" />
-                </div>
-    
-                <div className="relative">
-                    <img src={Vector2} alt="Background Image" className="w-full h-auto min-h-[1100px] object-cover z-10" />
-                    <div className="absolute inset-0 flex items-center justify-center z-10 pt-16 pb-18 h-[900px] ">
-                        <div className="py-12 w-full max-w-6xl mx-auto rounded-lg px-4">
-                            <div className="text-center">
-                                <h2 className="text-4xl font-bold text-[#475489] mb-19 pt-24">PARTOUT AU MAROC</h2>
-                                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6 pt-10">
-                                    {services.map((service, index) => (
-                                        <div key={index} className="relative group overflow-hidden rounded-lg shadow-md">
-                                            <img src={service.image} alt={service.city} className="w-full h-32 md:h-40 object-cover transition-transform group-hover:scale-110"/>
-                                            <div className="absolute inset-0 bg-black bg-opacity-40 flex items-end p-4">
-                                                <p className="text-white font-semibold text-sm md:text-base">Service à {service.city}</p>
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
-                                <Link to="/voirplus">
-                                    <button className="mt-6 px-6 py-3 bg-[#5869A3] text-white font-semibold rounded-full  shadow-md hover:bg-[#9BA5C8] transition ">
-                                        Voir plus →
-                                    </button>
-                                </Link>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>  */}
-           {/* Partout Au Maroc  Partie 2 */}
-           <div className="relative bg-white">
+            <div className="relative bg-white">
                 <div className="absolute top-0 left-0 right-0 flex justify-center z-20">
                     <img src={PetitLogo} alt="Manzo Logo" className="h-24 max-w-xs" />
                 </div>
@@ -327,35 +307,53 @@ const Accueil = () => {
                 <div className="relative">
                     <img src={hahah} alt="Background Image" className="w-full h-auto min-h-[1100px] object-cover z-10" />
                     <div className="absolute inset-0 flex items-center justify-center z-10 pt-16 pb-18 h-[900px]">
-                    <div className="py-12 w-full max-w-6xl mx-auto rounded-lg px-4">
-                        <div className="text-center">
-                        <h2 className="text-4xl font-bold text-[#475489] mb-19 pt-24">PARTOUT AU MAROC</h2>
-                        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6 pt-10">
-                            {services.map((service, index) => (
-                            <Link 
-                                key={index} 
-                                to={`/ville/${service.city}`}
-                                className="relative group overflow-hidden rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300"
-                            >
-                                <img 
-                                src={service.image} 
-                                alt={service.city} 
-                                className="w-full h-32 md:h-40 object-cover transition-transform duration-500 group-hover:scale-110"
-                                />
-                                <div className="absolute inset-0 bg-black bg-opacity-40 flex items-end p-4">
-                                <p className="text-white font-semibold text-sm md:text-base">Service à {service.city}</p>
+                        <div className="py-12 w-full max-w-6xl mx-auto rounded-lg px-4">
+                            <div className="text-center">
+                                <h2 className="text-4xl font-bold text-[#475489] mb-19 pt-24">PARTOUT AU MAROC</h2>
+                                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6 pt-10">
+                                    {backendCities.length > 0 ? (
+                                        backendCities.map((city, index) => (
+                                            <Link 
+                                                key={index} 
+                                                to={`/ville/${city.name}`}
+                                                className="relative group overflow-hidden rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300"
+                                            >
+                                                <img 
+                                                    src={city.image || services.find(s => s.city === city.name)?.image} 
+                                                    alt={city.name} 
+                                                    className="w-full h-32 md:h-40 object-cover transition-transform duration-500 group-hover:scale-110"
+                                                />
+                                                <div className="absolute inset-0 bg-black bg-opacity-40 flex items-end p-4">
+                                                    <p className="text-white font-semibold text-sm md:text-base">Service à {city.name}</p>
+                                                </div>
+                                            </Link>
+                                        ))
+                                    ) : (
+                                        services.map((service, index) => (
+                                            <Link 
+                                                key={index} 
+                                                to={`/ville/${service.city}`}
+                                                className="relative group overflow-hidden rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300"
+                                            >
+                                                <img 
+                                                    src={service.image} 
+                                                    alt={service.city} 
+                                                    className="w-full h-32 md:h-40 object-cover transition-transform duration-500 group-hover:scale-110"
+                                                />
+                                                <div className="absolute inset-0 bg-black bg-opacity-40 flex items-end p-4">
+                                                    <p className="text-white font-semibold text-sm md:text-base">Service à {service.city}</p>
+                                                </div>
+                                            </Link>
+                                        ))
+                                    )}
                                 </div>
-                            </Link>
-                            ))}
+                            </div>
                         </div>
-                        
-                        </div>
-                    </div>
                     </div>
                 </div>
-            </div> 
+            </div>
 
-
+            {/* Rest of your existing code remains exactly the same */}
             {/* PArtie 3  */}
             <div className='flex flex-col md:flex-row items-center justify-between p-4 md:p-8 bg-white'>
                 <div className='relative flex flex-col space-y-4 w-full md:w-1/2 md:ml-28 mb-8 md:mb-0'>
@@ -462,8 +460,6 @@ const Accueil = () => {
                 </div>
             </div>
            
-          
-                  
             {/* partie 5  */}
             <div className="text-center py-12 bg-[rgba(188,208,234,0.2)]">
                 <h2 className="text-4xl font-bold text-[#6977AF] mb-8">Comment ça marche ?</h2>
@@ -484,8 +480,6 @@ const Accueil = () => {
                     />
                 </div>
             </div>
-            
-
 
             {/* partie 6  les avis  */}
             <div className="p-8 m-8">
@@ -516,7 +510,6 @@ const Accueil = () => {
                     ))}
                 </div>
             </div>
-
 
             {/* partie 7  */}
             <div className="text-center py-4 md:py-8 lg:py-12 bg-[rgba(188,208,234,0.2)]">
@@ -551,8 +544,6 @@ const Accueil = () => {
                 </div>
             </div>
 
-
-           
             {/* partie 8  */}   
             <div className="mx-auto bg-white rounded-lg shadow-md overflow-hidden p-20 text-center ">
                 <h1 className="text-4xl font-bold text-[#6977AF] mb-6">Inscrivez-vous maintenant sur <span className='text-[#475489]'>Manzo ?</span></h1>
@@ -572,6 +563,5 @@ const Accueil = () => {
         </div>
     );
 }
-
 
 export default Accueil;

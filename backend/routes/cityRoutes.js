@@ -1,14 +1,9 @@
 const express = require('express');
 const router = express.Router();
-const City = require('../models/City');
+const cityController = require('../controllers/cityController');
 
-router.get('/cities', async (req, res) => {
-  try {
-    const cities = await City.find({}, 'name'); // récupère juste le nom
-    res.json(cities);
-  } catch (error) {
-    res.status(500).json({ message: 'Erreur serveur' });
-  }
-});
+router.get('/cities', cityController.getAllCities);
+router.post('/cities', cityController.addCity);
+router.get('/cities/:name', cityController.getCityByName); // New route
 
 module.exports = router;
