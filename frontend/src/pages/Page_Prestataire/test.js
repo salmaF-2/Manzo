@@ -1,4 +1,3 @@
-design 2 
 import React, { useEffect } from "react";
 import { FiArrowLeft, FiUpload, FiPlus, FiTrash2, FiClock, FiMapPin, FiPhone, FiMail, FiHome } from "react-icons/fi";
 import { Link, useLocation } from "react-router-dom";
