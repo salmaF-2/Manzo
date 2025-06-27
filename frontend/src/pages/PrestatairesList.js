@@ -1,326 +1,211 @@
 import { useState, useEffect } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
-import { prestataires } from '../data/data';
-import { FaStar, FaMapMarkerAlt, FaArrowLeft, FaCalendarAlt, FaChevronLeft, FaChevronRight } from 'react-icons/fa';
+import { useParams, useNavigate } from 'react-router-dom';
+import { FaStar, FaMapMarkerAlt, FaArrowLeft, FaCalendarAlt, FaBriefcase } from 'react-icons/fa';
 import { IoMdChatboxes } from 'react-icons/io';
 import { motion } from 'framer-motion';
-import { fadeIn, staggerContainer } from '../utils/motion';
-
-const serviceMapping = {
-  'Ménage standard': 'Ménage',
-  'Repassage de vêtements': 'Ménage',
-  'Jardinage basique': 'Jardinage',
-  'Lavage de vitres': 'Ménage',
-  'Nettoyage de tapis': 'Ménage',
-  'Service de plomberie basique': 'Plomberie',
-  'Service électrique basique': 'Électricité',
-  'Déménagement complet': 'Déménagement',
-  'Rénovation intérieure': 'Rénovation',
-  'Installation électrique': 'Électricité',
-};
+import axios from 'axios';
 
 const PrestatairesList = () => {
-  const location = useLocation();
+  const { serviceId } = useParams();
   const navigate = useNavigate();
-  const { service: serviceFromState, pricingType } = location.state || {};
-  
-  // État pour la pagination
-  const [currentPage, setCurrentPage] = useState(1);
-  const [prestatairesPerPage] = useState(9);
-  const [prestatairesByCity, setPrestatairesByCity] = useState({});
-
-  const getProviderServiceName = () => serviceMapping[serviceFromState] || serviceFromState;
-  const allPrestataires = Object.values(prestataires).flat();
-  const providerServiceName = getProviderServiceName();
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [service, setService] = useState(null);
+  const [prestataires, setPrestataires] = useState([]);
+  const [groupedPrestataires, setGroupedPrestataires] = useState({});
 
   useEffect(() => {
-    // Filtrer les prestataires
-    const filteredPrestataires = allPrestataires.filter(prestataire => {
-      return prestataire.service === providerServiceName && 
-            (!pricingType || prestataire.pricingType === pricingType);
-    });
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        setError(null);
 
-    // Grouper par ville
-    const groupedByCity = filteredPrestataires.reduce((acc, prestataire) => {
-      const city = Object.keys(prestataires).find(city => 
-        prestataires[city].some(p => p.id === prestataire.id)
-      ) || 'Autre';
-      if (!acc[city]) acc[city] = [];
-      acc[city].push(prestataire);
-      return acc;
-    }, {});
+        const [serviceResponse, prestatairesResponse] = await Promise.all([
+          axios.get(`http://localhost:5000/api/services/${serviceId}`),
+          axios.get(`http://localhost:5000/api/services/${serviceId}/prestataires`)
+        ]);
 
-    setPrestatairesByCity(groupedByCity);
-    setCurrentPage(1); // Réinitialiser la pagination quand les filtres changent
-  }, [serviceFromState, pricingType]);
+        const serviceData = serviceResponse.data;
+        const prestatairesData = prestatairesResponse.data.data || [];
+
+        setService(serviceData);
+
+        const grouped = prestatairesData.reduce((acc, prestataire) => {
+          const city = prestataire.ville || 'Autre';
+          if (!acc[city]) acc[city] = [];
+          
+          acc[city].push(prestataire);
+          return acc;
+        }, {});
+
+        setGroupedPrestataires(grouped);
+        setPrestataires(prestatairesData);
+      } catch (err) {
+        console.error('Erreur lors de la récupération des données:', err);
+        setError(err.response?.data?.message || 'Une erreur est survenue');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [serviceId]);
 
   const handleReservation = (prestataireId) => {
-    navigate('/reservation', { state: { prestataireId } });
+    navigate(`/reservation/${serviceId}/${prestataireId}`, {
+      state: {
+        service,
+        pricingType: service?.pricingType
+      }
+    });
   };
 
   const handleChat = (prestataireId) => {
-    navigate('/chat', { state: { prestataireId } });
-  };
-
-  // Pagination logic
-  const paginate = (cityPrestataires, pageNumber) => {
-    const startIndex = (pageNumber - 1) * prestatairesPerPage;
-    return cityPrestataires.slice(startIndex, startIndex + prestatairesPerPage);
-  };
-
-  const totalPages = (prestataires) => Math.ceil(prestataires.length / prestatairesPerPage);
-
-  const PaginationControls = ({ currentPage, totalPages, onPageChange }) => {
-    const maxVisiblePages = 5;
-    let startPage, endPage;
-    
-    if (totalPages <= maxVisiblePages) {
-      startPage = 1;
-      endPage = totalPages;
-    } else {
-      const maxPagesBeforeCurrent = Math.floor(maxVisiblePages / 2);
-      const maxPagesAfterCurrent = Math.ceil(maxVisiblePages / 2) - 1;
-      
-      if (currentPage <= maxPagesBeforeCurrent) {
-        startPage = 1;
-        endPage = maxVisiblePages;
-      } else if (currentPage + maxPagesAfterCurrent >= totalPages) {
-        startPage = totalPages - maxVisiblePages + 1;
-        endPage = totalPages;
-      } else {
-        startPage = currentPage - maxPagesBeforeCurrent;
-        endPage = currentPage + maxPagesAfterCurrent;
+    navigate('/chat', {
+      state: {
+        prestataireId,
+        serviceId,
+        serviceName: service?.title
       }
-    }
+    });
+  };
 
-    const pages = Array.from({ length: (endPage - startPage + 1) }, (_, i) => startPage + i);
-
+  if (loading) {
     return (
-      <div className="flex items-center justify-center mt-8">
-        <button
-          onClick={() => onPageChange(Math.max(1, currentPage - 1))}
-          disabled={currentPage === 1}
-          className={`mx-1 px-3 py-1 rounded-lg ${currentPage === 1 ? 'text-gray-400 cursor-not-allowed' : 'text-[#5869A3] hover:bg-[#5869A3]/10'}`}
-        >
-          <FaChevronLeft />
-        </button>
-
-        {startPage > 1 && (
-          <>
-            <button
-              onClick={() => onPageChange(1)}
-              className={`mx-1 px-3 py-1 rounded-lg ${1 === currentPage ? 'bg-[#5869A3] text-white' : 'text-[#5869A3] hover:bg-[#5869A3]/10'}`}
-            >
-              1
-            </button>
-            {startPage > 2 && <span className="mx-1">...</span>}
-          </>
-        )}
-
-        {pages.map(page => (
-          <button
-            key={page}
-            onClick={() => onPageChange(page)}
-            className={`mx-1 px-3 py-1 rounded-lg ${page === currentPage ? 'bg-[#5869A3] text-white' : 'text-[#5869A3] hover:bg-[#5869A3]/10'}`}
-          >
-            {page}
-          </button>
-        ))}
-
-        {endPage < totalPages && (
-          <>
-            {endPage < totalPages - 1 && <span className="mx-1">...</span>}
-            <button
-              onClick={() => onPageChange(totalPages)}
-              className={`mx-1 px-3 py-1 rounded-lg ${totalPages === currentPage ? 'bg-[#5869A3] text-white' : 'text-[#5869A3] hover:bg-[#5869A3]/10'}`}
-            >
-              {totalPages}
-            </button>
-          </>
-        )}
-
-        <button
-          onClick={() => onPageChange(Math.min(totalPages, currentPage + 1))}
-          disabled={currentPage === totalPages}
-          className={`mx-1 px-3 py-1 rounded-lg ${currentPage === totalPages ? 'text-gray-400 cursor-not-allowed' : 'text-[#5869A3] hover:bg-[#5869A3]/10'}`}
-        >
-          <FaChevronRight />
-        </button>
+      <div className="flex justify-center items-center min-h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
       </div>
     );
-  };
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="bg-white p-8 rounded-lg shadow-md max-w-md w-full text-center">
+          <h3 className="text-xl font-medium text-red-600 mb-4">Erreur</h3>
+          <p className="text-gray-600 mb-6">{error}</p>
+          <button
+            onClick={() => navigate(-1)}
+            className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+          >
+            Retour
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <motion.div
-      initial="hidden"
-      whileInView="show"
-      viewport={{ once: true }}
-      variants={staggerContainer}
-      className="min-h-screen flex flex-col bg-gradient-to-b from-gray-50 to-gray-100"
-    >
-      <main className="flex-grow container mx-auto px-4 py-8 pt-32">
-        <motion.div variants={fadeIn('down', 'spring', 0.2, 1)} className="mb-6">
-          <button 
-            onClick={() => navigate(-1)}
-            className="flex items-center text-[#5869A3] hover:text-[#48578A] transition-all duration-300 hover:scale-105"
-          >
-            <FaArrowLeft className="mr-2" />
-            Retour aux services
-          </button>
-        </motion.div>
+    <div className="min-h-screen bg-gray-50">
+      <main className="container mx-auto px-4 py-8 pt-32">
+        <button 
+          onClick={() => navigate(-1)}
+          className="flex items-center text-blue-600 hover:text-blue-800 mb-6"
+        >
+          <FaArrowLeft className="mr-2" />
+          Retour aux services
+        </button>
 
-        <motion.div variants={fadeIn('up', 'spring', 0.4, 1)} className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-[#5869A3] mb-4">
-            Prestataires pour {serviceFromState}
+        <div className="text-center mb-12">
+          <h1 className="text-3xl font-bold text-gray-800 mb-2">
+            Prestataires pour {service?.title}
           </h1>
           <p className="text-lg text-gray-600">
-            {Object.values(prestatairesByCity).flat().length} prestataires disponibles
-            {pricingType === 'fixed' && ' (Prix fixes)'}
-            {pricingType === 'quote' && ' (Sur devis)'}
+            {prestataires.length} prestataire(s) disponible(s)
           </p>
-        </motion.div>
+        </div>
 
-        {Object.entries(prestatairesByCity).map(([city, cityPrestataires], index) => {
-          const totalCityPages = totalPages(cityPrestataires);
-          const paginatedPrestataires = totalCityPages > 1 
-            ? paginate(cityPrestataires, currentPage) 
-            : cityPrestataires;
-
-          return (
-            <motion.div 
-              key={city}
-              variants={fadeIn('up', 'spring', index * 0.1, 0.75)}
-              className="mb-16"
-            >
-              <h2 className="text-2xl font-semibold text-[#5869A3] mb-6 flex items-center">
-                <FaMapMarkerAlt className="mr-2" />
-                {city} <span className="ml-2 text-sm font-normal text-gray-500">({cityPrestataires.length} prestataires)</span>
+        {Object.keys(groupedPrestataires).length > 0 ? (
+          Object.entries(groupedPrestataires).map(([city, cityPrestataires]) => (
+            <div key={city} className="mb-12">
+              <h2 className="text-xl font-semibold text-gray-700 mb-4 flex items-center">
+                <FaMapMarkerAlt className="mr-2 text-blue-500" />
+                {city} <span className="ml-2 text-sm text-gray-500">({cityPrestataires.length})</span>
               </h2>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                {paginatedPrestataires.map((prestataire, idx) => (
+
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {cityPrestataires.map((prestataire) => (
                   <motion.div
-                    key={prestataire.id}
-                    whileHover={{ y: -10, boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1)" }}
-                    whileTap={{ scale: 0.98 }}
-                    initial={{ opacity: 0, y: 50 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5, delay: idx * 0.1 }}
-                    className="bg-white rounded-2xl overflow-hidden shadow-lg transition-all duration-300 border border-gray-200 hover:border-[#5869A3]/30 relative"
+                    key={prestataire._id}
+                    whileHover={{ y: -5 }}
+                    className="bg-white rounded-lg shadow-md overflow-hidden border border-gray-100"
                   >
-                    <div className="relative h-40 bg-gradient-to-r from-[#5869A3] to-[#48578A]">
-                      <div className="absolute -bottom-6 left-6 z-10">
-                        <motion.div 
-                          whileHover={{ scale: 1.05 }}
-                          className="relative"
-                        >
-                          <div className="w-16 h-16 rounded-full border-4 border-white shadow-xl overflow-hidden">
-                            <img
-                              src={prestataire.photo}
-                              alt={prestataire.nom}
-                              className="w-full h-full object-cover"
-                              onError={(e) => e.target.src = '/default-profile.jpg'}
-                            />
+                    <div className="p-6">
+                      <div className="flex items-center mb-4">
+                        <div className="relative mr-4">
+                          <img
+                            src={prestataire.photo || prestataire.prestataireInfo?.documents?.photoProfil || '/default-profile.jpg'}
+                            alt={`${prestataire.prenom} ${prestataire.nom}`}
+                            className="w-14 h-14 rounded-full object-cover border-2 border-white shadow-sm"
+                            onError={(e) => e.target.src = '/default-profile.jpg'}
+                          />
+                          {prestataire.prestataireInfo?.noteMoyenne && (
+                            <div className="absolute -bottom-1 -right-1 bg-yellow-400 text-white rounded-full p-1 flex items-center justify-center">
+                              <FaStar className="text-xs" />
+                            </div>
+                          )}
+                        </div>
+                        <div>
+                          <h3 className="font-bold text-gray-800">
+                            {prestataire.prenom} {prestataire.nom}
+                          </h3>
+                          <div className="flex items-center text-sm text-gray-600">
+                            <FaStar className="text-yellow-500 mr-1" />
+                            <span>{prestataire.prestataireInfo?.noteMoyenne?.toFixed(1) || 'Nouveau'}</span>
                           </div>
-                          <div className="absolute -bottom-1 -right-1 bg-yellow-400 text-white rounded-full p-1 shadow-md">
-                            <FaStar className="text-xs" />
-                          </div>
-                        </motion.div>
-                      </div>
-                    </div>
-                    
-                    <div className="p-6 pt-10">
-                      <div className="flex justify-between items-start mb-3">
-                        <motion.h3 
-                          whileHover={{ color: '#48578A' }}
-                          className="text-xl font-bold text-gray-800 transition-colors duration-300"
-                        >
-                          {prestataire.nom}
-                        </motion.h3>
-                        <div className="flex items-center bg-yellow-50 px-3 py-1 rounded-full shadow-inner">
-                          <FaStar className="text-yellow-500 mr-1 text-sm" />
-                          <span className="text-sm font-medium">{prestataire.note}</span>
                         </div>
                       </div>
-                      
-                      <motion.p 
-                        whileHover={{ color: '#5869A3' }}
-                        className="text-gray-600 text-sm mb-4 transition-colors duration-300 min-h-[60px]"
-                      >
-                        {prestataire.description}
-                      </motion.p>
-                      
-                      <div className="flex items-center text-gray-500 text-sm mb-4">
-                        <FaMapMarkerAlt className="mr-2 text-[#5869A3]" />
-                        <span>{prestataire.distance}</span>
+
+                      <div className="space-y-2 mb-4 text-sm">
+                        <div className="flex items-center text-gray-600">
+                          <FaBriefcase className="mr-2 text-blue-500" />
+                          <span>Service: {service?.title}</span>
+                        </div>
+                        <div className="flex items-center text-gray-600">
+                          <FaMapMarkerAlt className="mr-2 text-blue-500" />
+                          <span>{prestataire.ville || 'Localisation non spécifiée'}</span>
+                        </div>
+                        <div className="flex items-center text-gray-600">
+                          <FaBriefcase className="mr-2 text-blue-500" />
+                          <span>Expérience: {prestataire.prestataireInfo?.experience || 'Non spécifiée'}</span>
+                        </div>
                       </div>
-                      
-                      <div className="flex justify-between items-center mb-6">
-                        <span className="text-lg font-bold text-[#5869A3]">
-                          {prestataire.prix}
-                          {prestataire.pricingType === 'quote' && ' (sur devis)'}
-                        </span>
-                        <span className="text-xs bg-gray-100 text-gray-600 px-3 py-1 rounded-full">
-                          {prestataire.disponibilite}
-                        </span>
-                      </div>
-                      
+
                       <div className="flex gap-3">
-                        <motion.button
-                          whileHover={{ scale: 1.05, backgroundColor: '#F0F4FF' }}
-                          whileTap={{ scale: 0.95 }}
-                          onClick={() => handleChat(prestataire.id)}
-                          className="flex-1 bg-white border-2 border-[#5869A3] text-[#5869A3] hover:text-[#48578A] py-2 rounded-xl font-medium transition-all duration-300 flex items-center justify-center"
+                        <button
+                          onClick={() => handleChat(prestataire._id)}
+                          className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-800 py-2 rounded-lg text-sm font-medium transition-colors"
                         >
-                          <IoMdChatboxes className="mr-2 text-lg" /> Chat
-                        </motion.button>
-                        <motion.button
-                          whileHover={{ scale: 1.05 }}
-                          whileTap={{ scale: 0.95 }}
-                          onClick={() => handleReservation(prestataire.id)}
-                          className="flex-1 bg-gradient-to-r from-[#5869A3] to-[#48578A] hover:from-[#48578A] hover:to-[#5869A3] text-white py-2 rounded-xl font-medium transition-all duration-300 flex items-center justify-center shadow-md"
+                          <IoMdChatboxes className="inline mr-1" /> Chat
+                        </button>
+                        <button
+                          onClick={() => handleReservation(prestataire._id)}
+                          className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg text-sm font-medium transition-colors"
                         >
-                          <FaCalendarAlt className="mr-2" /> Réserver
-                        </motion.button>
+                          <FaCalendarAlt className="inline mr-1" /> Réserver
+                        </button>
                       </div>
                     </div>
                   </motion.div>
                 ))}
               </div>
-
-              {totalCityPages > 1 && (
-                <PaginationControls 
-                  currentPage={currentPage} 
-                  totalPages={totalCityPages} 
-                  onPageChange={setCurrentPage} 
-                />
-              )}
-            </motion.div>
-          );
-        })}
-
-        {Object.values(prestatairesByCity).flat().length === 0 && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.5 }}
-            className="text-center py-16 bg-white rounded-xl shadow-sm"
-          >
-            <h3 className="text-xl font-medium text-gray-600 mb-2">
-              Aucun prestataire ne correspond à vos critères
+            </div>
+          ))
+        ) : (
+          <div className="text-center py-16 bg-white rounded-lg shadow-sm">
+            <h3 className="text-xl font-medium text-gray-600 mb-4">
+              Aucun prestataire disponible pour ce service
             </h3>
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
+            <button
               onClick={() => navigate(-1)}
-              className="mt-4 px-6 py-2 bg-gradient-to-r from-[#5869A3] to-[#48578A] text-white rounded-lg hover:from-[#48578A] hover:to-[#5869A3] transition-all duration-300 shadow-md"
+              className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
             >
               Retour aux services
-            </motion.button>
-          </motion.div>
+            </button>
+          </div>
         )}
       </main>
-    </motion.div>
+    </div>
   );
 };
 

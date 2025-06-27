@@ -1,9 +1,11 @@
 require('dotenv').config();
+
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const path = require('path');
-
+const stripeRoutes = require('./routes/stripeRoutes');
+const bookingRoutes = require('./routes/bookingRoutes')
 const cityRoutes = require('./routes/cityRoutes');
 const reviewRoutes = require('./routes/reviewRoutes');
 const authRoutes = require('./routes/authRoutes');
@@ -34,6 +36,8 @@ mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log("✅ Connexion à MongoDB réussie"))
   .catch((err) => console.error("❌ Erreur de connexion MongoDB :", err));
 
+app.use('/api/stripe', stripeRoutes);
+app.use('/api/bookings', bookingRoutes);
 // Routes
 app.use('/api', contactRoutes);
 app.use('/api', cityRoutes);
@@ -41,7 +45,6 @@ app.use('/api/reviews', reviewRoutes);
 app.use('/api/services', serviceRoutes);
 app.use('/api/categories', categoryRoutes);
 app.use('/api/auth', authRoutes);
-
 // Routes protégées
 app.get('/DashboardClient', requireClientAuth, (req, res) => {
   res.json({ message: 'Bienvenue dans votre espace client' });

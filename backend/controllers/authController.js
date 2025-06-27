@@ -2,7 +2,7 @@ const User = require('../models/User');
 const City = require('../models/City'); 
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-
+const Service = require('../models/Service');
 
 // inscription client 
 exports.registerClient = async (req, res) => {
@@ -447,3 +447,61 @@ exports.getCities = async (req, res) => {
     }
 };
 
+
+
+exports.getUserById = async (req, res) => {
+    try {
+        // Récupérer l'utilisateur de base
+        const user = await User.findById(req.params.id)
+            .select('-password -prestataireInfo.detailsCarte -createdAt -__v');
+
+        if (!user) {
+            return res.status(404).json({ message: 'Utilisateur non trouvé' });
+        }
+
+        // Si c'est un prestataire, peupler ses services
+        if (user.role === 'prestataire' && user.prestataireInfo?.services) {
+            await User.populate(user, {
+                path: 'prestataireInfo.services',
+                select: 'title price duration description',
+                model: 'Service'
+            });
+        }
+
+        // Formater la réponse
+        const response = {
+            _id: user._id,
+            nom: user.nom,
+            prenom: user.prenom,
+            email: user.email,
+            telephone: user.telephone,
+            role: user.role,
+            photo: user.photo || null,
+            bannerImage: user.bannerImage || null,
+            ville: user.ville,
+            rating: user.rating || null
+        };
+
+        if (user.role === 'prestataire') {
+            response.prestataireInfo = {
+                experience: user.prestataireInfo?.experience,
+                secteurActivite: user.prestataireInfo?.secteurActivite,
+                description: user.prestataireInfo?.description,
+                documents: {
+                    photoProfil: user.prestataireInfo?.documents?.photoProfil || null
+                },
+                services: user.prestataireInfo?.services || [], // Services déjà peuplés
+                statutVerification: user.prestataireInfo?.statutVerification || 'non_verifie',
+                disponibilites: user.prestataireInfo?.disponibilites || []
+            };
+        }
+
+        res.status(200).json(response);
+    } catch (error) {
+        console.error('Erreur lors de la récupération de l\'utilisateur:', error);
+        res.status(500).json({ 
+            message: 'Erreur serveur', 
+            error: error.message 
+        });
+    }
+};
