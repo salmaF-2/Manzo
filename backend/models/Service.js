@@ -16,7 +16,10 @@ const serviceSchema = new mongoose.Schema({
   },
   cities: [{ type: mongoose.Schema.Types.ObjectId, ref: 'City' }],
   iconName: String,
-  popular: Boolean
+  popular: Boolean,
+
+  prestataire: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true }
 });
+
 
 module.exports = mongoose.model('Service', serviceSchema);

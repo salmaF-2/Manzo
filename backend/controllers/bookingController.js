@@ -1,10 +1,43 @@
-// controllers/bookingController.js
-const Booking = require('../models/Booking');
 
-// ➕ Créer une réservation
+const Booking = require('../models/Booking');
+const stripe = require('../config/stripe');
+
+// ➕ Créer une réservation (mise à jour)
 exports.createBooking = async (req, res) => {
   try {
-    const newBooking = await Booking.create(req.body);
+    const { client, ...rest } = req.body;
+
+    // Vérifiez si le client existe déjà en base
+    let clientId;
+    if (typeof client === 'object') {
+      const existingClient = await User.findOne({ email: client.email });
+      if (existingClient) {
+        clientId = existingClient._id;
+      } else {
+        // Créez un nouvel utilisateur client si nécessaire
+        const newClient = await User.create({
+          name: client.name,
+          email: client.email,
+          phone: client.phone,
+          role: 'client',
+          adresse: client.address
+        });
+        clientId = newClient._id;
+      }
+    } else {
+      clientId = client; // Supposons que c'est déjà un ObjectId
+    }
+
+    const bookingData = {
+      ...rest,
+      client: clientId, // Utilisez uniquement l'ObjectId
+      payment: {
+        paymentMethod: rest.paymentMethod || 'cash',
+        status: rest.paymentMethod === 'stripe' ? 'requires_payment_method' : 'succeeded'
+      }
+    };
+
+    const newBooking = await Booking.create(bookingData);
     res.status(201).json(newBooking);
   } catch (error) {
     res.status(400).json({ error: error.message });
