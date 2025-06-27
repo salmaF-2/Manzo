@@ -70,9 +70,9 @@ const VilleDetail = () => {
   const [prestatairesInCity, setPrestatairesInCity] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [availableServices, setAvailableServices] = useState([]); 
+  const [availableServices, setAvailableServices] = useState([]);
 
-  const [services, setServices] = useState([]); 
+  const [services, setServices] = useState([]);
 
   const [currentSlide, setCurrentSlide] = useState(0);
   const [serviceType, setServiceType] = useState('all');
@@ -110,7 +110,7 @@ const VilleDetail = () => {
 
       } catch (err) {
         console.error("Failed to fetch data:", err);
-        setError("Failed to load data. Please try again later.");
+        setError("Échec du chargement des données. Veuillez réessayer plus tard.");
       } finally {
         setLoading(false);
       }
@@ -138,7 +138,7 @@ const VilleDetail = () => {
   };
 
   if (loading) {
-    return <div className="container mx-auto px-4 py-8 text-center text-lg">Loading city details...</div>;
+    return <div className="container mx-auto px-4 py-8 text-center text-lg">Chargement des détails de la ville...</div>;
   }
 
   if (error) {
@@ -147,13 +147,13 @@ const VilleDetail = () => {
 
   // Fallback if no city details are found
   if (!cityDetails) {
-    return <div className="container mx-auto px-4 py-8 text-center text-lg">City details not found for {ville}.</div>;
+    return <div className="container mx-auto px-4 py-8 text-center text-lg">Détails de la ville non trouvés pour {ville}.</div>;
   }
 
   // Use cityDetails.image from API, fallback to static image if not found
   const cityImageSrc = cityDetails.image
     ? `${BASE_SERVER_URL}${cityDetails.image}` 
-    : staticVilleImages[cityDetails.name] || 'https://via.placeholder.com/1200x400?text=City+Image+Not+Found';
+    : staticVilleImages[cityDetails.name] || 'https://via.placeholder.com/1200x400?text=Image+de+la+ville+non+trouvée';
 
 
   return (
@@ -170,7 +170,7 @@ const VilleDetail = () => {
             Services à {cityDetails.name}
           </h1>
           <p className="text-lg md:text-xl text-white/90">
-            Trouvez les meilleurs prestataires près de chez vous
+            Trouvez les meilleurs prestataires de services près de chez vous
           </p>
         </div>
       </div>
@@ -181,7 +181,7 @@ const VilleDetail = () => {
         <p className="text-gray-600">
           {cityDetails.description || `
             ${cityDetails.name} est une ville dynamique offrant une gamme complète de services à domicile.
-            Nos prestataires sont soigneusement sélectionnés pour leur professionnalisme et leur savoir-faire.
+            Nos prestataires de services sont soigneusement sélectionnés pour leur professionnalisme et leur savoir-faire.
             Trouvez ci-dessous les services disponibles dans votre région.
           `}
         </p>
@@ -199,7 +199,7 @@ const VilleDetail = () => {
                     >
                         <div className="h-48 overflow-hidden">
                             <img
-                                src={service.image ? `${BASE_SERVER_URL}/uploads/services/${service.image}` : 'https://via.placeholder.com/400x300?text=Service+Image'}
+                                src={service.image ? `${BASE_SERVER_URL}/uploads/services/${service.image}` : 'https://via.placeholder.com/400x300?text=Image+du+service'}
                                 alt={service.title}
                                 className="w-full h-full object-cover"
                             />
@@ -208,7 +208,7 @@ const VilleDetail = () => {
                             <h3 className="font-bold text-lg mb-2">{service.title}</h3>
                             <p className="text-gray-600 text-sm mb-3">{service.description}</p>
                             <p className="text-gray-700 text-sm mb-2">
-                                <span className="font-semibold">Prestataire:</span> {service.prestataire}
+                                <span className="font-semibold">Prestataire :</span> {service.prestataire}
                             </p>
                             <div className="flex justify-between items-center text-sm">
                                 <span className="text-gray-600">
@@ -261,16 +261,16 @@ const VilleDetail = () => {
             >
               <div className="relative h-48">
                 <img
-                  // FIX: Prepend BASE_SERVER_URL to prestataire.photo if it's a relative path
-                  src={prestataire.photo ? `${BASE_SERVER_URL}${prestataire.photo}` : serviceImages[prestataire.service] || staticVilleImages[cityDetails.name] || 'https://via.placeholder.com/400x300?text=Service+Image'}
+                  // FIX: Prioritize bannerImage, then check for photo, then service, then city image
+                  src={prestataire.bannerImage ? `${BASE_SERVER_URL}${prestataire.bannerImage}` : prestataire.photo ? `${BASE_SERVER_URL}${prestataire.photo}` : serviceImages[prestataire.service] || staticVilleImages[cityDetails.name] || 'https://via.placeholder.com/400x300?text=Image+de+service'}
                   alt={prestataire.service}
                   className="w-full h-full object-cover"
                 />
                 <div className="absolute -bottom-6 left-1/2 transform -translate-x-1/2">
                   <div className="w-12 h-12 rounded-full border-4 border-white bg-white shadow-md overflow-hidden">
                     <img
-                      // FIX: Prepend BASE_SERVER_URL to prestataire.photo for profile image
-                      src={prestataire.photo ? `${BASE_SERVER_URL}${prestataire.photo}` : 'https://via.placeholder.com/100x100?text=P'}
+                      // FIX: Use optional chaining to check for the nested photoProfil
+                      src={prestataire.prestataireInfo?.documents?.photoProfil ? `${BASE_SERVER_URL}${prestataire.prestataireInfo.documents.photoProfil}` : 'https://via.placeholder.com/100x100?text=Profil'}
                       alt={prestataire.name}
                       className="w-full h-full object-cover"
                     />
@@ -294,7 +294,7 @@ const VilleDetail = () => {
           ))}
         </div>
         {prestatairesInCity.length === 0 && (
-          <p className="text-gray-600 text-center mt-8">Aucun prestataire trouvé pour {cityDetails.name}.</p>
+          <p className="text-gray-600 text-center mt-8">Aucun prestataire de service trouvé pour {cityDetails.name}.</p>
         )}
       </section>
 
