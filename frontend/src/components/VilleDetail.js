@@ -67,15 +67,18 @@ const VilleDetail = () => {
 
   const [cityDetails, setCityDetails] = useState(null);
   const [reviews, setReviews] = useState([]);
-  const [prestatairesInCity, setPrestatairesInCity] = useState([]); // To store prestataires fetched with city
+  const [prestatairesInCity, setPrestatairesInCity] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [availableServices, setAvailableServices] = useState([]); 
+
+  const [services, setServices] = useState([]); 
 
   const [currentSlide, setCurrentSlide] = useState(0);
   const [serviceType, setServiceType] = useState('all');
 
   const API_BASE_URL = 'http://localhost:5000/api'; // Ensure this matches your server.js port
-  const BASE_SERVER_URL = 'http://localhost:5000'; // <--- NEW: Define your backend server's base URL
+  const BASE_SERVER_URL = 'http://localhost:5000'; // Define your backend server's base URL
 
   useEffect(() => {
     window.scrollTo(0, 0); // Scroll to top on component mount or city change
@@ -84,15 +87,18 @@ const VilleDetail = () => {
       setLoading(true);
       setError(null);
       try {
-        // Fetch city details and its associated prestataires
+        // Fetch city details and its associated prestataires and services
         const cityResponse = await fetch(`${API_BASE_URL}/cities/${ville}`);
         if (!cityResponse.ok) {
           throw new Error(`HTTP error! status: ${cityResponse.status}`);
         }
         const cityData = await cityResponse.json();
+        
         setCityDetails(cityData);
-        // Assuming the `prestataires` array is populated by the backend
+        
         setPrestatairesInCity(cityData.prestataires || []);
+        setAvailableServices(cityData.availableServices || []);
+        setServices(cityData.services || []); // Set the new detailed services state
 
         // Fetch reviews for the city
         const reviewsResponse = await fetch(`${API_BASE_URL}/reviews/city/${ville}`);
@@ -115,15 +121,9 @@ const VilleDetail = () => {
     }
   }, [ville]); // Re-fetch when 'ville' parameter changes
 
-  // Filter services from static data (if you eventually move services to DB, this will change)
-  const filteredServices = [...servicesFixes, ...servicesDevis].filter(
-    // FIX APPLIED HERE: Added '?' for safe navigation on service.ville
-    service => service.ville?.toLowerCase() === ville.toLowerCase() // Filter by city name
-  );
-
-  const servicesToDisplay = serviceType === 'all'
-    ? filteredServices
-    : filteredServices.filter(service => service.category.toLowerCase() === serviceType.toLowerCase());
+  // You can now delete the 'filteredServices' and 'servicesToDisplay' logic if you want to use the API data
+  // const filteredServices = [...servicesFixes, ...servicesDevis].filter(...)
+  // const servicesToDisplay = serviceType === 'all' ? filteredServices : filteredServices.filter(...)
 
   const nextSlide = () => {
     if (currentSlide < prestatairesInCity.length - 4) {
@@ -151,9 +151,8 @@ const VilleDetail = () => {
   }
 
   // Use cityDetails.image from API, fallback to static image if not found
-  // FIX: Prepend BASE_SERVER_URL if the image path is relative
   const cityImageSrc = cityDetails.image
-    ? `${BASE_SERVER_URL}${cityDetails.image}` // <--- MODIFIED LINE: Prepends the full server URL
+    ? `${BASE_SERVER_URL}${cityDetails.image}` 
     : staticVilleImages[cityDetails.name] || 'https://via.placeholder.com/1200x400?text=City+Image+Not+Found';
 
 
@@ -187,6 +186,48 @@ const VilleDetail = () => {
           `}
         </p>
       </div>
+      
+      {/* NEW SECTION: Services disponibles - using API data with cards */}
+      <section className="mb-12">
+        <h2 className="text-2xl font-bold text-gray-800 mb-6">Services disponibles</h2>
+        {services.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {services.map((service, index) => (
+                    <div
+                        key={service._id || index}
+                        className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow"
+                    >
+                        <div className="h-48 overflow-hidden">
+                            <img
+                                src={service.image ? `${BASE_SERVER_URL}/uploads/services/${service.image}` : 'https://via.placeholder.com/400x300?text=Service+Image'}
+                                alt={service.title}
+                                className="w-full h-full object-cover"
+                            />
+                        </div>
+                        <div className="p-4">
+                            <h3 className="font-bold text-lg mb-2">{service.title}</h3>
+                            <p className="text-gray-600 text-sm mb-3">{service.description}</p>
+                            <p className="text-gray-700 text-sm mb-2">
+                                <span className="font-semibold">Prestataire:</span> {service.prestataire}
+                            </p>
+                            <div className="flex justify-between items-center text-sm">
+                                <span className="text-gray-600">
+                                    <FaClock className="inline mr-1" />
+                                    {service.duration}
+                                </span>
+                                <span className="font-bold text-blue-600">
+                                    {service.price ? `${service.price} MAD` : 'Sur devis'}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                ))}
+            </div>
+        ) : (
+            <p className="text-gray-600 text-center mt-8">Aucun service disponible pour {cityDetails.name} pour le moment.</p>
+        )}
+      </section>
+      {/* END NEW SECTION */}
 
       {/* Liste des prestataires */}
       <section className="mb-12">
@@ -229,7 +270,7 @@ const VilleDetail = () => {
                   <div className="w-12 h-12 rounded-full border-4 border-white bg-white shadow-md overflow-hidden">
                     <img
                       // FIX: Prepend BASE_SERVER_URL to prestataire.photo for profile image
-                      src={prestataire.photo ? `${BASE_SERVER_URL}${prestataire.photo}` : 'https://via.placeholder.com/100x100?text=P'} // <--- MODIFIED LINE: Prepends the full server URL
+                      src={prestataire.photo ? `${BASE_SERVER_URL}${prestataire.photo}` : 'https://via.placeholder.com/100x100?text=P'}
                       alt={prestataire.name}
                       className="w-full h-full object-cover"
                     />
@@ -254,43 +295,6 @@ const VilleDetail = () => {
         </div>
         {prestatairesInCity.length === 0 && (
           <p className="text-gray-600 text-center mt-8">Aucun prestataire trouvé pour {cityDetails.name}.</p>
-        )}
-      </section>
-
-      {/* Liste des services (still using static data filtered by city for now) */}
-      <section className="mb-12">
-        <h2 className="text-2xl font-bold text-gray-800 mb-6">Services disponibles</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {servicesToDisplay.map((service, index) => (
-            <div
-              key={index}
-              className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow"
-            >
-              <div className="h-48 overflow-hidden">
-                <img
-                  src={staticVilleImages[cityDetails.name]}
-                  alt={service.title}
-                  className="w-full h-full object-cover"
-                />
-              </div>
-              <div className="p-4">
-                <h3 className="font-bold text-lg mb-2">{service.title}</h3>
-                <p className="text-gray-600 text-sm mb-3">{service.description}</p>
-                <div className="flex justify-between items-center text-sm">
-                  <span className="text-gray-600">
-                    <FaClock className="inline mr-1" />
-                    {service.duration}
-                  </span>
-                  <span className="font-semibold text-blue-600">
-                    {service.price ? `${service.price} MAD` : 'Sur devis'}
-                  </span>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-        {servicesToDisplay.length === 0 && (
-          <p className="text-gray-600 text-center mt-8">Aucun service disponible pour {cityDetails.name} pour le moment.</p>
         )}
       </section>
 
@@ -341,7 +345,7 @@ const VilleDetail = () => {
       )}
 
       {/* Pagination (placeholder - implement actual logic if needed) */}
-      {servicesToDisplay.length > 9 && (
+      {prestatairesInCity.length > 4 && ( // Change from servicesToDisplay to prestatairesInCity
         <div className="flex justify-center mb-8">
           <nav className="flex items-center space-x-2">
             <button className="px-3 py-1 rounded-md bg-gray-200 text-gray-700 hover:bg-gray-300">
@@ -350,11 +354,9 @@ const VilleDetail = () => {
             <button className="px-3 py-1 rounded-md bg-blue-600 text-white">
               1
             </button>
-            {servicesToDisplay.length > 9 && (
-              <button className="px-3 py-1 rounded-md bg-gray-200 text-gray-700 hover:bg-gray-300">
-                2
-              </button>
-            )}
+            <button className="px-3 py-1 rounded-md bg-gray-200 text-gray-700 hover:bg-gray-300">
+              2
+            </button>
             <button className="px-3 py-1 rounded-md bg-gray-200 text-gray-700 hover:bg-gray-300">
               &raquo;
             </button>
