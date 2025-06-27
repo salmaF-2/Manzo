@@ -10,7 +10,6 @@ import ServiceFixe from "./pages/ServiceFixe";
 import ServiceDevis from "./pages/ServiceDevis";
 import ResultatsRecherche from "./pages/ResultatsRecherche";
 import ReservationPage from "./pages/Reservation.jsx";
-import StripeProvider from "./pages/StripeProvider.js";
 // salma 
 import Accueil from "./pages/Accueil";
 import Contact from "./pages/Contact.js";
@@ -121,17 +120,9 @@ const App = () => {
         <Route path="/recherche" element={<ResultatsRecherche />} />
         
         {/* Prestataires */}
-        <Route path="/prestataires/service/:serviceId" element={<PrestatairesList />} />
-<Route 
-  path="/reservation/:serviceId/:prestataireId" 
-  element={
-    <StripeProvider>
-      <ReservationPage />
-    </StripeProvider>
-  } 
-/>
-        {/* <Route path="/prestataires" element={<PrestatairesList />} />
-        <Route path="/reservation" element={<ReservationPage />} /> */}
+        <Route path="/prestataires" element={<PrestatairesList />} />
+        <Route path="/reservation" element={<ReservationPage />} />
+        <Route path="/reservation" element={<ReservationPage />} />
         <Route path="/ville/:ville" element={<VilleDetail />} />
 
         {/* Auth */}

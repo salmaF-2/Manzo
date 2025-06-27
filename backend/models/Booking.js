@@ -1,5 +1,14 @@
 const mongoose = require('mongoose');
 
+const paymentSchema = new mongoose.Schema({
+  paymentMethod: { type: String, enum: ['card', 'cash', 'stripe'], required: true },
+  stripePaymentIntentId: String,
+  stripeCustomerId: String,
+  amount: Number,
+  currency: { type: String, default: 'eur' },
+  status: { type: String, enum: ['requires_payment_method', 'requires_confirmation', 'processing', 'requires_action', 'succeeded', 'canceled'], default: 'requires_payment_method' }
+});
+
 const devisSchema = new mongoose.Schema({
   montant: Number,
   details: String,
@@ -20,6 +29,7 @@ const bookingSchema = new mongoose.Schema({
     default: 'en_attente' 
   },
   devis: devisSchema,
+  payment: paymentSchema,
   note: Number,
   avis: String,
   createdAt: { type: Date, default: Date.now }
