@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { Dialog, Transition } from "@headlessui/react";
 import { Fragment } from "react";
 import SideBarClient from "./SideBarClient";
+import { useNavigate } from "react-router-dom";
 
 const SettingSection = ({ title, children }) => (
   <motion.div
@@ -61,42 +62,6 @@ const PasswordDialog = ({ isOpen, onClose }) => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showSuccess, setShowSuccess] = useState(false);
 
-//   const handleSubmit = async (e) => {
-//     e.preventDefault();
-    
-//     if (newPassword !== confirmPassword) {
-//       alert("Les nouveaux mots de passe ne correspondent pas");
-//       return;
-//     }
-
-//     try {
-//       const token = localStorage.getItem('token');
-//       const response = await fetch('http://localhost:5000/api/auth/client/change-password', {
-//         method: 'PUT',
-//         headers: {
-//           'Content-Type': 'application/json',
-//           'Authorization': `Bearer ${token}`
-//         },
-//         body: JSON.stringify({
-//           currentPassword,
-//           newPassword,
-//           confirmPassword
-//         })
-//       });
-
-//       const data = await response.json();
-
-//       if (response.ok) {
-//         alert(data.message || 'Mot de passe changé avec succès');
-//         onClose();
-//       } else {
-//         alert(data.message || 'Erreur lors du changement de mot de passe');
-//       }
-//     } catch (error) {
-//       console.error('Erreur:', error);
-//       alert('Une erreur est survenue');
-//     }
-// };
 const handleSubmit = async (e) => {
     e.preventDefault();
     
@@ -313,6 +278,101 @@ const handleSubmit = async (e) => {
 };
 
 const ParametreC = () => {
+  const [confirmDelete, setConfirmDelete] = useState(false);
+  const [password, setPassword] = useState("");
+  const [showSuccessDelete, setShowSuccessDelete] = useState(false);
+  const [showErrorDelete, setShowErrorDelete] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+  const [isChecked, setIsChecked] = useState(false);
+  const navigate = useNavigate();
+
+  // const handleDeleteAccount = async () => {
+  //   if (!isChecked) {
+  //     setErrorMessage("Veuillez confirmer que vous comprenez que cette action est irréversible");
+  //     setShowErrorDelete(true);
+  //     return;
+  //   }
+
+  //   if (!password) {
+  //     setErrorMessage("Veuillez entrer votre mot de passe");
+  //     setShowErrorDelete(true);
+  //     return;
+  //   }
+
+  //   try {
+  //     const token = localStorage.getItem('token');
+  //     const response = await fetch('http://localhost:5000/api/auth/client/delete-account', {
+  //       method: 'DELETE',
+  //       headers: {
+  //         'Content-Type': 'application/json',
+  //         'Authorization': `Bearer ${token}`
+  //       },
+  //       body: JSON.stringify({ password })
+  //     });
+
+  //     const data = await response.json();
+
+  //     if (response.ok) {
+  //       setShowSuccessDelete(true);
+  //       // Déconnexion et redirection après 2 secondes
+  //       setTimeout(() => {
+  //         localStorage.removeItem('token');
+  //         localStorage.removeItem('user');
+  //         navigate('/');
+  //       }, 2000);
+  //     } else {
+  //       setErrorMessage(data.message || 'Erreur lors de la suppression du compte');
+  //       setShowErrorDelete(true);
+  //     }
+  //   } catch (error) {
+  //     console.error('Erreur:', error);
+  //     setErrorMessage('Une erreur est survenue');
+  //     setShowErrorDelete(true);
+  //   }
+  // };
+  const handleDeleteAccount = async () => {
+  if (!isChecked) {
+    setErrorMessage("Veuillez confirmer que vous comprenez que cette action est irréversible");
+    setShowErrorDelete(true);
+    return;
+  }
+
+  if (!password) {
+    setErrorMessage("Veuillez entrer votre mot de passe");
+    setShowErrorDelete(true);
+    return;
+  }
+
+  try {
+    const token = localStorage.getItem('token');
+    const response = await fetch('http://localhost:5000/api/auth/client/delete-account', {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify({ password })
+    });
+
+    const data = await response.json();
+
+    if (response.ok) {
+      setShowSuccessDelete(true);
+      // Déconnexion et redirection avec rechargement complet
+      setTimeout(() => {
+        localStorage.clear(); // Vide tout le localStorage
+        window.location.href = '/'; // Force un rechargement complet
+      }, 2000);
+    } else {
+      setErrorMessage(data.message || 'Erreur lors de la suppression du compte');
+      setShowErrorDelete(true);
+    }
+  } catch (error) {
+    console.error('Erreur:', error);
+    setErrorMessage('Une erreur est survenue');
+    setShowErrorDelete(true);
+  }
+};
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
@@ -413,7 +473,7 @@ const ParametreC = () => {
           />
         </SettingSection>
 
-        <SettingSection title="Supprimer le compte">
+        {/* <SettingSection title="Supprimer le compte">
           <p className="text-sm text-gray-600">Cette action est irréversible. Toutes vos données seront définitivement supprimées.</p>
           <label className="flex items-center gap-2 text-sm mt-2">
             <input type="checkbox" className="h-4 w-4 text-red-500 border-gray-300 rounded focus:ring-red-500" />
@@ -427,8 +487,168 @@ const ParametreC = () => {
           <button className="mt-3 bg-red-500 hover:bg-red-600 text-white py-2 px-4 rounded-md transition-colors shadow-sm">
             Supprimer mon compte
           </button>
+        </SettingSection> */}
+        <SettingSection title="Supprimer le compte">
+          <p className="text-sm text-gray-600">Cette action est irréversible. Toutes vos données seront définitivement supprimées.</p>
+          <label className="flex items-center gap-2 text-sm mt-2">
+            <input 
+              type="checkbox" 
+              className="h-4 w-4 text-red-500 border-gray-300 rounded focus:ring-red-500" 
+              checked={isChecked}
+              onChange={(e) => setIsChecked(e.target.checked)}
+            />
+            Je comprends que cette action est irréversible
+          </label>
+          <input
+            type="password"
+            placeholder="Entrez votre mot de passe pour confirmer"
+            className="w-full mt-2 p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-red-300 focus:border-transparent"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+          <button 
+            className="mt-3 bg-red-500 hover:bg-red-600 text-white py-2 px-4 rounded-md transition-colors shadow-sm"
+            onClick={handleDeleteAccount}
+          >
+            Supprimer mon compte
+          </button>
         </SettingSection>
       </div>
+        {/* Dialogue de succès pour la suppression */}
+        <Transition appear show={showSuccessDelete} as={Fragment}>
+          <Dialog as="div" className="relative z-50" onClose={() => setShowSuccessDelete(false)}>
+            <Transition.Child
+              as={Fragment}
+              enter="ease-out duration-300"
+              enterFrom="opacity-0"
+              enterTo="opacity-100"
+              leave="ease-in duration-200"
+              leaveFrom="opacity-100"
+              leaveTo="opacity-0"
+            >
+              <div className="fixed inset-0 bg-black bg-opacity-50" />
+            </Transition.Child>
+
+            <div className="fixed inset-0 overflow-y-auto">
+              <div className="flex min-h-full items-center justify-center p-4 text-center">
+                <Transition.Child
+                  as={Fragment}
+                  enter="ease-out duration-300"
+                  enterFrom="opacity-0 scale-95"
+                  enterTo="opacity-100 scale-100"
+                  leave="ease-in duration-200"
+                  leaveFrom="opacity-100 scale-100"
+                  leaveTo="opacity-0 scale-95"
+                >
+                  <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
+                    <div className="flex flex-col items-center text-center">
+                      <div className="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-green-100">
+                        <svg
+                          className="h-6 w-6 text-green-600"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M5 13l4 4L19 7"
+                          />
+                        </svg>
+                      </div>
+                      <Dialog.Title
+                        as="h3"
+                        className="mt-3 text-lg font-medium leading-6 text-gray-900"
+                      >
+                        Compte supprimé avec succès
+                      </Dialog.Title>
+                      <div className="mt-2">
+                        <p className="text-sm text-gray-500">
+                          Vous serez redirigé vers la page d'accueil.
+                        </p>
+                      </div>
+                    </div>
+                  </Dialog.Panel>
+                </Transition.Child>
+              </div>
+            </div>
+          </Dialog>
+        </Transition>
+
+        {/* Dialogue d'erreur pour la suppression */}
+        <Transition appear show={showErrorDelete} as={Fragment}>
+          <Dialog as="div" className="relative z-50" onClose={() => setShowErrorDelete(false)}>
+            <Transition.Child
+              as={Fragment}
+              enter="ease-out duration-300"
+              enterFrom="opacity-0"
+              enterTo="opacity-100"
+              leave="ease-in duration-200"
+              leaveFrom="opacity-100"
+              leaveTo="opacity-0"
+            >
+              <div className="fixed inset-0 bg-black bg-opacity-50" />
+            </Transition.Child>
+
+            <div className="fixed inset-0 overflow-y-auto">
+              <div className="flex min-h-full items-center justify-center p-4 text-center">
+                <Transition.Child
+                  as={Fragment}
+                  enter="ease-out duration-300"
+                  enterFrom="opacity-0 scale-95"
+                  enterTo="opacity-100 scale-100"
+                  leave="ease-in duration-200"
+                  leaveFrom="opacity-100 scale-100"
+                  leaveTo="opacity-0 scale-95"
+                >
+                  <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
+                    <div className="flex flex-col items-center text-center">
+                      <div className="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-red-100">
+                        <svg
+                          className="h-6 w-6 text-red-600"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M6 18L18 6M6 6l12 12"
+                          />
+                        </svg>
+                      </div>
+                      <Dialog.Title
+                        as="h3"
+                        className="mt-3 text-lg font-medium leading-6 text-gray-900"
+                      >
+                        Erreur
+                      </Dialog.Title>
+                      <div className="mt-2">
+                        <p className="text-sm text-gray-500">
+                          {errorMessage}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="mt-4 flex justify-center">
+                      <button
+                        type="button"
+                        className="inline-flex justify-center rounded-md border border-transparent bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-2"
+                        onClick={() => setShowErrorDelete(false)}
+                      >
+                        OK
+                      </button>
+                    </div>
+                  </Dialog.Panel>
+                </Transition.Child>
+              </div>
+            </div>
+          </Dialog>
+        </Transition>
     </div>
   );
 };

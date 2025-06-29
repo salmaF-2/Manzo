@@ -340,6 +340,56 @@ exports.changePassword = async (req, res) => {
         res.status(500).json({ message: 'Erreur serveur', error: error.message });
     }
 };
+// Supprimer le compte client
+exports.deleteClientAccount = async (req, res) => {
+  try {
+    const { password } = req.body;
+    const userId = req.user.userId;
+
+    // Validation des champs
+    if (!password) {
+      return res.status(400).json({ 
+        message: 'Le mot de passe est requis pour confirmer la suppression' 
+      });
+    }
+
+    // Récupérer l'utilisateur
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: 'Utilisateur non trouvé' });
+    }
+
+    // Vérifier que c'est bien un client
+    if (user.role !== 'client') {
+      return res.status(403).json({ 
+        message: 'Cette action est réservée aux comptes clients' 
+      });
+    }
+
+    // Vérifier le mot de passe
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      return res.status(401).json({ 
+        message: 'Mot de passe incorrect' 
+      });
+    }
+
+    // Supprimer l'utilisateur
+    await User.findByIdAndDelete(userId);
+
+    res.status(200).json({ 
+      message: 'Compte supprimé avec succès',
+      success: true
+    });
+
+  } catch (error) {
+    console.error('Erreur lors de la suppression du compte:', error);
+    res.status(500).json({ 
+      message: 'Erreur serveur', 
+      error: error.message 
+    });
+  }
+};
 
 // 2 : Prestataire 
 // Récupérer les informations du prestataire connecté
@@ -525,7 +575,56 @@ exports.changePrestatairePassword = async (req, res) => {
         res.status(500).json({ message: 'Erreur serveur', error: error.message });
     }
 };
+// Supprimer le compte prestataire
+exports.deletePrestataireAccount = async (req, res) => {
+  try {
+    const { password } = req.body;
+    const userId = req.user.userId;
 
+    // Validation des champs
+    if (!password) {
+      return res.status(400).json({ 
+        message: 'Le mot de passe est requis pour confirmer la suppression' 
+      });
+    }
+
+    // Récupérer l'utilisateur
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: 'Utilisateur non trouvé' });
+    }
+
+    // Vérifier que c'est bien un prestataire
+    if (user.role !== 'prestataire') {
+      return res.status(403).json({ 
+        message: 'Cette action est réservée aux comptes prestataires' 
+      });
+    }
+
+    // Vérifier le mot de passe
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      return res.status(401).json({ 
+        message: 'Mot de passe incorrect' 
+      });
+    }
+
+    // Supprimer l'utilisateur
+    await User.findByIdAndDelete(userId);
+
+    res.status(200).json({ 
+      message: 'Compte supprimé avec succès',
+      success: true
+    });
+
+  } catch (error) {
+    console.error('Erreur lors de la suppression du compte:', error);
+    res.status(500).json({ 
+      message: 'Erreur serveur', 
+      error: error.message 
+    });
+  }
+};
 // Récupérer toutes les villes
 exports.getCities = async (req, res) => {
     try {

@@ -42,6 +42,12 @@ router.put(
     authMiddleware.requireClientAuth,
     authController.changePassword
 );
+// Suppression de compte client
+router.delete(
+  '/client/delete-account',
+  authMiddleware.requireClientAuth,
+  authController.deleteClientAccount
+);
 
 
 
@@ -69,6 +75,12 @@ router.put(
     '/prestataire/change-password',
     authMiddleware.requirePrestataireAuth,
     authController.changePrestatairePassword
+);
+// Supprimer le compte prestataire
+router.delete(
+  '/prestataire/delete-account',
+  authMiddleware.requirePrestataireAuth,
+  authController.deletePrestataireAccount
 );
 // Route pour récupérer les villes
 router.get('/cities', authController.getCities);
