@@ -177,7 +177,7 @@ const SideBarClient = () => {
                     </NavLink>
 
                     <NavLink 
-                        to='/Messages-Client' 
+                        to='/MessagesClient' 
                         className={({isActive}) => 
                             `flex items-center space-x-2 hover:bg-blue-100/50 cursor-pointer p-2.5 rounded-lg transition-all ${
                                 isActive 
@@ -216,7 +216,7 @@ const SideBarClient = () => {
                     </NavLink>
 
                     <NavLink 
-                        to='/Parametre-Client' 
+                        to='/parametreclient' 
                         className={({isActive}) => 
                             `flex items-center space-x-2 hover:bg-blue-100/50 cursor-pointer p-2.5 rounded-lg transition-all ${
                                 isActive 

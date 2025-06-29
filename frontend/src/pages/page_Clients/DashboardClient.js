@@ -1,10 +1,7 @@
 import React, { useEffect } from "react";
-
-import { LineChart, Coins, Star, Clock } from 'lucide-react';
+import { LineChart, ShoppingCart, Star, Clock, Heart, CheckCircle } from 'lucide-react';
 import { motion } from "framer-motion";
-import SideBar from "../Page_Prestataire/SideBar";
 import SideBarClient from "./SideBarClient";
-
 
 const DashboardClient = () => {
   useEffect(() => {
@@ -32,73 +29,119 @@ const DashboardClient = () => {
       <SideBarClient />
 
       <div className="flex-1 ml-60 p-6 mt-4">
-        <motion.h1  initial={{ opacity: 0, x: -20 }}  animate={{ opacity: 1, x: 0 }}  transition={{ duration: 0.5 }} className="text-3xl font-bold mb-8 text-gray-800">
-          📊 Tableau de Bord Client 
+        <motion.h1 initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.5 }} className="text-3xl font-bold mb-8 text-gray-800">
+          📊 Tableau de Bord Client
         </motion.h1>
 
         {/* Stats Cards */}
-        <motion.div  variants={container} initial="hidden" animate="show" className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-
+        <motion.div variants={container} initial="hidden" animate="show" className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <motion.div variants={item}>
-            <StatCard  title="Prestation" value="127" subtitle="+12% ce mois" icon={<LineChart size={24} />} color="blue" subtitleColor="blue" />
+            <StatCard 
+              title="Commandes" 
+              value="15" 
+              subtitle="+3 ce mois" 
+              icon={<LineChart size={24} />} 
+              color="blue" 
+              subtitleColor="blue" 
+            />
           </motion.div>
 
           <motion.div variants={item}>
-            <StatCard title="Revenus" value="3,450 Dh" subtitle="+8% ce mois" icon={<Coins size={24} className="text-[#10B981]"/>} color="green" subtitleColor="green"/>
+            <StatCard 
+              title="Dépenses" 
+              value="2,850 Dh" 
+              subtitle="Économie: 320 Dh" 
+              icon={<ShoppingCart size={24} className="text-[#10B981]"/>} 
+              color="green" 
+              subtitleColor="green"
+            />
           </motion.div>
 
           <motion.div variants={item}>
-            <StatCard title="Note moyenne" value="4.8/5" subtitle="Based on 89 avis" icon={<Star size={24} />} color="yellow" subtitleColor="yellow" />
+            <StatCard 
+              title="Favoris" 
+              value="8" 
+              subtitle="Prestataires favoris" 
+              icon={<Heart size={24} />} 
+              color="pink" 
+              subtitleColor="pink" 
+            />
           </motion.div>
 
           <motion.div variants={item}>
-            <StatCard title="Demandes" value="12" subtitle="5 en attente" icon={<Clock size={24} />} color="orange" subtitleColor="orange"/>
+            <StatCard 
+              title="En cours" 
+              value="3" 
+              subtitle="Services actifs" 
+              icon={<Clock size={24} />} 
+              color="orange" 
+              subtitleColor="orange"
+            />
           </motion.div>
-
         </motion.div>
 
         {/* Demandes récentes */}
-        <motion.div  initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="bg-white rounded-2xl shadow-lg p-6 mb-8 border border-gray-100 hover:shadow-xl transition-shadow duration-300">
-          <h2 className="text-xl font-semibold mb-5 text-gray-700">Demandes récentes</h2>
-          <RequestItem name="Marie Lambert" service="Plomberie - Fuite robinet" status="En attente"/>
-          <RequestItem name="Pierre Martin" service="Électricité - Installation lampe" status="Acceptée"/>
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="bg-white rounded-2xl shadow-lg p-6 mb-8 border border-gray-100 hover:shadow-xl transition-shadow duration-300">
+          <h2 className="text-xl font-semibold mb-5 text-gray-700">Mes demandes récentes</h2>
+          <RequestItem 
+            prestataire="Ahmed K." 
+            service="Plomberie - Réparation chauffe-eau" 
+            status="En cours"
+            date="15 Juin 2023"
+            rating={4}
+          />
+          <RequestItem 
+            prestataire="Fatima Z." 
+            service="Nettoyage - Maison complète" 
+            status="Terminé"
+            date="10 Juin 2023"
+            rating={5}
+          />
         </motion.div>
 
-        {/* Services & Disponibilites */}
+        {/* Services fréquents & Recommandations */}
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }} className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-100 hover:shadow-xl transition-shadow duration-300">
-            <h2 className="text-xl font-semibold mb-5 text-gray-700">Mes services</h2>
-            <ServiceItem name="Plomberie" price="à partir de 500dh" />
-            <ServiceItem name="Électricité" price="à partir de 200dh" />
+            <h2 className="text-xl font-semibold mb-5 text-gray-700">Services fréquents</h2>
+            <ServiceItem 
+              name="Plomberie" 
+              count="5 commandes" 
+              last="Dernière: 12 Juin" 
+              icon="💧"
+            />
+            <ServiceItem 
+              name="Nettoyage" 
+              count="3 commandes" 
+              last="Dernière: 5 Juin" 
+              icon="🧹"
+            />
           </div>
+          
           <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-100 hover:shadow-xl transition-shadow duration-300">
-            <h2 className="text-xl font-semibold mb-5 text-gray-700">Disponibilités</h2>
-            <hr/>
-            <div className="grid grid-cols-7 gap-2 text-center mt-6">
-              {["Lun", "Mar", "Mer", "Jeu", "Ven", "Sam", "Dim"].map((day, index) => (
-                <motion.div 
-                  key={day}
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: 0.4 + index * 0.05 }}
-                  className="bg-blue-100 text-blue-600 rounded-lg py-2 font-medium hover:bg-blue-200 transition-colors"
-                >
-                  {day}
-                </motion.div>
-              ))}
-            </div>
+            <h2 className="text-xl font-semibold mb-5 text-gray-700">Recommandations</h2>
+            <RecommendationItem 
+              name="Électricité - Installation luminaires" 
+              reason="Basé sur vos services précédents"
+              icon="💡"
+            />
+            <RecommendationItem 
+              name="Jardinage - Entretien mensuel" 
+              reason="Nouveau dans votre région"
+              icon="🌿"
+            />
           </div>
         </motion.div>
-
       </div>
     </div>
   );
 };
 
+// Composants adaptés pour le client
 const StatCard = ({ title, value, subtitle, icon, color, subtitleColor }) => {
-  const colorClasses = { blue: 'text-blue-600',
+  const colorClasses = { 
+    blue: 'text-blue-600',
     green: 'text-green-600',
-    yellow: 'text-yellow-500', 
+    pink: 'text-pink-500',
     orange: 'text-orange-500',
     gray: 'text-gray-500',
   };
@@ -106,7 +149,7 @@ const StatCard = ({ title, value, subtitle, icon, color, subtitleColor }) => {
   const bgColorClasses = {
     blue: 'bg-blue-100',
     green: 'bg-green-100',
-    yellow: 'bg-yellow-100',
+    pink: 'bg-pink-100',
     orange: 'bg-orange-100',
     gray: 'bg-gray-100',
   };
@@ -131,53 +174,70 @@ const StatCard = ({ title, value, subtitle, icon, color, subtitleColor }) => {
   );
 };
 
-const RequestItem = ({ name, service, status }) => (
+const RequestItem = ({ prestataire, service, status, date, rating }) => (
   <motion.div 
     whileHover={{ x: 5 }}
     className="flex justify-between items-center py-3 px-2 border-b last:border-none hover:bg-gray-50 rounded-lg transition-colors"
   >
-    <div>
-      <div className="font-medium text-gray-800">{name}</div>
-      <div className="text-sm text-gray-500">{service}</div>
+    <div className="flex-1">
+      <div className="font-medium text-gray-800">{service}</div>
+      <div className="text-sm text-gray-500">Par {prestataire} • {date}</div>
     </div>
-    <motion.div 
-      whileHover={{ scale: 1.05 }}
-      className={`text-xs font-medium px-3 py-1 rounded-full ${
-        status === "Acceptée" 
-          ? "bg-green-100 text-green-600" 
-          : "bg-yellow-100 text-yellow-600"
-      }`}
-    >
-      {status}
-    </motion.div>
+    <div className="flex items-center space-x-3">
+      <div className="flex items-center">
+        {[...Array(5)].map((_, i) => (
+          <Star 
+            key={i} 
+            size={16} 
+            fill={i < rating ? "#F59E0B" : "none"} 
+            className={i < rating ? "text-yellow-500" : "text-gray-300"} 
+          />
+        ))}
+      </div>
+      <motion.div 
+        whileHover={{ scale: 1.05 }}
+        className={`text-xs font-medium px-3 py-1 rounded-full ${
+          status === "Terminé" 
+            ? "bg-green-100 text-green-600" 
+            : "bg-blue-100 text-blue-600"
+        }`}
+      >
+        {status}
+      </motion.div>
+    </div>
   </motion.div>
 );
 
-const ServiceItem = ({ name, price }) => (
+const ServiceItem = ({ name, count, last, icon }) => (
   <motion.div 
     whileHover={{ x: 5 }}
-    className="flex justify-between items-center mb-4 p-3 hover:bg-gray-50 rounded-lg transition-colors"
+    className="flex items-center mb-4 p-3 hover:bg-gray-50 rounded-lg transition-colors"
   >
-    <div>
+    <div className="text-2xl mr-4">{icon}</div>
+    <div className="flex-1">
       <div className="font-medium text-gray-800">{name}</div>
-      <div className="text-sm text-gray-500">{price}</div>
+      <div className="text-sm text-gray-500">{count} • {last}</div>
     </div>
-    <div className="relative w-12 h-6 bg-blue-100 rounded-full">
-      <motion.div 
-        className="absolute top-0.5 left-0.5 w-5 h-5 bg-blue-500 rounded-full shadow-sm"
-        animate={{ x: 18 }}
-        transition={{ 
-          repeat: Infinity,
-          repeatType: "reverse",
-          duration: 1.5
-        }}
-      />
+    <button className="text-blue-600 text-sm font-medium hover:text-blue-800 transition-colors">
+      Commander
+    </button>
+  </motion.div>
+);
+
+const RecommendationItem = ({ name, reason, icon }) => (
+  <motion.div 
+    whileHover={{ x: 5 }}
+    className="flex items-center mb-4 p-3 hover:bg-gray-50 rounded-lg transition-colors"
+  >
+    <div className="text-2xl mr-4">{icon}</div>
+    <div className="flex-1">
+      <div className="font-medium text-gray-800">{name}</div>
+      <div className="text-sm text-gray-500">{reason}</div>
     </div>
+    <button className="text-sm bg-blue-100 text-blue-600 px-3 py-1 rounded-full hover:bg-blue-200 transition-colors">
+      Découvrir
+    </button>
   </motion.div>
 );
 
 export default DashboardClient;
-
-
-
-

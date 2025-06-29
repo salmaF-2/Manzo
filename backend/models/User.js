@@ -61,6 +61,10 @@ const userSchema = new mongoose.Schema({
     enum: ['client', 'prestataire', 'admin'], 
     required: true 
   },
+  online: {
+        type: Boolean,
+        default: false
+  },
   nom: String,
   prenom: String,
   telephone: String,

@@ -51,7 +51,8 @@ exports.registerClient = async (req, res) => {
             nom,
             prenom,
             telephone,
-            ville: cityId,
+            // ville: cityId,
+            ville: ville,
             genre,
             // photo: req.file?.path si vous gérez les fichiers
         });
@@ -409,6 +410,10 @@ exports.updatePrestataireProfile = async (req, res) => {
                     tiktok: req.body['socialLinks[tiktok]'] || ''
                 };
             }
+
+            if (req.body.disponibilites) {
+                updateData.$set['prestataireInfo.disponibilites'] = JSON.parse(req.body.disponibilites);
+            }
         }
 
         const updatedUser = await User.findByIdAndUpdate(
@@ -446,4 +451,5 @@ exports.getCities = async (req, res) => {
         res.status(500).json({ message: 'Erreur serveur', error: error.message });
     }
 };
+
 
