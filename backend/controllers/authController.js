@@ -81,7 +81,6 @@ exports.registerClient = async (req, res) => {
         res.status(500).json({ message: 'Erreur lors de l\'inscription', error: error.message });
     }
 };
-
 // Se connecter
 exports.login = async (req, res) => {
     try {
@@ -126,8 +125,7 @@ exports.login = async (req, res) => {
         res.status(500).json({ message: 'Erreur lors de la connexion', error: error.message });
     }
 };
-
-
+// inscription prestataire 
 exports.registerPrestataire = async (req, res) => {
     try {
         // Vérifier si une erreur Multer s'est produite
@@ -300,7 +298,48 @@ exports.updateClientProfile = async (req, res) => {
         res.status(500).json({ message: 'Erreur serveur', error: error.message });
     }
 };
+// Changer le mot de passe du client
+exports.changePassword = async (req, res) => {
+    try {
+        const { currentPassword, newPassword, confirmPassword } = req.body;
+        const userId = req.user.userId;
 
+        // Validation des champs
+        if (!currentPassword || !newPassword || !confirmPassword) {
+            return res.status(400).json({ message: 'Tous les champs sont obligatoires' });
+        }
+
+        if (newPassword !== confirmPassword) {
+            return res.status(400).json({ message: 'Les nouveaux mots de passe ne correspondent pas' });
+        }
+
+        // Récupérer l'utilisateur
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).json({ message: 'Utilisateur non trouvé' });
+        }
+
+        // Vérifier l'ancien mot de passe
+        const isMatch = await bcrypt.compare(currentPassword, user.password);
+        if (!isMatch) {
+            return res.status(401).json({ message: 'Mot de passe actuel incorrect' });
+        }
+
+        // Hacher le nouveau mot de passe
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(newPassword, salt);
+
+        // Mettre à jour le mot de passe
+        user.password = hashedPassword;
+        await user.save();
+
+        res.status(200).json({ message: 'Mot de passe mis à jour avec succès' });
+
+    } catch (error) {
+        console.error('Erreur lors du changement de mot de passe:', error);
+        res.status(500).json({ message: 'Erreur serveur', error: error.message });
+    }
+};
 
 // 2 : Prestataire 
 // Récupérer les informations du prestataire connecté
@@ -439,7 +478,53 @@ exports.updatePrestataireProfile = async (req, res) => {
         });
     }
 };
+// Changer le mot de passe du prestataire
+exports.changePrestatairePassword = async (req, res) => {
+    try {
+        const { currentPassword, newPassword, confirmPassword } = req.body;
+        const userId = req.user.userId;
 
+        // Validation des champs
+        if (!currentPassword || !newPassword || !confirmPassword) {
+            return res.status(400).json({ message: 'Tous les champs sont obligatoires' });
+        }
+
+        if (newPassword !== confirmPassword) {
+            return res.status(400).json({ message: 'Les nouveaux mots de passe ne correspondent pas' });
+        }
+
+        // Récupérer l'utilisateur
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).json({ message: 'Utilisateur non trouvé' });
+        }
+
+        // Vérifier que c'est bien un prestataire
+        if (user.role !== 'prestataire') {
+            return res.status(403).json({ message: 'Accès réservé aux prestataires' });
+        }
+
+        // Vérifier l'ancien mot de passe
+        const isMatch = await bcrypt.compare(currentPassword, user.password);
+        if (!isMatch) {
+            return res.status(401).json({ message: 'Mot de passe actuel incorrect' });
+        }
+
+        // Hacher le nouveau mot de passe
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(newPassword, salt);
+
+        // Mettre à jour le mot de passe
+        user.password = hashedPassword;
+        await user.save();
+
+        res.status(200).json({ message: 'Mot de passe mis à jour avec succès' });
+
+    } catch (error) {
+        console.error('Erreur lors du changement de mot de passe:', error);
+        res.status(500).json({ message: 'Erreur serveur', error: error.message });
+    }
+};
 
 // Récupérer toutes les villes
 exports.getCities = async (req, res) => {
