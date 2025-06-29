@@ -3,6 +3,7 @@ const User = require('../models/User'); // We need the User model here
 const Service = require('../models/Service'); // We need the Service model here
 
 exports.getAllCities = async (req, res) => {
+
     try {
         const cities = await City.find().populate('prestataires', 'nom prenom photo');
         res.json(cities);
@@ -10,7 +11,6 @@ exports.getAllCities = async (req, res) => {
         res.status(500).json({ error: err.message });
     }
 };
-
 exports.addCity = async (req, res) => {
     try {
         const { name, image, coordinates, prestataires } = req.body;

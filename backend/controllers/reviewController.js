@@ -2,6 +2,7 @@ const Review = require('../models/Review');
 const User = require('../models/User'); 
 const City = require('../models/City');
 
+// Create a new review
 exports.createReview = async (req, res) => {
     try {
         const { client, prestataire, reservation, note, commentaire } = req.body;
@@ -13,12 +14,12 @@ exports.createReview = async (req, res) => {
     }
 };
 
+// Get reviews for a specific prestataire
 exports.getReviewsForPrestataire = async (req, res) => {
     try {
         const { prestataireId } = req.params;
-        // FIX: Populate 'client' with both nom and prenom
         const reviews = await Review.find({ prestataire: prestataireId })
-            .populate('client', 'nom prenom') 
+            .populate('client', 'nom prenom profileImage') // CORRECTED: Added profileImage
             .sort({ createdAt: -1 });
         res.json(reviews);
     } catch (err) {
@@ -26,32 +27,28 @@ exports.getReviewsForPrestataire = async (req, res) => {
     }
 };
 
+// Get reviews by city name
 exports.getReviewsByCityName = async (req, res) => {
     try {
         const { cityName } = req.params;
 
-        // CRUCIAL FIX: Query for prestataires by the string 'ville' field, not the ObjectId from 'City'.
         const prestatairesInCity = await User.find({
             role: 'prestataire',
-            ville: { $regex: new RegExp(`^${cityName}$`, 'i') } // Case-insensitive exact match
+            ville: { $regex: new RegExp(`^${cityName}$`, 'i') } 
         }).select('_id nom prenom'); 
 
         const prestataireIds = prestatairesInCity.map(p => p._id);
 
         if (prestataireIds.length === 0) {
-            // No prestataires found in this city, so there can't be any reviews for them.
             return res.status(200).json([]); 
         }
 
-        // Find reviews for these prestataires and populate client's name
         const reviews = await Review.find({ prestataire: { $in: prestataireIds } })
-            .populate('client', 'nom prenom') // FIX: Populate with nom and prenom
+            .populate('client', 'nom prenom profileImage') // CORRECTED: Added profileImage
             .sort({ createdAt: -1 });
 
-        // Format reviews to match frontend expectations (nom, note, commentaire, date)
         const formattedReviews = reviews.map(review => ({
             id: review._id,
-            // FIX: Combine nom and prenom from the populated client object
             nom: review.client ? `${review.client.nom} ${review.client.prenom}` : 'Client Anonyme', 
             note: review.note,
             commentaire: review.commentaire,
@@ -65,70 +62,25 @@ exports.getReviewsByCityName = async (req, res) => {
     }
 };
 
+// Get all reviews for the homepage
+exports.getAllReviews = async (req, res) => {
+    try {
+        // Fetch all reviews and populate the client details, including the photo
+        const reviews = await Review.find({})
+            .populate('client', 'nom prenom photo') // CORRECTED: Added profileImage
+            .sort({ createdAt: -1 }); // Sort by newest first
+        
+        res.status(200).json(reviews);
+    } catch (error) {
+        console.error("Error fetching all reviews:", error);
+        res.status(500).json({ message: 'Error fetching all reviews', error: error.message });
+    }
+};
 
-// const Review = require('../models/Review');
-// const User = require('../models/User'); 
-// const City = require('../models/City');
-
-// exports.createReview = async (req, res) => {
-//     try {
-//         const { client, prestataire, reservation, note, commentaire } = req.body;
-//         const review = new Review({ client, prestataire, reservation, note, commentaire });
-//         await review.save();
-//         res.status(201).json(review);
-//     } catch (err) {
-//         res.status(400).json({ error: err.message });
-//     }
-// };
-
-// exports.getReviewsForPrestataire = async (req, res) => {
-//     try {
-//         const { prestataireId } = req.params;
-//         // FIX: Populate 'client' with both nom and prenom
-//         const reviews = await Review.find({ prestataire: prestataireId })
-//             .populate('client', 'nom prenom') 
-//             .sort({ createdAt: -1 });
-//         res.json(reviews);
-//     } catch (err) {
-//         res.status(500).json({ error: err.message });
-//     }
-// };
-
-// exports.getReviewsByCityName = async (req, res) => {
-//     try {
-//         const { cityName } = req.params;
-
-//         // CRUCIAL FIX: Query for prestataires by the string 'ville' field, not the ObjectId from 'City'.
-//         const prestatairesInCity = await User.find({
-//             role: 'prestataire',
-//             ville: { $regex: new RegExp(`^${cityName}$`, 'i') } // Case-insensitive exact match
-//         }).select('_id nom prenom'); 
-
-//         const prestataireIds = prestatairesInCity.map(p => p._id);
-
-//         if (prestataireIds.length === 0) {
-//             // No prestataires found in this city, so there can't be any reviews for them.
-//             return res.status(200).json([]); 
-//         }
-
-//         // Find reviews for these prestataires and populate client's name
-//         const reviews = await Review.find({ prestataire: { $in: prestataireIds } })
-//             .populate('client', 'nom prenom') // FIX: Populate with nom and prenom
-//             .sort({ createdAt: -1 });
-
-//         // Format reviews to match frontend expectations (nom, note, commentaire, date)
-//         const formattedReviews = reviews.map(review => ({
-//             id: review._id,
-//             // FIX: Combine nom and prenom from the populated client object
-//             nom: review.client ? `${review.client.nom} ${review.client.prenom}` : 'Client Anonyme', 
-//             note: review.note,
-//             commentaire: review.commentaire,
-//             date: review.createdAt, 
-//         }));
-
-//         res.status(200).json(formattedReviews);
-//     } catch (error) {
-//         console.error("Error fetching reviews by city name:", error);
-//         res.status(500).json({ message: 'Error fetching reviews for city', error: error.message });
-//     }
-// };
+// --- UPDATE YOUR MODULE EXPORTS ---
+module.exports = {
+    createReview: exports.createReview,
+    getReviewsForPrestataire: exports.getReviewsForPrestataire,
+    getReviewsByCityName: exports.getReviewsByCityName,
+    getAllReviews: exports.getAllReviews,
+};
