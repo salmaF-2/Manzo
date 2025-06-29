@@ -1,6 +1,6 @@
 const City = require('../models/City');
-const User = require('../models/User'); // We need the User model here
-const Service = require('../models/Service'); // We need the Service model here
+const User = require('../models/User'); 
+const Service = require('../models/Service');
 
 exports.getAllCities = async (req, res) => {
 
