@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { FaStar, FaMapMarkerAlt, FaArrowLeft, FaCalendarAlt, FaBriefcase } from 'react-icons/fa';
+import { FaStar, FaMapMarkerAlt, FaArrowLeft, FaCalendarAlt, FaBriefcase, FaMoneyBillWave, FaClock } from 'react-icons/fa';
 import { IoMdChatboxes } from 'react-icons/io';
 import { motion } from 'framer-motion';
 import axios from 'axios';
@@ -25,10 +25,11 @@ const PrestatairesList = () => {
           axios.get(`http://localhost:5000/api/services/${serviceId}/prestataires`)
         ]);
 
-        const serviceData = serviceResponse.data;
-        const prestatairesData = prestatairesResponse.data.data || [];
+        // --- FIX: Correctly access the service object from the 'data' property ---
+        setService(serviceResponse.data.data);
 
-        setService(serviceData);
+        const prestatairesData = prestatairesResponse.data.data?.prestataires || [];
+        setPrestataires(prestatairesData);
 
         const grouped = prestatairesData.reduce((acc, prestataire) => {
           const city = prestataire.ville || 'Autre';
@@ -39,7 +40,6 @@ const PrestatairesList = () => {
         }, {});
 
         setGroupedPrestataires(grouped);
-        setPrestataires(prestatairesData);
       } catch (err) {
         console.error('Erreur lors de la récupération des données:', err);
         setError(err.response?.data?.message || 'Une erreur est survenue');
@@ -52,10 +52,16 @@ const PrestatairesList = () => {
   }, [serviceId]);
 
   const handleReservation = (prestataireId) => {
+    if (!service) {
+      console.error("Service is not loaded yet");
+      return;
+    }
+
+    // Pass the entire service object in the navigation state
     navigate(`/reservation/${serviceId}/${prestataireId}`, {
       state: {
-        service,
-        pricingType: service?.pricingType
+        service: service, // Pass the whole service object
+        // pricingType is already inside the service object
       }
     });
   };
@@ -159,8 +165,28 @@ const PrestatairesList = () => {
                       <div className="space-y-2 mb-4 text-sm">
                         <div className="flex items-center text-gray-600">
                           <FaBriefcase className="mr-2 text-blue-500" />
-                          <span>Service: {service?.title}</span>
+                          <span>Service: {prestataire.serviceDetails?.title || service?.title}</span>
                         </div>
+                        
+                        {prestataire.serviceDetails?.pricingType === 'fixed' && (
+                          <div className="flex items-center text-gray-600">
+                            <FaMoneyBillWave className="mr-2 text-blue-500" />
+                            <span>Prix: {prestataire.serviceDetails?.price} MAD</span>
+                          </div>
+                        )}
+                        
+                        {prestataire.serviceDetails?.pricingType === 'devis' && (
+                          <div className="flex items-center text-gray-600">
+                            <FaMoneyBillWave className="mr-2 text-blue-500" />
+                            <span>Prix: À partir de {prestataire.serviceDetails?.startingPrice || 'sur devis'} MAD</span>
+                          </div>
+                        )}
+                        
+                        <div className="flex items-center text-gray-600">
+                          <FaClock className="mr-2 text-blue-500" />
+                          <span>Durée: {prestataire.serviceDetails?.duration || 'Non spécifiée'}</span>
+                        </div>
+
                         <div className="flex items-center text-gray-600">
                           <FaMapMarkerAlt className="mr-2 text-blue-500" />
                           <span>{prestataire.ville || 'Localisation non spécifiée'}</span>
@@ -180,7 +206,11 @@ const PrestatairesList = () => {
                         </button>
                         <button
                           onClick={() => handleReservation(prestataire._id)}
-                          className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg text-sm font-medium transition-colors"
+                          disabled={!service} // This will now be correctly enabled
+                          className={`flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg text-sm font-medium transition-colors ${
+                            !service ? 'opacity-50 cursor-not-allowed' : ''
+                          }`}
+                          style={{ position: 'relative', zIndex: 1 }}
                         >
                           <FaCalendarAlt className="inline mr-1" /> Réserver
                         </button>

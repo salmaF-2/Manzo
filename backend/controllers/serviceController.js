@@ -276,7 +276,24 @@ exports.deleteService = async (req, res) => {
     });
   }
 };
+exports.getServicesByCity = async (req, res) => {
+  try {
+    const services = await Service.find({ cities: req.params.cityId })
+      .populate('category', 'name iconName')
+      .populate('cities', 'name')
+      .populate('prestataire', 'firstName lastName photo');
 
+    res.json({
+      success: true,
+      data: services
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+};
 // Récupérer les services populaires
 exports.getPopularServices = async (req, res) => {
   try {
@@ -298,17 +315,23 @@ exports.getPopularServices = async (req, res) => {
   }
 };
 
-// Récupérer les services par ville
-exports.getServicesByCity = async (req, res) => {
+exports.getServiceById = async (req, res) => {
   try {
-    const services = await Service.find({ cities: req.params.cityId })
+    const service = await Service.findById(req.params.id)
       .populate('category', 'name iconName')
       .populate('cities', 'name')
-      .populate('prestataire', 'firstName lastName photo');
+      .populate('prestataire', 'firstName lastName photo rating services');
+
+    if (!service) {
+      return res.status(404).json({
+        success: false,
+        error: 'Service non trouvé'
+      });
+    }
 
     res.json({
       success: true,
-      data: services
+      data: service // Correctly wrapped in 'data'
     });
   } catch (error) {
     res.status(500).json({
@@ -318,65 +341,61 @@ exports.getServicesByCity = async (req, res) => {
   }
 };
 
+// This function was also already correct
 exports.getPrestatairesForService = async (req, res) => {
   try {
     const serviceId = req.params.id;
     const service = await Service.findById(serviceId);
 
     if (!service) {
-      return res.status(404).json({
-        success: false,
-        error: 'Service non trouvé'
-      });
+      return res.status(404).json({ success: false, error: 'Service non trouvé' });
     }
 
     let prestataires = [];
-
     if (service.prestataire) {
       const prestataire = await User.findById(service.prestataire)
-        .select('nom prenom photo ville prestataireInfo')
+        .select('nom prenom photo ville prestataireInfo rating')
         .lean();
-      
       if (prestataire) {
         prestataires.push({
           ...prestataire,
           serviceDetails: {
-            pricingType: service.pricingType,
+            title: service.title,
             price: service.price,
-            startingPrice: service.startingPrice
+            startingPrice: service.startingPrice,
+            pricingType: service.pricingType,
+            duration: service.duration
           }
         });
       }
     } else {
-      prestataires = await User.find({
-        role: 'prestataire',
-        'services.service': serviceId
-      })
-      .select('nom prenom photo ville prestataireInfo')
-      .lean();
-
+      // Fallback for a different data model (not strictly used based on schema but good to have)
+      prestataires = await User.find({ role: 'prestataire', 'prestataireInfo.services': serviceId })
+        .select('nom prenom photo ville prestataireInfo rating')
+        .lean();
       prestataires = prestataires.map(p => ({
         ...p,
         serviceDetails: {
-          pricingType: service.pricingType,
+          title: service.title,
           price: service.price,
-          startingPrice: service.startingPrice
+          startingPrice: service.startingPrice,
+          pricingType: service.pricingType,
+          duration: service.duration
         }
       }));
     }
 
     res.json({
       success: true,
-      data: prestataires,
-      service: {
-        title: service.title,
-        pricingType: service.pricingType
+      data: {
+        prestataires,
+        service: {
+          title: service.title,
+          pricingType: service.pricingType
+        }
       }
     });
   } catch (error) {
-    res.status(500).json({
-      success: false,
-      error: error.message
-    });
+    res.status(500).json({ success: false, error: error.message });
   }
 };
