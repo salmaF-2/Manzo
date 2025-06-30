@@ -27,7 +27,7 @@ app.use(express.urlencoded({ extended: true }));
 // This middleware is CORRECT. It serves static files from the 'uploads' directory
 // and makes them accessible at URLs like http://localhost:5000/uploads/your-image.png
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
-console.log("Static files from 'uploads' directory are now being served.");
+
 
 // Global error handler
 app.use((err, req, res, next) => {
