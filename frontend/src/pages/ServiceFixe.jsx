@@ -426,7 +426,7 @@ const ServiceFixe = () => {
                           >
                             <div className="h-48 bg-gray-200 relative overflow-hidden group">
                               <img 
-                                src={`http://localhost:5000/uploads/${service.image}`} 
+                                src={`http://localhost:5000/uploads/services/${service.image}`} 
                                 alt={service.title}
                                 className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                                 onError={(e) => e.target.src = '/images/services/default.jpg'}
