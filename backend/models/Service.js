@@ -33,32 +33,67 @@
 const mongoose = require('mongoose');
 
 const serviceSchema = new mongoose.Schema({
-  title: { type: String, required: true },
-  description: String,
+  title: {
+    type: String,
+    required: true,
+    trim: true,
+  },
+  description: {
+    type: String,
+    required: true,
+  },
   price: {
     type: Number,
-    // Price is required only if pricingType is 'fixed'
-    required: function() { return this.pricingType === 'fixed'; }
+    required: false,
   },
   startingPrice: {
     type: Number,
-    // StartingPrice is required only if pricingType is 'devis'
-    required: function() { return this.pricingType === 'devis'; }
+    required: false,
   },
-  duration: String,
-  image: String,
-  rating: Number,
-  category: { type: mongoose.Schema.Types.ObjectId, ref: 'Category' },
-  pricingType: { 
-    type: String, 
-    enum: ['fixed', 'devis'], 
-    required: true 
+  duration: {
+    type: String,
+    required: false,
   },
-  cities: [{ type: mongoose.Schema.Types.ObjectId, ref: 'City' }],
-  iconName: String,
-  popular: Boolean,
-  // Assumes a one-to-one relationship between a service and a prestataire for simplicity
-  prestataire: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true }
+  image: {
+    type: String,
+    required: false,
+  },
+  rating: {
+    type: Number,
+    required: false,
+  },
+  category: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Category',
+    required: true,
+  },
+  pricingType: {
+    type: String,
+    enum: ['fixed', 'devis'],
+    required: true,
+    default: 'fixed',
+  },
+  cities: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'City',
+      required: true,
+    }
+  ],
+  iconName: {
+    type: String,
+  },
+  popular: {
+    type: Boolean,
+    default: false,
+  },
+  prestataire: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: true,
+  },
+}, {
+  timestamps: true,
 });
 
 module.exports = mongoose.model('Service', serviceSchema);

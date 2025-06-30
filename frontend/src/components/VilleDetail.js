@@ -67,15 +67,18 @@ const VilleDetail = () => {
 
   const [cityDetails, setCityDetails] = useState(null);
   const [reviews, setReviews] = useState([]);
-  const [prestatairesInCity, setPrestatairesInCity] = useState([]); // To store prestataires fetched with city
+  const [prestatairesInCity, setPrestatairesInCity] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [availableServices, setAvailableServices] = useState([]);
+
+  const [services, setServices] = useState([]);
 
   const [currentSlide, setCurrentSlide] = useState(0);
   const [serviceType, setServiceType] = useState('all');
 
   const API_BASE_URL = 'http://localhost:5000/api'; // Ensure this matches your server.js port
-  const BASE_SERVER_URL = 'http://localhost:5000'; // <--- NEW: Define your backend server's base URL
+  const BASE_SERVER_URL = 'http://localhost:5000'; // Define your backend server's base URL
 
   useEffect(() => {
     window.scrollTo(0, 0); // Scroll to top on component mount or city change
@@ -84,15 +87,18 @@ const VilleDetail = () => {
       setLoading(true);
       setError(null);
       try {
-        // Fetch city details and its associated prestataires
+        // Fetch city details and its associated prestataires and services
         const cityResponse = await fetch(`${API_BASE_URL}/cities/${ville}`);
         if (!cityResponse.ok) {
           throw new Error(`HTTP error! status: ${cityResponse.status}`);
         }
         const cityData = await cityResponse.json();
+        
         setCityDetails(cityData);
-        // Assuming the `prestataires` array is populated by the backend
+        
         setPrestatairesInCity(cityData.prestataires || []);
+        setAvailableServices(cityData.availableServices || []);
+        setServices(cityData.services || []); // Set the new detailed services state
 
         // Fetch reviews for the city
         const reviewsResponse = await fetch(`${API_BASE_URL}/reviews/city/${ville}`);
@@ -104,7 +110,7 @@ const VilleDetail = () => {
 
       } catch (err) {
         console.error("Failed to fetch data:", err);
-        setError("Failed to load data. Please try again later.");
+        setError("Échec du chargement des données. Veuillez réessayer plus tard.");
       } finally {
         setLoading(false);
       }
@@ -115,15 +121,9 @@ const VilleDetail = () => {
     }
   }, [ville]); // Re-fetch when 'ville' parameter changes
 
-  // Filter services from static data (if you eventually move services to DB, this will change)
-  const filteredServices = [...servicesFixes, ...servicesDevis].filter(
-    // FIX APPLIED HERE: Added '?' for safe navigation on service.ville
-    service => service.ville?.toLowerCase() === ville.toLowerCase() // Filter by city name
-  );
-
-  const servicesToDisplay = serviceType === 'all'
-    ? filteredServices
-    : filteredServices.filter(service => service.category.toLowerCase() === serviceType.toLowerCase());
+  // You can now delete the 'filteredServices' and 'servicesToDisplay' logic if you want to use the API data
+  // const filteredServices = [...servicesFixes, ...servicesDevis].filter(...)
+  // const servicesToDisplay = serviceType === 'all' ? filteredServices : filteredServices.filter(...)
 
   const nextSlide = () => {
     if (currentSlide < prestatairesInCity.length - 4) {
@@ -138,7 +138,7 @@ const VilleDetail = () => {
   };
 
   if (loading) {
-    return <div className="container mx-auto px-4 py-8 text-center text-lg">Loading city details...</div>;
+    return <div className="container mx-auto px-4 py-8 text-center text-lg">Chargement des détails de la ville...</div>;
   }
 
   if (error) {
@@ -147,14 +147,13 @@ const VilleDetail = () => {
 
   // Fallback if no city details are found
   if (!cityDetails) {
-    return <div className="container mx-auto px-4 py-8 text-center text-lg">City details not found for {ville}.</div>;
+    return <div className="container mx-auto px-4 py-8 text-center text-lg">Détails de la ville non trouvés pour {ville}.</div>;
   }
 
   // Use cityDetails.image from API, fallback to static image if not found
-  // FIX: Prepend BASE_SERVER_URL if the image path is relative
   const cityImageSrc = cityDetails.image
-    ? `${BASE_SERVER_URL}${cityDetails.image}` // <--- MODIFIED LINE: Prepends the full server URL
-    : staticVilleImages[cityDetails.name] || 'https://via.placeholder.com/1200x400?text=City+Image+Not+Found';
+    ? `${BASE_SERVER_URL}${cityDetails.image}` 
+    : staticVilleImages[cityDetails.name] || 'https://via.placeholder.com/1200x400?text=Image+de+la+ville+non+trouvée';
 
 
   return (
@@ -171,7 +170,7 @@ const VilleDetail = () => {
             Services à {cityDetails.name}
           </h1>
           <p className="text-lg md:text-xl text-white/90">
-            Trouvez les meilleurs prestataires près de chez vous
+            Trouvez les meilleurs prestataires de services près de chez vous
           </p>
         </div>
       </div>
@@ -182,11 +181,53 @@ const VilleDetail = () => {
         <p className="text-gray-600">
           {cityDetails.description || `
             ${cityDetails.name} est une ville dynamique offrant une gamme complète de services à domicile.
-            Nos prestataires sont soigneusement sélectionnés pour leur professionnalisme et leur savoir-faire.
+            Nos prestataires de services sont soigneusement sélectionnés pour leur professionnalisme et leur savoir-faire.
             Trouvez ci-dessous les services disponibles dans votre région.
           `}
         </p>
       </div>
+      
+      {/* NEW SECTION: Services disponibles - using API data with cards */}
+      <section className="mb-12">
+        <h2 className="text-2xl font-bold text-gray-800 mb-6">Services disponibles</h2>
+        {services.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {services.map((service, index) => (
+                    <div
+                        key={service._id || index}
+                        className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow"
+                    >
+                        <div className="h-48 overflow-hidden">
+                            <img
+                                src={service.image ? `${BASE_SERVER_URL}/uploads/services/${service.image}` : 'https://via.placeholder.com/400x300?text=Image+du+service'}
+                                alt={service.title}
+                                className="w-full h-full object-cover"
+                            />
+                        </div>
+                        <div className="p-4">
+                            <h3 className="font-bold text-lg mb-2">{service.title}</h3>
+                            <p className="text-gray-600 text-sm mb-3">{service.description}</p>
+                            <p className="text-gray-700 text-sm mb-2">
+                                <span className="font-semibold">Prestataire :</span> {service.prestataire}
+                            </p>
+                            <div className="flex justify-between items-center text-sm">
+                                <span className="text-gray-600">
+                                    <FaClock className="inline mr-1" />
+                                    {service.duration}
+                                </span>
+                                <span className="font-bold text-blue-600">
+                                    {service.price ? `${service.price} MAD` : 'Sur devis'}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                ))}
+            </div>
+        ) : (
+            <p className="text-gray-600 text-center mt-8">Aucun service disponible pour {cityDetails.name} pour le moment.</p>
+        )}
+      </section>
+      {/* END NEW SECTION */}
 
       {/* Liste des prestataires */}
       <section className="mb-12">
@@ -220,16 +261,16 @@ const VilleDetail = () => {
             >
               <div className="relative h-48">
                 <img
-                  // FIX: Prepend BASE_SERVER_URL to prestataire.photo if it's a relative path
-                  src={prestataire.photo ? `${BASE_SERVER_URL}${prestataire.photo}` : serviceImages[prestataire.service] || staticVilleImages[cityDetails.name] || 'https://via.placeholder.com/400x300?text=Service+Image'}
+                  // FIX: Prioritize bannerImage, then check for photo, then service, then city image
+                  src={prestataire.bannerImage ? `${BASE_SERVER_URL}${prestataire.bannerImage}` : prestataire.photo ? `${BASE_SERVER_URL}${prestataire.photo}` : serviceImages[prestataire.service] || staticVilleImages[cityDetails.name] || 'https://via.placeholder.com/400x300?text=Image+de+service'}
                   alt={prestataire.service}
                   className="w-full h-full object-cover"
                 />
                 <div className="absolute -bottom-6 left-1/2 transform -translate-x-1/2">
                   <div className="w-12 h-12 rounded-full border-4 border-white bg-white shadow-md overflow-hidden">
                     <img
-                      // FIX: Prepend BASE_SERVER_URL to prestataire.photo for profile image
-                      src={prestataire.photo ? `${BASE_SERVER_URL}${prestataire.photo}` : 'https://via.placeholder.com/100x100?text=P'} // <--- MODIFIED LINE: Prepends the full server URL
+                      // FIX: Use optional chaining to check for the nested photoProfil
+                      src={prestataire.prestataireInfo?.documents?.photoProfil ? `${BASE_SERVER_URL}${prestataire.prestataireInfo.documents.photoProfil}` : 'https://via.placeholder.com/100x100?text=Profil'}
                       alt={prestataire.name}
                       className="w-full h-full object-cover"
                     />
@@ -253,44 +294,7 @@ const VilleDetail = () => {
           ))}
         </div>
         {prestatairesInCity.length === 0 && (
-          <p className="text-gray-600 text-center mt-8">Aucun prestataire trouvé pour {cityDetails.name}.</p>
-        )}
-      </section>
-
-      {/* Liste des services (still using static data filtered by city for now) */}
-      <section className="mb-12">
-        <h2 className="text-2xl font-bold text-gray-800 mb-6">Services disponibles</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {servicesToDisplay.map((service, index) => (
-            <div
-              key={index}
-              className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow"
-            >
-              <div className="h-48 overflow-hidden">
-                <img
-                  src={staticVilleImages[cityDetails.name]}
-                  alt={service.title}
-                  className="w-full h-full object-cover"
-                />
-              </div>
-              <div className="p-4">
-                <h3 className="font-bold text-lg mb-2">{service.title}</h3>
-                <p className="text-gray-600 text-sm mb-3">{service.description}</p>
-                <div className="flex justify-between items-center text-sm">
-                  <span className="text-gray-600">
-                    <FaClock className="inline mr-1" />
-                    {service.duration}
-                  </span>
-                  <span className="font-semibold text-blue-600">
-                    {service.price ? `${service.price} MAD` : 'Sur devis'}
-                  </span>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-        {servicesToDisplay.length === 0 && (
-          <p className="text-gray-600 text-center mt-8">Aucun service disponible pour {cityDetails.name} pour le moment.</p>
+          <p className="text-gray-600 text-center mt-8">Aucun prestataire de service trouvé pour {cityDetails.name}.</p>
         )}
       </section>
 
@@ -341,7 +345,7 @@ const VilleDetail = () => {
       )}
 
       {/* Pagination (placeholder - implement actual logic if needed) */}
-      {servicesToDisplay.length > 9 && (
+      {prestatairesInCity.length > 4 && ( // Change from servicesToDisplay to prestatairesInCity
         <div className="flex justify-center mb-8">
           <nav className="flex items-center space-x-2">
             <button className="px-3 py-1 rounded-md bg-gray-200 text-gray-700 hover:bg-gray-300">
@@ -350,11 +354,9 @@ const VilleDetail = () => {
             <button className="px-3 py-1 rounded-md bg-blue-600 text-white">
               1
             </button>
-            {servicesToDisplay.length > 9 && (
-              <button className="px-3 py-1 rounded-md bg-gray-200 text-gray-700 hover:bg-gray-300">
-                2
-              </button>
-            )}
+            <button className="px-3 py-1 rounded-md bg-gray-200 text-gray-700 hover:bg-gray-300">
+              2
+            </button>
             <button className="px-3 py-1 rounded-md bg-gray-200 text-gray-700 hover:bg-gray-300">
               &raquo;
             </button>

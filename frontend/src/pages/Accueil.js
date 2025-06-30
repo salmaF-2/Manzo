@@ -1,4 +1,4 @@
-import React , { useState, useEffect  } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import Shape from '../assets/images/Shape.png';
 import Vector from '../assets/images/Vector1.png';
@@ -15,8 +15,8 @@ import Fes from "../assets/ImagesVilles/fes.jpeg";
 import Knitra from "../assets/ImagesVilles/Kenitra.jpeg";
 import Oujda from "../assets/ImagesVilles/oujda.jpeg";
 import Tanger from "../assets/ImagesVilles/tanga.jpeg";
-import Titouane from "../assets/ImagesVilles/titoune.jpeg";
-import Tiznit from "../assets/ImagesVilles/tiznit.jpeg";
+import Titouane from '../assets/ImagesVilles/titoune.jpeg';
+import Tiznit from '../assets/ImagesVilles/tiznit.jpeg';
 // service 
 import rectangle1 from '../assets/images/Rectangle1.png';
 import rectangle2 from '../assets/images/Rectangle2.png';
@@ -54,6 +54,17 @@ import { Link } from 'react-router-dom';
 import { FaUser, FaMapMarkerAlt, FaSearch } from "react-icons/fa";
 import "../css/Accueil.css";
 
+// --- New, more reliable shuffling function ---
+const shuffleArray = (array) => {
+    // Create a copy to avoid mutating the original array
+    const shuffled = [...array]; 
+    for (let i = shuffled.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+    return shuffled;
+};
+
 const Accueil = () => {
     const [backendCities, setBackendCities] = useState([]);
     const [loadingCities, setLoadingCities] = useState(true);
@@ -69,18 +80,6 @@ const Accueil = () => {
                 console.error("Error fetching cities:", error);
                 setLoadingCities(false);
                 // Fallback to local images if API fails
-                // setBackendCities([
-                //     { name: "Agadir", image: Agadir },
-                //     { name: "CasaBlanca", image: CasaBlanca },
-                //     { name: "Marrakech", image: Marrakech },
-                //     { name: "Dakhla", image: dakhla },
-                //     { name: "Fès", image: Fes },
-                //     { name: "Tanger", image: Tanger },
-                //     { name: "Kénitra", image: Knitra },
-                //     { name: "Oujda", image: Oujda },
-                //     { name: "Titouane", image: Titouane },
-                //     { name: "Tiznit", image: Tiznit }
-                // ]);
             }
         };
         
@@ -120,51 +119,100 @@ const Accueil = () => {
     ];
 
     // les avis 
-    const reviews = [
+    const [reviews, setReviews] = useState([]);
+
+    // This local data serves as a fallback if the API is down or returns an empty list.
+    const localReviewsData = [
         {
-          name: "Iksod Salma",
-          rating: 4.5,
-          image: avis1,
-          review:
-            "A great little app that some of the big guns have clearly been taking their cue from. Looks like Incomee might actually be cleaner and simpler to use than competitors.",
-        },
-        {
-          name: "Salma ElFadili",
-          rating: 5,
-          image: avis2,
-          review:
-            "A great little app that some of the big guns have clearly been taking their cue from. Looks like Incomee might actually be cleaner and simpler to use than competitors.",
-        },
-        {
-          name: "Younes Oubaha",
-          rating: 5,
-          image: avis3,
-          review:
-            "A great little app that some of the big guns have clearly been taking their cue from. Looks like Incomee might actually be cleaner and simpler to use than competitors.",
-        },
-        {
-            name: "Younes Oubaha",
-            rating: 3,
+            name: "Iksod Salma",
+            rating: 4.5,
             image: avis1,
-            review:
-              "A great little app that some of the big guns have clearly been taking their cue from. Looks like Incomee might actually be cleaner and simpler to use than competitors.",
+            review: "A great little app that some of the big guns have clearly been taking their cue from. Looks like Incomee might actually be cleaner and simpler to use than competitors.",
         },
         {
             name: "Salma ElFadili",
-            rating: 4,
+            rating: 5,
             image: avis2,
-            review:
-              "A great little app that some of the big guns have clearly been taking their cue from. Looks like Incomee might actually be cleaner and simpler to use than competitors.",
+            review: "A great little app that some of the big guns have clearly been taking their cue from. Looks like Incomee might actually be cleaner and simpler to use than competitors.",
         },
         {
             name: "Younes Oubaha",
             rating: 5,
             image: avis3,
-            review:
-              "A great little app that some of the big guns have clearly been taking their cue from. Looks like Incomee might actually be cleaner and simpler to use than competitors.",
-          },
+            review: "A great little app that some of the big guns have clearly been taking their cue from. Looks like Incomee might actually be cleaner and simpler to use than competitors.",
+        },
+        {
+            name: "Younes Oubaha",
+            rating: 3,
+            image: avis1,
+            review: "A great little app that some of the big guns have clearly been taking their cue from. Looks like Incomee might actually be cleaner and simpler to use than competitors.",
+        },
+        {
+            name: "Salma ElFadili",
+            rating: 4,
+            image: avis2,
+            review: "A great little app that some of the big guns have clearly been taking their cue from. Looks like Incomee might actually be cleaner and simpler to use than competitors.",
+        },
+        {
+            name: "Younes Oubaha",
+            rating: 5,
+            image: avis3,
+            review: "A great little app that some of the big guns have clearly been taking their cue from. Looks like Incomee might actually be cleaner and simpler to use than competitors.",
+        },
+        // To make the shuffling more noticeable, add at least a few more reviews here!
+        { name: "Ahmed B.", rating: 4, image: avis1, review: "Great service and very reliable. Would recommend!" },
+        { name: "Fatima C.", rating: 5, image: avis2, review: "The best experience I've had with a service app." },
+        { name: "Omar D.", rating: 4.5, image: avis3, review: "Quick and efficient. Will use again for sure." }
     ];
 
+    useEffect(() => {
+        const fetchReviews = async () => {
+            console.log("Attempting to fetch reviews from backend...");
+            try {
+                // Add a cache-busting query parameter to force a fresh fetch
+                const response = await axios.get(`/api/reviews?_t=${new Date().getTime()}`); 
+                const backendReviews = response.data;
+                
+                console.log("Backend response received:", backendReviews);
+                
+                let reviewsToDisplay;
+                
+                // --- CORRECTED MAPPING LOGIC with the image URL fix ---
+                if (backendReviews && backendReviews.length > 0) { 
+                    console.log(`Found ${backendReviews.length} reviews from DB. Mapping fields...`);
+                    // Map the backend data to the frontend's expected format
+                    const mappedReviews = backendReviews.map(review => ({
+                        // Map 'note' to 'rating' and 'commentaire' to 'review'
+                        rating: review.note, 
+                        review: review.commentaire,
+                        // Use name from populated client field if available, otherwise a placeholder
+                        name: review.client ? `${review.client.nom} ${review.client.prenom}` : "Utilisateur Manzo",
+                        // FIX: CONSTRUCT THE FULL IMAGE URL
+                        // We prepend the base URL to the path received from the backend
+                        image: review.client?.photo ? `http://localhost:5000${review.client.photo}` : avis1,
+                    }));
+                    reviewsToDisplay = mappedReviews;
+                } else {
+                    console.log('Backend returned no reviews or an empty list. Using local fallback.');
+                    reviewsToDisplay = localReviewsData;
+                }
+                
+                // Shuffle the chosen array and slice the first 6
+                const shuffledReviews = shuffleArray(reviewsToDisplay);
+                setReviews(shuffledReviews.slice(0, 6));
+                console.log("Reviews set to state successfully.");
+
+            } catch (error) {
+                console.error("API call to /api/reviews failed. Using local fallback.", error);
+                // On error, always fall back to a shuffled local list
+                const shuffledLocalReviews = shuffleArray(localReviewsData);
+                setReviews(shuffledLocalReviews.slice(0, 6));
+            }
+        };
+        
+        fetchReviews();
+    }, []); // Empty dependency array to run only on component mount
+    
     //prestataire vérifie
     const prestataires = [
         { name: "BRAHIM", skill: "PEINTURE", image: pre1 },
@@ -213,13 +261,13 @@ const Accueil = () => {
     //avis 
     const StarRating = ({ rating }) => {
         return (
-          <div className="flex">
-            {Array.from({ length: 5 }, (_, i) => (
-              <span key={i} className={`text-xl ${i < Math.floor(rating) ? 'text-[#FFC703]' : 'text-gray-300'}`}>
-                ★
-              </span>
-            ))}
-          </div>
+            <div className="flex">
+                {Array.from({ length: 5 }, (_, i) => (
+                    <span key={i} className={`text-xl ${i < Math.floor(rating) ? 'text-[#FFC703]' : 'text-gray-300'}`}>
+                        ★
+                    </span>
+                ))}
+            </div>
         );
     };
 
@@ -417,7 +465,7 @@ const Accueil = () => {
                     </p>
                     <div className='flex justify-center'>
                         <button className="bg-[#5869A3]  text-white px-6 py-2 rounded-full shadow-md hover:bg-[#9BA5C8] transition text-sm md:text-base">
-                            Savoir plus
+                            Savior plus
                         </button>
                     </div>
                 </div>
@@ -518,7 +566,7 @@ const Accueil = () => {
                         {/* Texte et bouton */}
                         <div className="text-center ">
                             <h2 className="text-justify text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-[#8C97C3] leading-snug lg:leading-tight mr-24">
-                                    Intégrez notre réseau dès aujourd'hui et <br className="hidden sm:inline"/>partagez vos services avec notre clientèle<br className="hidden sm:inline"/> grandissante !
+                                         Intégrez notre réseau dès aujourd'hui et <br className="hidden sm:inline"/>partagez vos services avec notre clientèle<br className="hidden sm:inline"/> grandissante !
                                 </h2>
                             <button className="mt-10 ml-28 px-6 py-3 mx-auto md:mr-[350px] text-white rounded-full shadow-md bg-[#5869A3] hover:bg-[#9BA5C8] ">
                                 Proposer vos services
@@ -544,7 +592,7 @@ const Accueil = () => {
                 </div>
             </div>
 
-            {/* partie 8  */}   
+            {/* partie 8  */}      
             <div className="mx-auto bg-white rounded-lg shadow-md overflow-hidden p-20 text-center ">
                 <h1 className="text-4xl font-bold text-[#6977AF] mb-6">Inscrivez-vous maintenant sur <span className='text-[#475489]'>Manzo ?</span></h1>
                 <div className='flex flex-col items-center space-y-4'>
