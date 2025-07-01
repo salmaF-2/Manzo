@@ -5,11 +5,19 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const path = require('path');
 
+const stripeRoutes = require('./routes/stripeRoutes');
+const bookingRoutes = require('./routes/bookingRoutes');
+const reviewRoutes = require('./routes/reviewRoutes');
+const serviceRoutes = require('./routes/serviceRoutes'); 
+const categoryRoutes = require('./routes/categoryRoutes'); 
+
 const authRoutes = require('./routes/authRoutes');
 const { requireClientAuth,requirePrestataireAuth  } = require('./middleware/authMiddleware');
 const app = express();
+
 const contactRoutes = require('./routes/contactRoutes');
 const messageRoutes = require('./routes/messageRoutes');
+
 const http = require('http');
 const { Server } = require('socket.io');
 const server = http.createServer(app);
@@ -71,7 +79,17 @@ app.use('/api/messages', messageRoutes);
 
 
 const cityRoutes = require('./routes/cityRoutes');
+app.use('/api/stripe', stripeRoutes);
+app.use('/api/bookings', bookingRoutes);
 app.use('/api', cityRoutes);
+
+// This is the route that is being called by the frontend.
+// The `reviewRoutes` module needs to have a route defined for `GET /`
+// to handle the request to `http://localhost:5000/api/reviews`.
+app.use('/api/reviews', reviewRoutes);
+app.use('/api/services', serviceRoutes);
+app.use('/api/categories', categoryRoutes);
+
 // Servir les fichiers statiques
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 // Routes authetification

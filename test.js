@@ -1,8 +1,284 @@
+--backend/models/User.js
+const mongoose = require('mongoose');
+const disponibiliteSchema = new mongoose.Schema({
+  jour: String,               // Ex: "lundi"
+  heures: [String]            // Ex: ["08:00-12:00"]
+});
+const prestataireInfoSchema = new mongoose.Schema({
+  noteMoyenne: { type: Number, default: 0 },
+  nombreAvis: { type: Number, default: 0 },
+  services: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Service' }],
+  disponibilites: [disponibiliteSchema],
+  experience: {
+    type: String,
+    enum: ['0-1', '1-3', '3-5', '5+']
+  },
+  secteurActivite: String,
+  tarification: String,
+  documents: {
+    cin: String,
+    rib: String,
+    certifications: [String],
+    carteAE: String,
+    photoProfil: String,
+    videoPresentation: String
+  },
+  methodePaiement: {
+    type: String,
+    enum: ['carte', 'virement', 'paypal'],
+    required: false // optionnel
+  },
+  detailsCarte: {
+    nomCarte: String,
+    numeroCarte: String,
+    dateExpiration: String,
+    cvc: String
+  },
+  statutVerification: {
+    type: String,
+    enum: ['en_attente', 'verifie', 'rejete'],
+    default: 'en_attente'
+  },
+  localisation: {
+    type: {
+      type: String,
+      enum: ['Point'],
+      default: 'Point'
+    },
+    coordinates: {
+      type: [Number], // [longitude, latitude]
+      index: '2dsphere'
+    }
+  }
+});
+const userSchema = new mongoose.Schema({
+  email: { type: String, unique: true, required: true },
+  password: { type: String, required: true },
+  role: { 
+    type: String, 
+    enum: ['client', 'prestataire', 'admin'], 
+    required: true 
+  },
+  online: {
+        type: Boolean,
+        default: false
+  },
+  nom: String,
+  prenom: String,
+  telephone: String,
+  photo: String,
+  bannerImage: String,
+  description: String,
+  genre: {
+    type: String,
+    enum: ['homme', 'femme'], 
+  },
+  // ville: { type: mongoose.Schema.Types.ObjectId, ref: 'City' },
+  ville: String,
+  codePostal: String,
+  rue: String,
+  socialLinks: { // Nouveau champ pour les liens sociaux
+    linkedin: String,
+    instagram: String,
+    facebook: String,
+    tiktok: String
+  },
+  adresse: String,
+  prestataireInfo: prestataireInfoSchema,
+  createdAt: { type: Date, default: Date.now }
+});
+module.exports = mongoose.model('User', userSchema);
+
+--backend/server.js
+// server.js
+require('dotenv').config();
+const express = require('express');
+const mongoose = require('mongoose');
+const cors = require('cors');
+const path = require('path');
+
+const authRoutes = require('./routes/authRoutes');
+const { requireClientAuth,requirePrestataireAuth  } = require('./middleware/authMiddleware');
+const app = express();
+const contactRoutes = require('./routes/contactRoutes');
+const messageRoutes = require('./routes/messageRoutes');
+const http = require('http');
+const { Server } = require('socket.io');
+const server = http.createServer(app);
+const io = require('socket.io')(server, {
+  cors: {
+    origin: "http://localhost:3000",
+    methods: ["GET", "POST"],
+    credentials: true
+  }
+});
+
+// Middlewares
+// app.use(cors());
+app.use(cors({
+  origin: 'http://localhost:3000', 
+  credentials: true
+}));
+app.use(express.json());
+app.use(express.urlencoded({ extended: true })); 
+
+
+app.use((err, req, res, next) => {
+  console.error('Middleware erreur:', err);
+  res.status(500).json({ error: err.message });
+});
+// Connexion à MongoDB
+mongoose.connect(process.env.MONGO_URI)
+.then(() => console.log("✅ Connexion à MongoDB réussie"))
+  .catch((err) => console.error("❌ Erreur de connexion MongoDB :", err));
+app.use('/api', contactRoutes);
+
+// message
+// Configuration Socket.io
+// Stocker l'instance io dans l'app pour y accéder dans les contrôleurs
+app.set('socketio', io);
+
+io.on('connection', (socket) => {
+    console.log('Un utilisateur s\'est connecté');
+
+    // Rejoindre la room utilisateur
+    socket.on('joinUser', (userId) => {
+        socket.join(userId);
+        console.log(`Utilisateur ${userId} a rejoint sa room`);
+    });
+
+    // Rejoindre une conversation
+    socket.on('joinConversation', (conversationId) => {
+        socket.join(conversationId);
+        console.log(`Rejoint la conversation ${conversationId}`);
+    });
+
+    socket.on('disconnect', () => {
+        console.log('Un utilisateur s\'est déconnecté');
+    });
+});
+
+app.use('/api/messages', messageRoutes);
+
+
+
+const cityRoutes = require('./routes/cityRoutes');
+app.use('/api', cityRoutes);
+// Servir les fichiers statiques
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+// Routes authetification
+app.use('/api/auth', authRoutes);
+app.get('/DashboardClient', requireClientAuth, (req, res) => {
+    res.json({ message: 'Bienvenue dans votre espace client' });
+});
+app.get('/DashboardPrestataire', requirePrestataireAuth, (req, res) => {
+    res.json({ message: 'Bienvenue dans votre espace prestataire' });
+});
+
+app.use((req, res) => {
+  res.status(404).json({ message: 'Route non trouvée' });
+});
+
+// Lancement du serveur
+const PORT = process.env.PORT || 5000;
+// app.listen(PORT, () => {
+//   console.log(`🚀 Serveur en écoute sur le port ${PORT}`);
+// });
+server.listen(PORT, () => {
+  console.log(`🚀 Serveur en écoute sur le port ${PORT}`);
+});
+
+
+
+--backend/routes/authRoutes.js
+const express = require('express');
+const router = express.Router();
+const authController = require('../controllers/authController');
+const { upload, profilePicUpload, bannerUpload } = require('../config/multer');
+const { requireClientAuth } = require('../middleware/authMiddleware');
+const authMiddleware = require('../middleware/authMiddleware');
+const { requirePrestataireAuth } = require('../middleware/authMiddleware');
+
+// Inscription client
+router.post('/register/client', authController.registerClient);
+// se connecter  
+router.post('/login', authController.login);
+// Inscription prestataire (avec gestion de fichiers)
+router.post('/register/prestataire', 
+    upload.fields([
+        { name: 'cin', maxCount: 1 },
+        { name: 'rib', maxCount: 1 },
+        { name: 'certifications', maxCount: 5 },
+        { name: 'carteAE', maxCount: 1 },
+        { name: 'photoProfil', maxCount: 1 },
+        { name: 'videoPresentation', maxCount: 1 }
+    ]),
+    authController.registerPrestataire
+);
+
+
+
+
+// Client ---------------------------------------------------------------
+// Récupérer le profil client protégé par authentification
+router.get('/client/profile', requireClientAuth, authController.getClientProfile);
+// Mettre à jour le profil client protégé par authentification
+router.put(
+  '/client/profile',
+  authMiddleware.requireClientAuth,
+  profilePicUpload.single('photo'),
+  authController.updateClientProfile
+);
+// Changer le mot de passe
+router.put(
+    '/client/change-password',
+    authMiddleware.requireClientAuth,
+    authController.changePassword
+);
+// Suppression de compte client
+router.delete(
+  '/client/delete-account',
+  authMiddleware.requireClientAuth,
+  authController.deleteClientAccount
+);
+
+
+// Récupérer le profil prestataire
+router.get('/prestataire/profile', requirePrestataireAuth, authController.getPrestataireProfile);
+// Mettre à jour la bannière
+router.put(
+    '/prestataire/banner',
+    requirePrestataireAuth,
+    bannerUpload.single('banner'), // Utilisez bannerUpload ici
+    authController.updatePrestataireBanner
+);
+// Mettre à jour le profil prestataire
+router.put(
+    '/prestataire/profile',
+    requirePrestataireAuth,
+    upload.fields([
+        { name: 'photoProfil', maxCount: 1 },
+        { name: 'banner', maxCount: 1 }
+    ]),
+    authController.updatePrestataireProfile
+);
+// Changer le mot de passe prestataire
+router.put(
+    '/prestataire/change-password',
+    authMiddleware.requirePrestataireAuth,
+    authController.changePrestatairePassword
+);
+// Route pour récupérer les villes
+router.get('/cities', authController.getCities);
+
+module.exports = router;
+
+--backend/controller/authController.js
 const User = require('../models/User');
 const City = require('../models/City'); 
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const Service = require('../models/Service');
+
 
 // inscription client 
 exports.registerClient = async (req, res) => {
@@ -575,56 +851,7 @@ exports.changePrestatairePassword = async (req, res) => {
         res.status(500).json({ message: 'Erreur serveur', error: error.message });
     }
 };
-// Supprimer le compte prestataire
-exports.deletePrestataireAccount = async (req, res) => {
-  try {
-    const { password } = req.body;
-    const userId = req.user.userId;
 
-    // Validation des champs
-    if (!password) {
-      return res.status(400).json({ 
-        message: 'Le mot de passe est requis pour confirmer la suppression' 
-      });
-    }
-
-    // Récupérer l'utilisateur
-    const user = await User.findById(userId);
-    if (!user) {
-      return res.status(404).json({ message: 'Utilisateur non trouvé' });
-    }
-
-    // Vérifier que c'est bien un prestataire
-    if (user.role !== 'prestataire') {
-      return res.status(403).json({ 
-        message: 'Cette action est réservée aux comptes prestataires' 
-      });
-    }
-
-    // Vérifier le mot de passe
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) {
-      return res.status(401).json({ 
-        message: 'Mot de passe incorrect' 
-      });
-    }
-
-    // Supprimer l'utilisateur
-    await User.findByIdAndDelete(userId);
-
-    res.status(200).json({ 
-      message: 'Compte supprimé avec succès',
-      success: true
-    });
-
-  } catch (error) {
-    console.error('Erreur lors de la suppression du compte:', error);
-    res.status(500).json({ 
-      message: 'Erreur serveur', 
-      error: error.message 
-    });
-  }
-};
 // Récupérer toutes les villes
 exports.getCities = async (req, res) => {
     try {
@@ -637,59 +864,8 @@ exports.getCities = async (req, res) => {
 };
 
 
-exports.getUserById = async (req, res) => {
-    try {
-        // Récupérer l'utilisateur de base
-        const user = await User.findById(req.params.id)
-            .select('-password -prestataireInfo.detailsCarte -createdAt -__v');
+--frontend/src/parametreprestataire.js
 
-        if (!user) {
-            return res.status(404).json({ message: 'Utilisateur non trouvé' });
-        }
 
-        // Si c'est un prestataire, peupler ses services
-        if (user.role === 'prestataire' && user.prestataireInfo?.services) {
-            await User.populate(user, {
-                path: 'prestataireInfo.services',
-                select: 'title price duration description',
-                model: 'Service'
-            });
-        }
-
-        // Formater la réponse
-        const response = {
-            _id: user._id,
-            nom: user.nom,
-            prenom: user.prenom,
-            email: user.email,
-            telephone: user.telephone,
-            role: user.role,
-            photo: user.photo || null,
-            bannerImage: user.bannerImage || null,
-            ville: user.ville,
-            rating: user.rating || null
-        };
-
-        if (user.role === 'prestataire') {
-            response.prestataireInfo = {
-                experience: user.prestataireInfo?.experience,
-                secteurActivite: user.prestataireInfo?.secteurActivite,
-                description: user.prestataireInfo?.description,
-                documents: {
-                    photoProfil: user.prestataireInfo?.documents?.photoProfil || null
-                },
-                services: user.prestataireInfo?.services || [], // Services déjà peuplés
-                statutVerification: user.prestataireInfo?.statutVerification || 'non_verifie',
-                disponibilites: user.prestataireInfo?.disponibilites || []
-            };
-        }
-
-        res.status(200).json(response);
-    } catch (error) {
-        console.error('Erreur lors de la récupération de l\'utilisateur:', error);
-        res.status(500).json({ 
-            message: 'Erreur serveur', 
-            error: error.message 
-        });
-    }
-};
+db bit ndir backend dyl suppression dyl whed compte client  khas ydekhel l code dyl compte dylo ila kant khata2 atkhrej boite erreur  il kan code shih aydir supprimer mon compte o atkhrej boite succ 
+bla matbdeliya design dyl frontend dyli matbedelia walo

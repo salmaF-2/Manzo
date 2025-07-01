@@ -84,5 +84,6 @@ router.delete(
 );
 // Route pour récupérer les villes
 router.get('/cities', authController.getCities);
+router.get('/user/:id', authController.getUserById);
 
 module.exports = router;
