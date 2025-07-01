@@ -57,6 +57,8 @@ import DashboardClient from "./pages/page_Clients/DashboardClient.js";
 import MotDePasseOublie from "./auth/MotdePasseOublier.js";
 import ProtectedRoute from "./components/ProtectedRoute.js";
 import ProfilClient from "./pages/page_Clients/ProfilClient.js";
+import MessagesC from "./pages/page_Clients/MessagesC.js";
+import ParametreC from "./pages/page_Clients/ParametreC.js";
 
 const AppWrapper = () => {
     return (
@@ -99,7 +101,9 @@ const App = () => {
       
       // Routes clients
       "/dashboardclient",
-      "/profilclient"
+      "/profilclient",
+      "/messagesclient",
+      "/parametreclient" 
     ];
     
     return !excludedRoutes.some(route => path.startsWith(route));
@@ -160,6 +164,8 @@ const App = () => {
         <Route element={<ProtectedRoute allowedRoles={['client']} />}>
           <Route path="/DashboardClient" element={<DashboardClient />} />
           <Route path="/ProfilClient" element={<ProfilClient />} />
+          <Route path="/MessagesClient" element={<><MessagesC /> </>} />
+          <Route path="/parametreclient" element={<><ParametreC /> </>} />
         </Route>
 
         {/* FAQ Pages - Clients */}

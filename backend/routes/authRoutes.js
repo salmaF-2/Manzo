@@ -36,6 +36,18 @@ router.put(
   profilePicUpload.single('photo'),
   authController.updateClientProfile
 );
+// Changer le mot de passe
+router.put(
+    '/client/change-password',
+    authMiddleware.requireClientAuth,
+    authController.changePassword
+);
+// Suppression de compte client
+router.delete(
+  '/client/delete-account',
+  authMiddleware.requireClientAuth,
+  authController.deleteClientAccount
+);
 
 
 
@@ -57,6 +69,18 @@ router.put(
         { name: 'banner', maxCount: 1 }
     ]),
     authController.updatePrestataireProfile
+);
+// Changer le mot de passe prestataire
+router.put(
+    '/prestataire/change-password',
+    authMiddleware.requirePrestataireAuth,
+    authController.changePrestatairePassword
+);
+// Supprimer le compte prestataire
+router.delete(
+  '/prestataire/delete-account',
+  authMiddleware.requirePrestataireAuth,
+  authController.deletePrestataireAccount
 );
 // Route pour récupérer les villes
 router.get('/cities', authController.getCities);
