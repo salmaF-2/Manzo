@@ -361,7 +361,7 @@ const renderFilePreview = (file) => {
     return (
       <div className="mt-2 max-w-xs">
         <img 
-          src={getPhotoUrl(file.url)} // Utilisez getPhotoUrl ici aussi
+          src={getPhotoUrl(file.url)}  // Utilisez getPhotoUrl ici aussi
           alt="Preview" 
           className="rounded-lg border border-gray-200 max-h-40 object-cover"
         />
@@ -405,11 +405,23 @@ const renderFilePreview = (file) => {
 function getPhotoUrl(photoPath) {
   if (!photoPath) return 'https://i.pravatar.cc/150?img=0';
   
-  // Si c'est déjà une URL complète
-  if (photoPath.startsWith('http')) return photoPath;
+  // Si c'est déjà une URL complète (http ou https)
+  if (/^https?:\/\//i.test(photoPath)) {
+    return photoPath;
+  }
   
-  // Si c'est un chemin relatif ou juste un nom de fichier
-  return `http://localhost:5000${photoPath.startsWith('/') ? '' : '/uploads/'}${photoPath}`;
+  // Si c'est un chemin relatif qui commence par /uploads
+  if (photoPath.startsWith('/uploads/')) {
+    return `http://localhost:5000${photoPath}`;
+  }
+  
+  // Si c'est juste un nom de fichier
+  if (!photoPath.includes('/')) {
+    return `http://localhost:5000/uploads/${photoPath}`;
+  }
+  
+  // Par défaut, retourner le chemin tel quel (au cas où)
+  return photoPath;
 }
 
   return (

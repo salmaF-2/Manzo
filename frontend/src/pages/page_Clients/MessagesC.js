@@ -285,6 +285,23 @@ const MessagesC = () => {
            lastMsg.includes(searchQuery.toLowerCase());
   });
 
+  function getPhotoUrl(photoPath) {
+    if (!photoPath) return 'https://i.pravatar.cc/150?img=0';
+    
+    // Si c'est déjà une URL complète (http ou https)
+    if (/^https?:\/\//i.test(photoPath)) {
+      return photoPath;
+    }
+    
+    // Si c'est un chemin relatif qui commence par /uploads
+    if (photoPath.startsWith('/uploads/')) {
+      return `http://localhost:5000${photoPath}`;
+    }
+    
+    // Si c'est juste un nom de fichier
+    return `http://localhost:5000/uploads/${photoPath}`;
+  }
+
   return (
     <div className="flex bg-gradient-to-br from-[#BCD0EA50] to-indigo-50 min-h-[calc(100vh-5rem)] mt-20">
       <SideBarClient />
@@ -342,7 +359,7 @@ const MessagesC = () => {
                       onClick={() => startNewConversation(user._id)}
                     >
                       <img 
-                        src={user.photo || 'https://i.pravatar.cc/150?img=0'} 
+                        src={getPhotoUrl(user.photo)}
                         alt={user.nom}
                         className="w-8 h-8 rounded-full mr-3"
                       />
@@ -398,7 +415,7 @@ const MessagesC = () => {
                       >
                         <div className="relative">
                           <img
-                            src={conversation.participant?.avatar || 'https://i.pravatar.cc/150?img=0'}
+                            src={getPhotoUrl(conversation.participant?.photo)}
                             alt="avatar"
                             className="w-12 h-12 rounded-full object-cover shadow-sm"
                           />
@@ -441,7 +458,7 @@ const MessagesC = () => {
                     <div className="flex items-center gap-3">
                       <div className="relative">
                         <img
-                          src={currentParticipant?.avatar || 'https://i.pravatar.cc/150?img=0'}
+                          src={getPhotoUrl(currentParticipant?.photo)}
                           alt="avatar"
                           className="w-10 h-10 rounded-full object-cover shadow-sm"
                         />
@@ -643,7 +660,7 @@ const MessagesC = () => {
                         className="mt-2"
                       >
                         <img 
-                          src={filePreview} 
+                          src={filePreview}
                           alt="Preview" 
                           className="rounded-lg border border-gray-200 max-h-40 object-cover"
                         />
