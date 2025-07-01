@@ -27,7 +27,9 @@ exports.getConversations = async (req, res) => {
                 participant: otherParticipant ? {
                     _id: otherParticipant._id,
                     name: `${otherParticipant.nom} ${otherParticipant.prenom}`,
-                    avatar: otherParticipant.photo || 'https://i.pravatar.cc/150?img=0',
+                    // avatar: otherParticipant.photo || 'https://i.pravatar.cc/150?img=0',
+                    // avatar: otherParticipant.photo ? `http://localhost:5000${otherParticipant.photo}` : 'https://i.pravatar.cc/150?img=0',
+                    photo: otherParticipant.photo,
                     online: otherParticipant.online,
                     role: otherParticipant.role
                 } : null,
@@ -343,7 +345,8 @@ exports.searchUsers = async (req, res) => {
 
         const formattedUsers = users.map(user => ({
             ...user._doc,
-            photo: user.photo ? `/uploads/${user.photo.split('/').pop()}` : null
+            // photo: user.photo ? `/uploads/${user.photo.split('/').pop()}` : null
+            photo: user.photo ? `${process.env.BASE_URL || 'http://localhost:5000'}${user.photo}` : null
         }));
 
         // res.status(200).json(users);

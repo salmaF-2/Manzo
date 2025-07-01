@@ -1,3 +1,58 @@
+--backend/models/Conversations.js
+const mongoose = require('mongoose');
+
+const conversationSchema = new mongoose.Schema({
+    participants: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+        required: true
+    }],
+    lastMessage: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Message'
+    },
+    pinned: {
+        type: Boolean,
+        default: false
+    },
+    createdAt: {
+        type: Date,
+        default: Date.now
+    },
+    updatedAt: {
+        type: Date,
+        default: Date.now
+    }
+});
+
+// Index pour améliorer les performances
+conversationSchema.index({ participants: 1 });
+conversationSchema.index({ updatedAt: -1 });
+conversationSchema.index({ pinned: -1, updatedAt: -1 });
+
+module.exports = mongoose.model('Conversation', conversationSchema);
+
+--backend/models/Contact.js
+const mongoose = require('mongoose');
+
+const contactSchema = new mongoose.Schema({
+  fullName: { type: String, required: true },
+  email: { type: String, required: true },
+  phone: { type: String, required: true },
+  address: String,
+  city: String,
+  postalCode: String,
+  service: String,
+  privacyConsent: { type: Boolean, default: false },
+  message: { type: String, required: true },
+  user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }, // Référence à l'utilisateur connecté (optionnel)
+  // role: { type: String, enum: ['client', 'prestataire', 'guest'] }, // Rôle de l'expéditeur
+  role: { type: String, enum: ['client', 'prestataire', 'guest'], default: 'guest' },
+  createdAt: { type: Date, default: Date.now }
+},{ timestamps: true });
+
+module.exports = mongoose.model('Contact', contactSchema);
+
 --backend/models/User.js
 const mongoose = require('mongoose');
 
@@ -212,11 +267,12 @@ server.listen(PORT, () => {
   console.log(`🚀 Serveur en écoute sur le port ${PORT}`);
 });
 
+
+
 --backend/Middleware/authMiddleware.js
 // middleware/authMiddleware.js
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
-
 
 exports.requireAuth = (req, res, next) => {
   try {
@@ -303,19 +359,6 @@ exports.requireAuth = (req, res, next) => {
         res.status(401).json({ message: 'Token invalide' });
     }
 };
-
-// exports.checkOnlineStatus = async (req, res, next) => {
-//     try {
-//         const user = await User.findById(req.user.userId);
-//         if (!user) return res.status(404).json({ message: 'Utilisateur non trouvé' });
-        
-//         req.user.online = user.online;
-//         next();
-//     } catch (error) {
-//         res.status(500).json({ message: 'Erreur serveur', error: error.message });
-//     }
-// };
-
 exports.checkOnlineStatus = async (req, res, next) => {
     try {
         const user = await User.findById(req.user.userId).select('online');
@@ -326,6 +369,1123 @@ exports.checkOnlineStatus = async (req, res, next) => {
         next(); // Passe quand même à la suite même en cas d'erreur
     }
 };
+
+
+
+
+
+--backend/controller/messageController.js
+const User = require('../models/User');
+const Message = require('../models/Message');
+const Conversation = require('../models/Conversation');
+
+// Récupérer les conversations avec statut en ligne
+// Dans messageController.js
+exports.getConversations = async (req, res) => {
+    try {
+        const userId = req.user.userId;
+
+        const conversations = await Conversation.find({
+            participants: userId
+        })
+        .populate({
+            path: 'participants',
+            select: 'nom prenom photo online role',
+            match: { _id: { $ne: userId } }
+        })
+        .populate('lastMessage')
+        .sort({ updatedAt: -1 });
+
+        const formattedConversations = conversations.map(conv => {
+            const otherParticipant = conv.participants.find(p => p._id.toString() !== userId);
+            
+            return {
+                _id: conv._id,
+                participant: otherParticipant ? {
+                    _id: otherParticipant._id,
+                    name: `${otherParticipant.nom} ${otherParticipant.prenom}`,
+                    avatar: otherParticipant.photo || 'https://i.pravatar.cc/150?img=0',
+                    online: otherParticipant.online,
+                    role: otherParticipant.role
+                } : null,
+                lastMessage: conv.lastMessage?.content || 'Aucun message',
+                lastMessageTime: formatTime(conv.lastMessage?.createdAt || conv.createdAt)
+            };
+        }).filter(conv => conv.participant); // Filter out conversations without participant
+
+        res.status(200).json(formattedConversations);
+    } catch (error) {
+        console.error('Erreur:', error);
+        res.status(500).json({ message: 'Erreur serveur', error: error.message });
+    }
+};
+
+// Récupérer les messages d'une conversation
+exports.getMessages = async (req, res) => {
+    try {
+        const { conversationId } = req.params;
+        const userId = req.user.userId;
+
+        // Vérifier l'accès
+        const conversation = await Conversation.findOne({
+            _id: conversationId,
+            participants: userId
+        });
+
+        if (!conversation) {
+            return res.status(403).json({ message: 'Accès non autorisé' });
+        }
+
+        // Récupérer les messages
+        const messages = await Message.find({ conversation: conversationId })
+            .sort({ createdAt: 1 });
+
+        // Récupérer l'autre participant
+        const otherParticipantId = conversation.participants.find(id => id.toString() !== userId);
+        const otherParticipant = await User.findById(otherParticipantId)
+            .select('nom prenom photo online');
+
+        res.status(200).json({
+            messages: messages.map(msg => ({
+                id: msg._id,
+                text: msg.content,
+                time: formatTime(msg.createdAt),
+                sent: msg.sender.toString() === userId,
+                file: msg.file
+            })),
+            participant: {
+                name: `${otherParticipant.nom} ${otherParticipant.prenom}`,
+                avatar: otherParticipant.photo || 'https://i.pravatar.cc/150?img=0',
+                online: otherParticipant.online
+            }
+        });
+    } catch (error) {
+        console.error('Erreur:', error);
+        res.status(500).json({ message: 'Erreur serveur', error: error.message });
+    }
+};
+
+// Envoyer un message
+exports.sendMessage = async (req, res) => {
+    try {
+        const { conversationId } = req.params;
+        const content = req.body.content || ''; // Gérer le cas où content est vide
+        const userId = req.user.userId;
+        const file = req.file;
+
+        console.log("Nouveau message reçu:", { content, file }); // Debug log
+
+        // Vérifier l'accès
+        const conversation = await Conversation.findOne({
+            _id: conversationId,
+            participants: userId
+        }).populate('participants');
+
+        if (!conversation) {
+            return res.status(403).json({ message: 'Accès non autorisé' });
+        }
+
+        // Créer le message (même si content est vide mais file existe)
+        const newMessage = new Message({
+            conversation: conversationId,
+            sender: userId,
+            content: content,
+            ...(file && {
+                file: {
+                    name: file.originalname,
+                    type: file.mimetype,
+                    size: file.size,
+                    url: `/uploads/${file.filename}`
+                }
+            })
+        });
+
+        await newMessage.save();
+
+        // Mettre à jour la conversation
+        conversation.lastMessage = newMessage._id;
+        await conversation.save();
+
+        // Populer le message pour Socket.IO
+        const populatedMessage = await Message.findById(newMessage._id)
+            .populate('sender', 'nom prenom');
+
+        // Préparer les données pour Socket.IO
+        const messageData = {
+            id: populatedMessage._id,
+            text: populatedMessage.content,
+            time: formatTime(populatedMessage.createdAt),
+            sent: false,
+            file: populatedMessage.file,
+            conversationId: conversationId,
+            senderId: userId,
+            senderName: `${populatedMessage.sender.nom} ${populatedMessage.sender.prenom}`
+        };
+
+        // Envoyer la réponse
+        res.status(201).json({
+            id: populatedMessage._id,
+            text: populatedMessage.content,
+            time: formatTime(populatedMessage.createdAt),
+            sent: true, // Indique que le message a été envoyé par l'utilisateur actuel
+            file: populatedMessage.file,
+            conversationId: conversationId,
+            senderId: userId
+        });
+
+        // Notifier via Socket.IO
+        const io = req.app.get('socketio');
+
+        
+        io.to(conversationId).emit('newMessage', messageData);
+
+    } catch (error) {
+        console.error('Erreur:', error);
+        res.status(500).json({ 
+            message: 'Erreur serveur', 
+            error: error.message,
+            stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
+        });
+    }
+};
+
+
+// Démarrer une nouvelle conversation
+exports.startConversation = async (req, res) => {
+    try {
+        const { recipientId } = req.params;
+        const userId = req.user.userId;
+
+        // Vérification de base
+        if (recipientId === userId) {
+            return res.status(400).json({ message: 'Vous ne pouvez pas parler à vous-même' });
+        }
+
+        // Vérification plus simple de l'existence du destinataire
+        const recipient = await User.findById(recipientId);
+        if (!recipient) {
+            return res.status(404).json({ message: 'Destinataire non trouvé' });
+        }
+
+        // Vérifier si une conversation existe déjà (sans restriction de rôle)
+        let conversation = await Conversation.findOne({
+            participants: { $all: [userId, recipientId] }
+        });
+
+        if (!conversation) {
+            conversation = new Conversation({
+                participants: [userId, recipientId]
+            });
+            await conversation.save();
+        }
+
+        res.status(200).json({
+            conversationId: conversation._id,
+            recipient: {
+                name: `${recipient.nom} ${recipient.prenom}`,
+                avatar: recipient.photo || 'https://i.pravatar.cc/150?img=0',
+                online: recipient.online
+            }
+        });
+    } catch (error) {
+        console.error('Erreur:', error);
+        res.status(500).json({ message: 'Erreur serveur', error: error.message });
+    }
+};
+
+// Mettre à jour le statut en ligne
+exports.updateOnlineStatus = async (req, res) => {
+    try {
+        const { online } = req.body;
+        const userId = req.user.userId;
+
+        await User.findByIdAndUpdate(userId, { online });
+
+        // Notifier via Socket.io
+        const io = req.app.get('socketio');
+        io.emit('userStatusChanged', { userId, online });
+
+        res.status(200).json({ message: 'Statut mis à jour' });
+    } catch (error) {
+        console.error('Erreur:', error);
+        res.status(500).json({ message: 'Erreur serveur', error: error.message });
+    }
+};
+
+// Supprimer une conversation
+exports.deleteConversation = async (req, res) => {
+    try {
+        const { conversationId } = req.params;
+        const userId = req.user.userId;
+
+        // Vérifier que l'utilisateur fait partie de la conversation
+        const conversation = await Conversation.findOneAndDelete({
+            _id: conversationId,
+            participants: userId
+        });
+
+        if (!conversation) {
+            return res.status(404).json({ message: 'Conversation non trouvée' });
+        }
+
+        // Supprimer les messages associés
+        await Message.deleteMany({ conversation: conversationId });
+
+        res.status(200).json({ message: 'Conversation supprimée' });
+    } catch (error) {
+        console.error('Erreur:', error);
+        res.status(500).json({ message: 'Erreur serveur', error: error.message });
+    }
+};
+
+// Épingler une conversation
+exports.pinConversation = async (req, res) => {
+    try {
+        const { conversationId } = req.params;
+        const userId = req.user.userId;
+
+        // Vérifier que l'utilisateur fait partie de la conversation
+        const conversation = await Conversation.findOneAndUpdate(
+            {
+                _id: conversationId,
+                participants: userId
+            },
+            { pinned: true },
+            { new: true }
+        );
+
+        if (!conversation) {
+            return res.status(404).json({ message: 'Conversation non trouvée' });
+        }
+
+        res.status(200).json({ message: 'Conversation épinglée' });
+    } catch (error) {
+        console.error('Erreur:', error);
+        res.status(500).json({ message: 'Erreur serveur', error: error.message });
+    }
+};
+
+// Fonction utilitaire pour formater la date
+function formatTime(date) {
+    if (!date) return '';
+    
+    const now = new Date();
+    const messageDate = new Date(date);
+    const diffInHours = (now - messageDate) / (1000 * 60 * 60);
+
+    if (diffInHours < 24) {
+        return messageDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    } else if (diffInHours < 48) {
+        return 'Hier';
+    } else {
+        return messageDate.toLocaleDateString([], { day: 'numeric', month: 'short' });
+    }
+}
+
+
+exports.searchUsers = async (req, res) => {
+    try {
+        const { query } = req.query;
+        const userId = req.user.userId;
+        const userRole = req.user.role;
+
+        // Vérification minimale de la requête
+        if (!query || query.length < 2) {
+            return res.status(400).json({ message: 'La recherche nécessite au moins 2 caractères' });
+        }
+
+        // Recherche plus permissive
+        const users = await User.find({
+            $and: [
+                { _id: { $ne: userId } }, // Exclure l'utilisateur actuel
+                { 
+                    $or: [
+                        { nom: { $regex: query, $options: 'i' } },
+                        { prenom: { $regex: query, $options: 'i' } },
+                        { 
+                            $expr: {
+                                $regexMatch: {
+                                    input: { $concat: ["$prenom", " ", "$nom"] },
+                                    regex: query,
+                                    options: "i"
+                                }
+                            }
+                        }
+                    ]
+                }
+            ]
+        })
+        .select('nom prenom photo online role email createdAt')
+        .limit(10);
+
+        const formattedUsers = users.map(user => ({
+            ...user._doc,
+            photo: user.photo ? `/uploads/${user.photo.split('/').pop()}` : null
+        }));
+
+        // res.status(200).json(users);
+        res.status(200).json(formattedUsers);
+    } catch (error) {
+        console.error('Erreur:', error);
+        res.status(500).json({ 
+            message: 'Erreur serveur', 
+            error: error.message
+        });
+    }
+};
+
+--backend/routes/messageRoutes.js
+const express = require('express');
+const router = express.Router();
+const messageController = require('../controllers/messageController');
+const { requireAuth, checkOnlineStatus } = require('../middleware/authMiddleware');
+const { upload } = require('../config/multer');
+
+// Toutes les routes messages
+router.get('/conversations', requireAuth, checkOnlineStatus, messageController.getConversations);
+router.post('/conversations/:recipientId', requireAuth, checkOnlineStatus, messageController.startConversation);
+router.get('/conversations/:conversationId/messages', requireAuth, checkOnlineStatus, messageController.getMessages);
+router.post('/conversations/:conversationId/messages', requireAuth, checkOnlineStatus, upload.single('file'), messageController.sendMessage);
+
+// Route de recherche - IMPORTANTE
+router.get('/users/search', requireAuth, checkOnlineStatus, messageController.searchUsers);
+// Autres routes...
+router.put('/users/online-status', requireAuth, messageController.updateOnlineStatus);
+router.delete('/conversations/:conversationId', requireAuth, messageController.deleteConversation);
+router.patch('/conversations/:conversationId/pin', requireAuth, messageController.pinConversation);
+
+module.exports = router;
+
+--frontend/src/messageClient.js
+import React, { useEffect, useState, useRef } from "react";
+import SideBarClient from "./SideBarClient";
+import { motion, AnimatePresence } from "framer-motion";
+import { MoreVertical, Paperclip, Send, Search, ChevronDown, Pin, Trash2, X, Image, Video, FileText } from "lucide-react";
+import axios from "axios";
+import io from "socket.io-client";
+import { jwtDecode } from 'jwt-decode';
+
+const MessagesC = () => {
+  const [showOptions, setShowOptions] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [activeConversation, setActiveConversation] = useState(null);
+  const [newMessage, setNewMessage] = useState("");
+  const [showFileOptions, setShowFileOptions] = useState(false);
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [filePreview, setFilePreview] = useState(null);
+  const [conversations, setConversations] = useState([]);
+  const [currentMessages, setCurrentMessages] = useState([]);
+  const [currentParticipant, setCurrentParticipant] = useState(null);
+  const [showSearchResults, setShowSearchResults] = useState(false);
+  const [searchResults, setSearchResults] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  
+  const fileInputRef = useRef(null);
+  const socket = useRef(null);
+  const messagesEndRef = useRef(null);
+  const [userId, setUserId] = useState(null);
+
+  // Connect to Socket.IO
+  useEffect(() => {
+    socket.current = io("http://localhost:5000");
+
+    socket.current.on("newMessage", (message) => {
+      if (message.conversationId === activeConversation?._id) {
+         const receivedMessage = {
+          ...message,
+          sent: message.senderId === userId // Comparez avec l'ID de l'utilisateur actuel
+        };
+        setCurrentMessages(prev => [...prev, receivedMessage]);
+      }
+    });
+
+    socket.current.on("userStatusChanged", ({ userId, online }) => {
+      setConversations(prev => prev.map(conv => {
+        if (conv.participant?._id === userId) {
+          return { ...conv, participant: { ...conv.participant, online } };
+        }
+        return conv;
+      }));
+    });
+
+    return () => {
+      socket.current.disconnect();
+    };
+  }, [activeConversation]);
+
+  // Fetch conversations
+  useEffect(() => {
+    const fetchConversations = async () => {
+      setIsLoading(true);
+      try {
+        const token = localStorage.getItem("token");
+        const response = await axios.get("http://localhost:5000/api/messages/conversations", {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        
+        // Filtrer les conversations valides
+        const validConversations = response.data.filter(conv => 
+          conv.participant && 
+          conv.participant._id && 
+          conv.participant.name
+        );
+        
+        setConversations(validConversations);
+        
+        // Si une conversation est déjà active, la mettre à jour
+        if (activeConversation) {
+          const updatedConv = validConversations.find(c => c._id === activeConversation._id);
+          if (updatedConv) {
+            setActiveConversation(updatedConv);
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching conversations:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchConversations();
+  }, []);
+
+  // Fetch messages when conversation changes
+  useEffect(() => {
+    if (activeConversation) {
+      const fetchMessages = async () => {
+        try {
+          const token = localStorage.getItem("token");
+          const response = await axios.get(
+            `http://localhost:5000/api/messages/conversations/${activeConversation._id}/messages`,
+            { headers: { Authorization: `Bearer ${token}` } }
+          );
+          setCurrentMessages(response.data.messages);
+          setCurrentParticipant(response.data.participant);
+          
+          socket.current.emit("joinConversation", activeConversation._id);
+        } catch (error) {
+          console.error("Error fetching messages:", error);
+        }
+      };
+
+      fetchMessages();
+    }
+  }, [activeConversation]);
+
+  // Auto-scroll to bottom of messages
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [currentMessages]);
+
+  const handleSearch = async (query) => {
+    if (query.length < 2) {
+      setShowSearchResults(false);
+      return;
+    }
+    
+    try {
+      const token = localStorage.getItem("token");
+      const response = await axios.get(
+        `http://localhost:5000/api/messages/users/search?query=${query}`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      setSearchResults(response.data);
+      setShowSearchResults(true);
+    } catch (error) {
+      console.error("Search error:", error);
+      setShowSearchResults(false);
+    }
+  };
+
+  const startNewConversation = async (userId) => {
+  try {
+    const token = localStorage.getItem("token");
+    const response = await axios.post(
+      `http://localhost:5000/api/messages/conversations/${userId}`,
+      {},
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+    
+    // Vérification que le participant existe
+    if (!response.data.recipient) {
+      throw new Error("Participant non trouvé");
+    }
+    
+    // Créer la nouvelle conversation
+    const newConversation = {
+      _id: response.data.conversationId,
+      participant: response.data.recipient,
+      lastMessage: "Nouvelle conversation",
+      lastMessageTime: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+    };
+    
+    // Mettre à jour l'état
+    setConversations(prev => [newConversation, ...prev]);
+    setActiveConversation(newConversation);
+    setCurrentParticipant(response.data.recipient);
+    setCurrentMessages([]);
+    
+    // Réinitialiser complètement la recherche
+    setSearchQuery("");
+    setSearchResults([]);
+    setShowSearchResults(false);
+    
+  } catch (error) {
+    console.error("Error:", error);
+    // Ajoutez ici une notification à l'utilisateur
+    alert("Impossible de démarrer une conversation : " + error.message);
+  }
+};
+  const handleFileSelect = (type) => {
+    fileInputRef.current.accept = type === 'image' ? 'image/*' : 
+                                 type === 'video' ? 'video/*' : 
+                                 '.pdf,.doc,.docx,.txt';
+    fileInputRef.current.click();
+  };
+
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setSelectedFile(file);
+      
+      if (file.type.startsWith('image/')) {
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          setFilePreview(event.target.result);
+        };
+        reader.readAsDataURL(file);
+      } else {
+        setFilePreview(null);
+      }
+      
+      setShowFileOptions(false);
+    }
+  };
+
+  // const handleSendMessage = async () => {
+  //   if (newMessage.trim() === "" && !selectedFile) return;
+    
+  //   try {
+  //     const token = localStorage.getItem("token");
+  //     const formData = new FormData();
+  //     formData.append("content", newMessage);
+  //     if (selectedFile) {
+  //       formData.append("file", selectedFile);
+  //     }
+
+  //     const response = await axios.post(
+  //       `http://localhost:5000/api/messages/conversations/${activeConversation._id}/messages`,
+  //       formData,
+  //       {
+  //         headers: {
+  //           Authorization: `Bearer ${token}`,
+  //           "Content-Type": "multipart/form-data"
+  //         }
+  //       }
+  //     );
+
+  //     // Mettre à jour les messages
+  //     setCurrentMessages(prev => [...prev, response.data]);
+      
+  //     // Mettre à jour la dernière conversation
+  //     setConversations(prev => prev.map(conv => {
+  //       if (conv._id === activeConversation._id) {
+  //         return {
+  //           ...conv,
+  //           lastMessage: newMessage || "Fichier envoyé",
+  //           lastMessageTime: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+  //         };
+  //       }
+  //       return conv;
+  //     }));
+
+  //     setNewMessage("");
+  //     setSelectedFile(null);
+  //     setFilePreview(null);
+  //   } catch (error) {
+  //     console.error("Error sending message:", error);
+  //   }
+  // };
+
+  const handleSendMessage = async () => {
+    if (newMessage.trim() === "" && !selectedFile) return;
+    
+    try {
+      const token = localStorage.getItem("token");
+      const formData = new FormData();
+      formData.append("content", newMessage);
+      if (selectedFile) {
+        formData.append("file", selectedFile);
+      }
+
+      const response = await axios.post(
+        `http://localhost:5000/api/messages/conversations/${activeConversation._id}/messages`,
+        formData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "multipart/form-data"
+          }
+        }
+      );
+
+      // Marquez explicitement le message comme envoyé
+      const sentMessage = {
+        ...response.data,
+        sent: true // Forcez ce flag à true pour les messages envoyés
+      };
+
+      setCurrentMessages(prev => [...prev, sentMessage]);
+      setNewMessage("");
+      setSelectedFile(null);
+      setFilePreview(null);
+    } catch (error) {
+      console.error("Error sending message:", error);
+    }
+  };
+  const renderFilePreview = (file) => {
+    if (!file) return null;
+    
+    if (file.type.startsWith('image/')) {
+      return (
+        <div className="mt-2 max-w-xs">
+          <img 
+            src={file.url} 
+            alt="Preview" 
+            className="rounded-lg border border-gray-200 max-h-40 object-cover"
+          />
+        </div>
+      );
+    }
+    
+    return (
+      <div className="mt-2 p-3 bg-gray-100 rounded-lg border border-gray-200 flex items-center">
+        <FileText className="text-blue-600 mr-2" size={20} />
+        <div className="truncate">
+          <p className="font-medium truncate">{file.name}</p>
+          <p className="text-xs text-gray-500">{(file.size / 1024).toFixed(1)} KB</p>
+        </div>
+      </div>
+    );
+  };
+
+  const filteredConversations = conversations.filter(conv => {
+    if (!conv.participant) return false;
+    
+    const participantName = conv.participant.name?.toLowerCase() || '';
+    const lastMsg = conv.lastMessage?.toLowerCase() || '';
+    return participantName.includes(searchQuery.toLowerCase()) || 
+           lastMsg.includes(searchQuery.toLowerCase());
+  });
+
+  return (
+    <div className="flex bg-gradient-to-br from-[#BCD0EA50] to-indigo-50 min-h-[calc(100vh-5rem)] mt-20">
+      <SideBarClient />
+
+      <div className="flex-1 ml-60 p-6 mt-4">
+        <motion.h1 initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.5 }} className="text-3xl font-bold mb-8 text-gray-800">
+          💬 Messages
+        </motion.h1>
+
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+          className="relative mb-8 w-full max-w-4xl"
+        >
+          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <Search className="text-gray-400" size={20} />
+          </div>
+          <input
+            type="text"
+            placeholder="Rechercher des prestataires..."
+            className="w-full pl-10 pr-10 py-3 rounded-xl border-0 bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-30 transition-all duration-300"
+            value={searchQuery}
+            onChange={(e) => {
+              setSearchQuery(e.target.value);
+              handleSearch(e.target.value);
+            }}
+          />
+          {searchQuery && (
+            <button 
+              onClick={() => {
+                setSearchQuery("");
+                setShowSearchResults(false);
+              }}
+              className="absolute inset-y-0 right-0 pr-3 flex items-center hover:text-blue-600 transition-colors"
+            >
+              <X className="text-gray-400 hover:text-gray-600" size={20} />
+            </button>
+          )}
+          
+    
+          {showSearchResults && searchQuery.length > 0 && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="absolute z-10 mt-1 w-full bg-white shadow-lg rounded-md max-h-60 overflow-y-auto border border-gray-200"
+            >
+              {searchResults.length > 0 ? (
+                searchResults
+                  .filter(user => !conversations.some(conv => conv.participant?._id === user._id))
+                  .map(user => (
+                    <div 
+                      key={user._id}
+                      className="p-3 hover:bg-gray-100 cursor-pointer flex items-center"
+                      onClick={() => startNewConversation(user._id)}
+                    >
+                      <img 
+                        src={user.photo || 'https://i.pravatar.cc/150?img=0'} 
+                        alt={user.nom}
+                        className="w-8 h-8 rounded-full mr-3"
+                      />
+                      <div>
+                        <p className="font-medium">{user.prenom} {user.nom}</p>
+                        <p className="text-xs text-gray-500">
+                          {user.role === 'prestataire' ? 'Prestataire' : 'Client'} • 
+                          {user.online ? ' En ligne' : ' Hors ligne'}
+                        </p>
+                      </div>
+                    </div>
+                  ))
+              ) : (
+                <div className="p-3 text-gray-500">Aucun résultat trouvé</div>
+              )}
+            </motion.div>
+          )}
+        </motion.div>
+
+        {isLoading ? (
+          <div className="flex items-center justify-center h-[600px]">
+            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+          </div>
+        ) : (
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.3 }}
+            className="bg-white rounded-2xl shadow-lg flex h-[600px] overflow-hidden border border-gray-100"
+          >
+            <div className="w-1/3 border-r border-gray-100 flex flex-col">
+              <div className="p-6 border-b border-gray-100 flex justify-between items-center bg-gray-50">
+                <h3 className="font-semibold text-gray-700">Toutes les conversations</h3>
+                <ChevronDown className="text-gray-400" size={18} />
+              </div>
+
+              <div className="flex-1 overflow-y-auto">
+                <AnimatePresence>
+                  {filteredConversations.length > 0 ? (
+                    filteredConversations.map((conversation) => (
+                      <motion.div
+                        key={conversation._id}
+                        initial={{ opacity: 0, x: -10 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        exit={{ opacity: 0, x: -10 }}
+                        transition={{ duration: 0.2 }}
+                        onClick={() => setActiveConversation(conversation)}
+                        className={`flex items-center gap-3 p-4 cursor-pointer transition-all duration-200 ${
+                          activeConversation?._id === conversation._id 
+                            ? 'bg-blue-50 border-l-4 border-blue-500' 
+                            : 'hover:bg-gray-50 border-l-4 border-transparent'
+                        }`}
+                      >
+                        <div className="relative">
+                          <img
+                            src={conversation.participant?.avatar || 'https://i.pravatar.cc/150?img=0'}
+                            alt="avatar"
+                            className="w-12 h-12 rounded-full object-cover shadow-sm"
+                          />
+                          {conversation.participant?.online && (
+                            <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-white"></div>
+                          )}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex justify-between items-center">
+                            <h4 className="font-semibold truncate">
+                              {conversation.participant?.name || 'Utilisateur inconnu'}
+                            </h4>
+                            <span className="text-xs text-gray-400 whitespace-nowrap ml-2">
+                              {conversation.lastMessageTime}
+                            </span>
+                          </div>
+                          <p className="text-sm text-gray-500 truncate">
+                            {conversation.lastMessage || 'Aucun message'}
+                          </p>
+                        </div>
+                      </motion.div>
+                    ))
+                  ) : (
+                    <motion.div
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      className="p-4 text-center text-gray-500"
+                    >
+                      Aucune conversation trouvée
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            </div>
+
+            <div className="flex-1 flex flex-col">
+              {activeConversation ? (
+                <>
+                  <div className="flex items-center justify-between p-4 border-b border-gray-100 bg-gray-50">
+                    <div className="flex items-center gap-3">
+                      <div className="relative">
+                        <img
+                          src={currentParticipant?.avatar || 'https://i.pravatar.cc/150?img=0'}
+                          alt="avatar"
+                          className="w-10 h-10 rounded-full object-cover shadow-sm"
+                        />
+                        {currentParticipant?.online && (
+                          <div className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-500 rounded-full border-2 border-white"></div>
+                        )}
+                      </div>
+                      <div>
+                        <h4 className="font-semibold">{currentParticipant?.name}</h4>
+                        <p className={`text-xs ${currentParticipant?.online ? 'text-green-500' : 'text-gray-500'}`}>
+                          {currentParticipant?.online ? 'En ligne' : 'Hors ligne'}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="relative">
+                      <button
+                        onClick={() => setShowOptions((prev) => !prev)}
+                        className="p-2 rounded-full hover:bg-gray-200 transition-colors"
+                      >
+                        <MoreVertical className="text-gray-600" size={20} />
+                      </button>
+                      <AnimatePresence>
+                        {showOptions && (
+                          <motion.div
+                            initial={{ opacity: 0, y: -10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -10 }}
+                            transition={{ duration: 0.2 }}
+                            className="absolute right-0 mt-2 w-48 bg-white shadow-lg rounded-md z-10 overflow-hidden border border-gray-200"
+                          >
+                            <button className="flex items-center w-full text-left px-4 py-2 hover:bg-gray-100 transition-colors">
+                              <Pin className="mr-2" size={16} />
+                              Épingler
+                            </button>
+                            <button 
+                              className="flex items-center w-full text-left px-4 py-2 hover:bg-gray-100 text-red-600 transition-colors"
+                              onClick={async () => {
+                                try {
+                                  const token = localStorage.getItem("token");
+                                  await axios.delete(
+                                    `http://localhost:5000/api/messages/conversations/${activeConversation._id}`,
+                                    { headers: { Authorization: `Bearer ${token}` } }
+                                  );
+                                  setConversations(prev => 
+                                    prev.filter(c => c._id !== activeConversation._id)
+                                  );
+                                  setActiveConversation(null);
+                                } catch (error) {
+                                  console.error("Error deleting conversation:", error);
+                                }
+                              }}
+                            >
+                              <Trash2 className="mr-2" size={16} />
+                              Supprimer
+                            </button>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+                    </div>
+                  </div>
+
+                  <div className="flex-1 p-6 overflow-y-auto bg-gradient-to-b from-white to-blue-50">
+                    <div className="space-y-4">
+                      <AnimatePresence>
+                        {currentMessages.map((message, index) => (
+                          <motion.div
+                            key={index}
+                            initial={{ opacity: 0, y: message.sent ? 10 : -10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.3 }}
+                            className={`flex ${message.sent ? 'justify-end' : 'justify-start'}`}
+                          >
+                            <motion.div
+                              whileHover={{ scale: 1.02 }}
+                              className={`max-w-[75%] p-4 rounded-2xl shadow-sm ${
+                                message.sent 
+                                  ? 'bg-blue-600 text-white rounded-tr-none' 
+                                  : 'bg-white border border-gray-200 rounded-tl-none'
+                              }`}
+                            >
+                              <p>{message.text}</p>
+                              {message.file && renderFilePreview(message.file)}
+                              <div className={`text-xs mt-1 text-right ${
+                                message.sent ? 'text-blue-100' : 'text-gray-500'
+                              }`}>
+                                {message.time}
+                              </div>
+                            </motion.div>
+                          </motion.div>
+                        ))}
+                      </AnimatePresence>
+                      <div ref={messagesEndRef} />
+                    </div>
+                  </div>
+
+                  <div className="border-t border-gray-100 p-4 bg-white">
+                    <motion.div 
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.4 }}
+                      className="flex items-center gap-2"
+                    >
+                      <div className="relative">
+                        <button 
+                          onClick={() => setShowFileOptions(!showFileOptions)}
+                          className="text-gray-500 hover:text-blue-600 p-2 rounded-full hover:bg-gray-100 transition-colors"
+                        >
+                          <Paperclip size={20} />
+                        </button>
+                        
+                        <AnimatePresence>
+                          {showFileOptions && (
+                            <motion.div
+                              initial={{ opacity: 0, y: -10 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              exit={{ opacity: 0, y: -10 }}
+                              className="absolute bottom-full left-0 mb-2 bg-white shadow-lg rounded-md z-10 overflow-hidden border border-gray-200"
+                            >
+                              <button 
+                                onClick={() => handleFileSelect('image')}
+                                className="flex items-center w-full text-left px-4 py-2 hover:bg-gray-100 transition-colors"
+                              >
+                                <Image className="mr-2" size={16} />
+                                Image
+                              </button>
+                              <button 
+                                onClick={() => handleFileSelect('video')}
+                                className="flex items-center w-full text-left px-4 py-2 hover:bg-gray-100 transition-colors"
+                              >
+                                <Video className="mr-2" size={16} />
+                                Vidéo
+                              </button>
+                              <button 
+                                onClick={() => handleFileSelect('document')}
+                                className="flex items-center w-full text-left px-4 py-2 hover:bg-gray-100 transition-colors"
+                              >
+                                <FileText className="mr-2" size={16} />
+                                Document
+                              </button>
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
+                        
+                        <input
+                          type="file"
+                          ref={fileInputRef}
+                          onChange={handleFileChange}
+                          className="hidden"
+                        />
+                      </div>
+
+                      <input
+                        type="text"
+                        placeholder="Écrivez votre message..."
+                        className="flex-1 px-4 py-3 border-0 bg-gray-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-30 transition-all"
+                        value={newMessage}
+                        onChange={(e) => setNewMessage(e.target.value)}
+                        onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
+                      />
+                      <button 
+                        onClick={handleSendMessage}
+                        disabled={!newMessage.trim() && !selectedFile}
+                        className={`p-2 rounded-full transition-all ${
+                          newMessage.trim() || selectedFile
+                            ? 'bg-blue-600 text-white hover:bg-blue-700 shadow-md'
+                            : 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                        }`}
+                      >
+                        <Send size={20} />
+                      </button>
+                    </motion.div>
+                    
+                    {selectedFile && (
+                      <motion.div
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: 'auto' }}
+                        className="mt-2 flex items-center justify-between bg-blue-50 p-2 rounded-lg"
+                      >
+                        <div className="flex items-center">
+                          <Paperclip className="text-blue-600 mr-2" size={16} />
+                          <span className="text-sm truncate max-w-xs">{selectedFile.name}</span>
+                        </div>
+                        <button 
+                          onClick={() => {
+                            setSelectedFile(null);
+                            setFilePreview(null);
+                          }}
+                          className="text-gray-500 hover:text-red-500"
+                        >
+                          <X size={16} />
+                        </button>
+                      </motion.div>
+                    )}
+                    
+                    {filePreview && selectedFile?.type.startsWith('image/') && (
+                      <motion.div
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: 'auto' }}
+                        className="mt-2"
+                      >
+                        <img 
+                          src={filePreview} 
+                          alt="Preview" 
+                          className="rounded-lg border border-gray-200 max-h-40 object-cover"
+                        />
+                      </motion.div>
+                    )}
+                  </div>
+                </>
+              ) : (
+                <div className="flex-1 flex items-center justify-center text-gray-500">
+                  Sélectionnez une conversation pour commencer à discuter
+                </div>
+              )}
+            </div>
+          </motion.div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+export default MessagesC;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -813,586 +1973,3 @@ exports.deleteClientAccount = async (req, res) => {
     });
   }
 };
-
---frontend/src/parametreclient.js
-import React, { useEffect, useState } from "react";
-import { Switch } from "@headlessui/react";
-import { motion } from "framer-motion";
-import { Dialog, Transition } from "@headlessui/react";
-import { Fragment } from "react";
-import SideBarClient from "./SideBarClient";
-import { useNavigate } from "react-router-dom";
-
-const SettingSection = ({ title, children }) => (
-  <motion.div
-    className="bg-white rounded-2xl shadow-sm p-4 space-y-4 border border-gray-100"
-    initial={{ opacity: 0, y: 20 }}
-    animate={{ opacity: 1, y: 0 }}
-    transition={{ duration: 0.3 }}
-  >
-    <h2 className="text-lg font-semibold text-gray-800 flex items-center">
-      <span className="w-1.5 h-5 bg-blue-500 rounded-full mr-2"></span>
-      {title}
-    </h2>
-    <div className="space-y-2">{children}</div>
-  </motion.div>
-);
-
-const SettingRow = ({ label, description, toggle, checked, onChange, onClick }) => (
-  <div 
-    className="flex items-center justify-between py-2 px-1 hover:bg-gray-50 rounded-md transition-colors cursor-pointer"
-    onClick={!toggle ? onClick : undefined}
-  >
-    <div>
-      <p className="text-sm font-medium text-gray-800">{label}</p>
-      {description && <p className="text-xs text-gray-500">{description}</p>}
-    </div>
-    {toggle ? (
-      <Switch
-        checked={checked}
-        onChange={onChange}
-        className={`${
-          checked ? "bg-blue-500" : "bg-gray-300"
-        } relative inline-flex items-center h-6 rounded-full w-11 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-300`}
-      >
-        <span className="sr-only">{label}</span>
-        <span
-          className={`${
-            checked ? "translate-x-6" : "translate-x-1"
-          } inline-block w-4 h-4 transform bg-white rounded-full transition-transform shadow-sm`}
-        />
-      </Switch>
-    ) : (
-      <button 
-        onClick={onClick}
-        className="text-blue-500 hover:text-blue-600 text-xs font-medium transition-colors"
-      >
-        Modifier
-      </button>
-    )}
-  </div>
-);
-
-const PasswordDialog = ({ isOpen, onClose }) => {
-  const [currentPassword, setCurrentPassword] = useState("");
-  const [newPassword, setNewPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [showSuccess, setShowSuccess] = useState(false);
-
-const handleSubmit = async (e) => {
-    e.preventDefault();
-    
-    if (newPassword !== confirmPassword) {
-      alert("Les nouveaux mots de passe ne correspondent pas");
-      return;
-    }
-
-    try {
-      const token = localStorage.getItem('token');
-      const response = await fetch('http://localhost:5000/api/auth/client/change-password', {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          currentPassword,
-          newPassword,
-          confirmPassword
-        })
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        setShowSuccess(true); // Afficher la boîte de succès
-        setCurrentPassword("");
-        setNewPassword("");
-        setConfirmPassword("");
-      } else {
-        alert(data.message || 'Erreur lors du changement de mot de passe');
-      }
-    } catch (error) {
-      console.error('Erreur:', error);
-      alert('Une erreur est survenue');
-    }
-  };
-
-  const handleSuccessClose = () => {
-    setShowSuccess(false);
-    onClose(); // Fermer aussi le dialogue principal
-  };
-  return (
-    <>
-      <Transition appear show={isOpen} as={Fragment}>
-        <Dialog as="div" className="relative z-50" onClose={onClose}>
-          <Transition.Child
-            as={Fragment}
-            enter="ease-out duration-300"
-            enterFrom="opacity-0"
-            enterTo="opacity-100"
-            leave="ease-in duration-200"
-            leaveFrom="opacity-100"
-            leaveTo="opacity-0"
-          >
-            <div className="fixed inset-0 bg-black bg-opacity-50" />
-          </Transition.Child>
-
-          <div className="fixed inset-0 overflow-y-auto">
-            <div className="flex min-h-full items-center justify-center p-4 text-center">
-              <Transition.Child
-                as={Fragment}
-                enter="ease-out duration-300"
-                enterFrom="opacity-0 scale-95"
-                enterTo="opacity-100 scale-100"
-                leave="ease-in duration-200"
-                leaveFrom="opacity-100 scale-100"
-                leaveTo="opacity-0 scale-95"
-              >
-                <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
-                  <Dialog.Title
-                    as="h3"
-                    className="text-lg font-medium leading-6 text-gray-900"
-                  >
-                    Changer le mot de passe
-                  </Dialog.Title>
-
-                  <form onSubmit={handleSubmit} className="mt-4 space-y-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700">
-                        Mot de passe actuel
-                      </label>
-                      <input
-                        type="password"
-                        value={currentPassword}
-                        onChange={(e) => setCurrentPassword(e.target.value)}
-                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2 border"
-                        required
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700">
-                        Nouveau mot de passe
-                      </label>
-                      <input
-                        type="password"
-                        value={newPassword}
-                        onChange={(e) => setNewPassword(e.target.value)}
-                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2 border"
-                        required
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700">
-                        Confirmer le mot de passe
-                      </label>
-                      <input
-                        type="password"
-                        value={confirmPassword}
-                        onChange={(e) => setConfirmPassword(e.target.value)}
-                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2 border"
-                        required
-                      />
-                    </div>
-
-                    <div className="flex justify-end space-x-3 pt-4">
-                      <button
-                        type="button"
-                        onClick={onClose}
-                        className="inline-flex justify-center rounded-md border border-transparent bg-gray-100 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
-                      >
-                        Annuler
-                      </button>
-                      <button
-                        type="submit"
-                        className="inline-flex justify-center rounded-md border border-transparent bg-blue-500 px-4 py-2 text-sm font-medium text-white hover:bg-blue-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
-                      >
-                        Mettre à jour
-                      </button>
-                    </div>
-                  </form>
-                </Dialog.Panel>
-              </Transition.Child>
-            </div>
-          </div>
-        </Dialog>
-      </Transition>
-      <Transition appear show={showSuccess} as={Fragment}>
-        <Dialog as="div" className="relative z-50" onClose={handleSuccessClose}>
-          <Transition.Child
-            as={Fragment}
-            enter="ease-out duration-300"
-            enterFrom="opacity-0"
-            enterTo="opacity-100"
-            leave="ease-in duration-200"
-            leaveFrom="opacity-100"
-            leaveTo="opacity-0"
-          >
-            <div className="fixed inset-0 bg-black bg-opacity-50" />
-          </Transition.Child>
-
-          <div className="fixed inset-0 overflow-y-auto">
-            <div className="flex min-h-full items-center justify-center p-4 text-center">
-              <Transition.Child
-                as={Fragment}
-                enter="ease-out duration-300"
-                enterFrom="opacity-0 scale-95"
-                enterTo="opacity-100 scale-100"
-                leave="ease-in duration-200"
-                leaveFrom="opacity-100 scale-100"
-                leaveTo="opacity-0 scale-95"
-              >
-                <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
-                  <div className="flex flex-col items-center text-center">
-                    <div className="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-green-100">
-                      <svg
-                        className="h-6 w-6 text-green-600"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                        xmlns="http://www.w3.org/2000/svg"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M5 13l4 4L19 7"
-                        />
-                      </svg>
-                    </div>
-                    <Dialog.Title
-                      as="h3"
-                      className="mt-3 text-lg font-medium leading-6 text-gray-900"
-                    >
-                      Succès!
-                    </Dialog.Title>
-                    <div className="mt-2">
-                      <p className="text-sm text-gray-500">
-                        Votre mot de passe a été changé avec succès.
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="mt-4 flex justify-center">
-                    <button
-                      type="button"
-                      className="inline-flex justify-center rounded-md border border-transparent bg-green-600 px-4 py-2 text-sm font-medium text-white hover:bg-green-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-2"
-                      onClick={handleSuccessClose}
-                    >
-                      OK
-                    </button>
-                  </div>
-                </Dialog.Panel>
-              </Transition.Child>
-            </div>
-          </div>
-        </Dialog>
-      </Transition>
-    </>
-  );
-};
-
-const ParametreC = () => {
-  const [confirmDelete, setConfirmDelete] = useState(false);
-  const [password, setPassword] = useState("");
-  const [showSuccessDelete, setShowSuccessDelete] = useState(false);
-  const [showErrorDelete, setShowErrorDelete] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("");
-  const [isChecked, setIsChecked] = useState(false);
-  const navigate = useNavigate();
-  
-  const handleDeleteAccount = async () => {
-  if (!isChecked) {
-    setErrorMessage("Veuillez confirmer que vous comprenez que cette action est irréversible");
-    setShowErrorDelete(true);
-    return;
-  }
-
-  if (!password) {
-    setErrorMessage("Veuillez entrer votre mot de passe");
-    setShowErrorDelete(true);
-    return;
-  }
-
-  try {
-    const token = localStorage.getItem('token');
-    const response = await fetch('http://localhost:5000/api/auth/client/delete-account', {
-      method: 'DELETE',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
-      },
-      body: JSON.stringify({ password })
-    });
-
-    const data = await response.json();
-
-    if (response.ok) {
-      setShowSuccessDelete(true);
-      // Déconnexion et redirection avec rechargement complet
-      setTimeout(() => {
-        localStorage.clear(); // Vide tout le localStorage
-        window.location.href = '/'; // Force un rechargement complet
-      }, 2000);
-    } else {
-      setErrorMessage(data.message || 'Erreur lors de la suppression du compte');
-      setShowErrorDelete(true);
-    }
-  } catch (error) {
-    console.error('Erreur:', error);
-    setErrorMessage('Une erreur est survenue');
-    setShowErrorDelete(true);
-  }
-};
-  useEffect(() => {
-    window.scrollTo(0, 0);
-  }, []);
-
-  const [emailNotifs, setEmailNotifs] = useState(true);
-  const [pushNotifs, setPushNotifs] = useState(true);
-  const [smsNotifs, setSmsNotifs] = useState(false);
-  const [isPublic, setIsPublic] = useState(true);
-  const [dataSharing, setDataSharing] = useState(false);
-  const [twoFactorAuth, setTwoFactorAuth] = useState(false);
-  const [isPasswordDialogOpen, setIsPasswordDialogOpen] = useState(false);
-
-  return (
-    <div className={`flex bg-gradient-to-br from-[#BCD0EA50] to-indigo-50 to-gray-50 min-h-[calc(100vh-5rem)] mt-20 ${isPasswordDialogOpen ? 'overflow-hidden' : ''}`}>
-      <div className={`${isPasswordDialogOpen ? 'opacity-50' : ''}`}>
-        <SideBarClient />
-      </div>
-
-      <div className={`flex-1 p-6 space-y-6 ml-60 mt-4 ${isPasswordDialogOpen ? 'opacity-50 pointer-events-none' : ''}`}>
-        <motion.h1 
-          initial={{ opacity: 0, x: -20 }} 
-          animate={{ opacity: 1, x: 0 }} 
-          transition={{ duration: 0.5 }} 
-          className="text-3xl font-bold mb-8 text-gray-800"
-        >
-          ⚙️ Paramètres
-          <p className="text-sm text-gray-500">Gérez vos paramètres de compte et préférences</p>
-        </motion.h1>
-
-        <SettingSection title="Paramètres du compte">
-          <div className="flex items-center justify-between py-2 px-1 hover:bg-gray-50 rounded-md transition-colors">
-            <div>
-              <p className="text-sm font-medium text-gray-800">Langue</p>
-              <p className="text-xs text-gray-500">Sélectionnez votre langue préférée</p>
-            </div>
-            <select 
-              className="text-xs border border-gray-300 rounded-md px-2 py-1 focus:outline-none focus:ring-1 focus:ring-blue-500"
-              defaultValue="fr"
-            >
-              <option value="fr">Français</option>
-              <option value="en">English</option>
-              <option value="ar">العربية</option>
-            </select>
-          </div>
-
-          <div className="flex items-center justify-between py-2 px-1 hover:bg-gray-50 rounded-md transition-colors">
-            <div>
-              <p className="text-sm font-medium text-gray-800">Fuseau horaire</p>
-              <p className="text-xs text-gray-500">Définir votre fuseau horaire</p>
-            </div>
-            <select 
-              className="text-xs border border-gray-300 rounded-md px-2 py-1 focus:outline-none focus:ring-1 focus:ring-blue-500"
-              defaultValue="Africa/Casablanca"
-            >
-              <option value="Africa/Casablanca">Maroc (UTC+1)</option>
-            </select>
-          </div>
-        </SettingSection>
-
-        <SettingSection title="Notifications">
-          <SettingRow
-            label="Activer & Désactiver la notifications"
-            description="Recevoir des notifications"
-            toggle
-            checked={emailNotifs}
-            onChange={setEmailNotifs}
-          />
-        </SettingSection>
-
-        <SettingSection title="Sécurité">
-          <SettingRow 
-            label="Changer le mot de passe" 
-            description="Modifier votre mot de passe actuel" 
-            toggle={false}
-            onClick={() => setIsPasswordDialogOpen(true)}
-          />
-
-          <PasswordDialog 
-            isOpen={isPasswordDialogOpen} 
-            onClose={() => setIsPasswordDialogOpen(false)}
-          />
-        </SettingSection>
-
-        <SettingSection title="Supprimer le compte">
-          <p className="text-sm text-gray-600">Cette action est irréversible. Toutes vos données seront définitivement supprimées.</p>
-          <label className="flex items-center gap-2 text-sm mt-2">
-            <input 
-              type="checkbox" 
-              className="h-4 w-4 text-red-500 border-gray-300 rounded focus:ring-red-500" 
-              checked={isChecked}
-              onChange={(e) => setIsChecked(e.target.checked)}
-            />
-            Je comprends que cette action est irréversible
-          </label>
-          <input
-            type="password"
-            placeholder="Entrez votre mot de passe pour confirmer"
-            className="w-full mt-2 p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-red-300 focus:border-transparent"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
-          <button 
-            className="mt-3 bg-red-500 hover:bg-red-600 text-white py-2 px-4 rounded-md transition-colors shadow-sm"
-            onClick={handleDeleteAccount}
-          >
-            Supprimer mon compte
-          </button>
-        </SettingSection>
-      </div>
-        {/* Dialogue de succès pour la suppression */}
-        <Transition appear show={showSuccessDelete} as={Fragment}>
-          <Dialog as="div" className="relative z-50" onClose={() => setShowSuccessDelete(false)}>
-            <Transition.Child
-              as={Fragment}
-              enter="ease-out duration-300"
-              enterFrom="opacity-0"
-              enterTo="opacity-100"
-              leave="ease-in duration-200"
-              leaveFrom="opacity-100"
-              leaveTo="opacity-0"
-            >
-              <div className="fixed inset-0 bg-black bg-opacity-50" />
-            </Transition.Child>
-
-            <div className="fixed inset-0 overflow-y-auto">
-              <div className="flex min-h-full items-center justify-center p-4 text-center">
-                <Transition.Child
-                  as={Fragment}
-                  enter="ease-out duration-300"
-                  enterFrom="opacity-0 scale-95"
-                  enterTo="opacity-100 scale-100"
-                  leave="ease-in duration-200"
-                  leaveFrom="opacity-100 scale-100"
-                  leaveTo="opacity-0 scale-95"
-                >
-                  <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
-                    <div className="flex flex-col items-center text-center">
-                      <div className="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-green-100">
-                        <svg
-                          className="h-6 w-6 text-green-600"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                          xmlns="http://www.w3.org/2000/svg"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M5 13l4 4L19 7"
-                          />
-                        </svg>
-                      </div>
-                      <Dialog.Title
-                        as="h3"
-                        className="mt-3 text-lg font-medium leading-6 text-gray-900"
-                      >
-                        Compte supprimé avec succès
-                      </Dialog.Title>
-                      <div className="mt-2">
-                        <p className="text-sm text-gray-500">
-                          Vous serez redirigé vers la page d'accueil.
-                        </p>
-                      </div>
-                    </div>
-                  </Dialog.Panel>
-                </Transition.Child>
-              </div>
-            </div>
-          </Dialog>
-        </Transition>
-
-        {/* Dialogue d'erreur pour la suppression */}
-        <Transition appear show={showErrorDelete} as={Fragment}>
-          <Dialog as="div" className="relative z-50" onClose={() => setShowErrorDelete(false)}>
-            <Transition.Child
-              as={Fragment}
-              enter="ease-out duration-300"
-              enterFrom="opacity-0"
-              enterTo="opacity-100"
-              leave="ease-in duration-200"
-              leaveFrom="opacity-100"
-              leaveTo="opacity-0"
-            >
-              <div className="fixed inset-0 bg-black bg-opacity-50" />
-            </Transition.Child>
-
-            <div className="fixed inset-0 overflow-y-auto">
-              <div className="flex min-h-full items-center justify-center p-4 text-center">
-                <Transition.Child
-                  as={Fragment}
-                  enter="ease-out duration-300"
-                  enterFrom="opacity-0 scale-95"
-                  enterTo="opacity-100 scale-100"
-                  leave="ease-in duration-200"
-                  leaveFrom="opacity-100 scale-100"
-                  leaveTo="opacity-0 scale-95"
-                >
-                  <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
-                    <div className="flex flex-col items-center text-center">
-                      <div className="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-red-100">
-                        <svg
-                          className="h-6 w-6 text-red-600"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                          xmlns="http://www.w3.org/2000/svg"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M6 18L18 6M6 6l12 12"
-                          />
-                        </svg>
-                      </div>
-                      <Dialog.Title
-                        as="h3"
-                        className="mt-3 text-lg font-medium leading-6 text-gray-900"
-                      >
-                        Erreur
-                      </Dialog.Title>
-                      <div className="mt-2">
-                        <p className="text-sm text-gray-500">
-                          {errorMessage}
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="mt-4 flex justify-center">
-                      <button
-                        type="button"
-                        className="inline-flex justify-center rounded-md border border-transparent bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-2"
-                        onClick={() => setShowErrorDelete(false)}
-                      >
-                        OK
-                      </button>
-                    </div>
-                  </Dialog.Panel>
-                </Transition.Child>
-              </div>
-            </div>
-          </Dialog>
-        </Transition>
-    </div>
-  );
-};
-
-export default ParametreC;
-
