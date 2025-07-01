@@ -285,51 +285,7 @@ const ParametreC = () => {
   const [errorMessage, setErrorMessage] = useState("");
   const [isChecked, setIsChecked] = useState(false);
   const navigate = useNavigate();
-
-  // const handleDeleteAccount = async () => {
-  //   if (!isChecked) {
-  //     setErrorMessage("Veuillez confirmer que vous comprenez que cette action est irréversible");
-  //     setShowErrorDelete(true);
-  //     return;
-  //   }
-
-  //   if (!password) {
-  //     setErrorMessage("Veuillez entrer votre mot de passe");
-  //     setShowErrorDelete(true);
-  //     return;
-  //   }
-
-  //   try {
-  //     const token = localStorage.getItem('token');
-  //     const response = await fetch('http://localhost:5000/api/auth/client/delete-account', {
-  //       method: 'DELETE',
-  //       headers: {
-  //         'Content-Type': 'application/json',
-  //         'Authorization': `Bearer ${token}`
-  //       },
-  //       body: JSON.stringify({ password })
-  //     });
-
-  //     const data = await response.json();
-
-  //     if (response.ok) {
-  //       setShowSuccessDelete(true);
-  //       // Déconnexion et redirection après 2 secondes
-  //       setTimeout(() => {
-  //         localStorage.removeItem('token');
-  //         localStorage.removeItem('user');
-  //         navigate('/');
-  //       }, 2000);
-  //     } else {
-  //       setErrorMessage(data.message || 'Erreur lors de la suppression du compte');
-  //       setShowErrorDelete(true);
-  //     }
-  //   } catch (error) {
-  //     console.error('Erreur:', error);
-  //     setErrorMessage('Une erreur est survenue');
-  //     setShowErrorDelete(true);
-  //   }
-  // };
+  
   const handleDeleteAccount = async () => {
   if (!isChecked) {
     setErrorMessage("Veuillez confirmer que vous comprenez que cette action est irréversible");
@@ -456,38 +412,6 @@ const ParametreC = () => {
           />
         </SettingSection>
 
-        <SettingSection title="Confidentialité">
-          <SettingRow
-            label="Profil public"
-            description="Rendre votre profil visible publiquement"
-            toggle
-            checked={isPublic}
-            onChange={setIsPublic}
-          />
-          <SettingRow
-            label="Partage de données"
-            description="Autoriser le partage de données analytiques"
-            toggle
-            checked={dataSharing}
-            onChange={setDataSharing}
-          />
-        </SettingSection>
-
-        {/* <SettingSection title="Supprimer le compte">
-          <p className="text-sm text-gray-600">Cette action est irréversible. Toutes vos données seront définitivement supprimées.</p>
-          <label className="flex items-center gap-2 text-sm mt-2">
-            <input type="checkbox" className="h-4 w-4 text-red-500 border-gray-300 rounded focus:ring-red-500" />
-            Je comprends que cette action est irréversible
-          </label>
-          <input
-            type="password"
-            placeholder="Entrez votre mot de passe pour confirmer"
-            className="w-full mt-2 p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-red-300 focus:border-transparent"
-          />
-          <button className="mt-3 bg-red-500 hover:bg-red-600 text-white py-2 px-4 rounded-md transition-colors shadow-sm">
-            Supprimer mon compte
-          </button>
-        </SettingSection> */}
         <SettingSection title="Supprimer le compte">
           <p className="text-sm text-gray-600">Cette action est irréversible. Toutes vos données seront définitivement supprimées.</p>
           <label className="flex items-center gap-2 text-sm mt-2">

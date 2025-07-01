@@ -417,7 +417,7 @@ const ParametreP = () => {
           />
         </SettingSection>
 
-        <SettingSection title="Confidentialité">
+        {/* <SettingSection title="Confidentialité">
           <SettingRow
             label="Profil public"
             description="Rendre votre profil visible publiquement"
@@ -432,7 +432,7 @@ const ParametreP = () => {
             checked={dataSharing}
             onChange={setDataSharing}
           />
-        </SettingSection>
+        </SettingSection> */}
 
         {/* partie supprimer compte  */}
         <SettingSection title="Supprimer le compte">
