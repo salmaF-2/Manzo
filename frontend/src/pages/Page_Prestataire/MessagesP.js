@@ -130,41 +130,72 @@ const [userId, setUserId] = useState(null);
     };
     }, [activeConversation, hasFetchedInitialData]);
 
-    const handleConversationSelect = async (conversation) => {
-      setActiveConversation(conversation);
-      setIsLoading(true);
-      
-      try {
+//  const handleConversationSelect = async (conversation) => {
+//     // Marquer comme lu immédiatement (optimiste)
+//     setConversations(prev => prev.map(conv => {
+//         if (conv._id === conversation._id) {
+//             return { ...conv, unreadCount: 0 };
+//         }
+//         return conv;
+//     }));
+
+//     // Ensuite charger les messages
+//     setActiveConversation(conversation);
+//     setIsLoading(true);
+    
+//     try {
+//         const token = localStorage.getItem("token");
+//         const response = await axios.get(
+//             `http://localhost:5000/api/messages/conversations/${conversation._id}/messages`,
+//             { headers: { Authorization: `Bearer ${token}` } }
+//         );
+        
+//         setCurrentMessages(response.data.messages);
+        
+//         const participant = {
+//             ...response.data.participant,
+//             photo: getPhotoUrl(response.data.participant.photo),
+//             name: response.data.participant.name || 
+//                   `${response.data.participant.prenom} ${response.data.participant.nom}`
+//         };
+//         setCurrentParticipant(participant);
+        
+//         // Envoyer la demande de marquage comme lu au serveur
+//         await markConversationAsRead(conversation._id);
+        
+//         socket.current.emit("joinConversation", conversation._id);
+//     } catch (error) {
+//         console.error("Error loading conversation:", error);
+//     } finally {
+//         setIsLoading(false);
+//     }
+// };
+
+  // Fetch conversations
+  const handleConversationSelect = async (conversation) => {
+    try {
+        // Marquer comme lu avant de charger les messages
+        await markConversationAsRead(conversation._id);
+        
+        setActiveConversation(conversation);
+        setIsLoading(true);
+        
         const token = localStorage.getItem("token");
         const response = await axios.get(
-          `http://localhost:5000/api/messages/conversations/${conversation._id}/messages`,
-          { headers: { Authorization: `Bearer ${token}` } }
+            `http://localhost:5000/api/messages/conversations/${conversation._id}/messages`,
+            { headers: { Authorization: `Bearer ${token}` } }
         );
         
         setCurrentMessages(response.data.messages);
-        // setCurrentParticipant(response.data.participant);
-
-        const participant = {
-          ...response.data.participant,
-          photo: getPhotoUrl(response.data.participant.photo),
-          name: response.data.participant.name || 
-                `${response.data.participant.prenom} ${response.data.participant.nom}`
-        };
-        setCurrentParticipant(participant);
+        setCurrentParticipant(response.data.participant);
         
-        // Join conversation room
         socket.current.emit("joinConversation", conversation._id);
-        
-        // Mark as read (optional)
-        // await axios.patch(`/api/conversations/${conversation._id}/read`, {}, { headers });
-      } catch (error) {
+    } catch (error) {
         console.error("Error loading conversation:", error);
-      } finally {
+    } finally {
         setIsLoading(false);
-      }
-  };
-
-  // Fetch conversations
+    }
+};
   useEffect(() => {
     const fetchConversations = async () => {
       try {
@@ -383,7 +414,70 @@ function getPhotoUrl(photoPath) {
   // Si c'est stocké directement dans le champ 'photo' (sans /uploads/)
   return `http://localhost:5000/uploads/${photoPath}`;
 }
-  return (
+
+  const markConversationAsRead = async (conversationId) => {
+    try {
+        const token = localStorage.getItem("token");
+        await axios.patch(
+            `http://localhost:5000/api/messages/conversations/${conversationId}/read`,
+            {},
+            { headers: { Authorization: `Bearer ${token}` } }
+        );
+
+        // Mise à jour optimiste immédiate
+        setConversations(prev => prev.map(conv => {
+            if (conv._id === conversationId) {
+                return { ...conv, unreadCount: 0 };
+            }
+            return conv;
+        }));
+    } catch (error) {
+        console.error("Error marking as read:", error);
+    }
+};
+useEffect(() => {
+    socket.current.on("unreadUpdate", ({ conversationId, unreadCount }) => {
+        setConversations(prev => prev.map(conv => {
+            if (conv._id === conversationId) {
+                return { ...conv, unreadCount };
+            }
+            return conv;
+        }));
+    });
+
+    return () => {
+        socket.current.off("unreadUpdate");
+    };
+}, []);
+
+// Dans messageClient.js ou messagePrestataire.js
+useEffect(() => {
+    if (!socket.current) return;
+
+    const handleNewMessage = (message) => {
+        // Ne pas incrémenter le compteur si c'est notre propre message
+        if (message.senderId === userId) return;
+
+        setConversations(prev => prev.map(conv => {
+            if (conv._id === message.conversationId) {
+                // Ne pas incrémenter si c'est la conversation active
+                const isActive = activeConversation?._id === message.conversationId;
+                return {
+                    ...conv,
+                    unreadCount: isActive ? 0 : (conv.unreadCount || 0) + 1
+                };
+            }
+            return conv;
+        }));
+    };
+
+    socket.current.on("newMessage", handleNewMessage);
+
+    return () => {
+        socket.current.off("newMessage", handleNewMessage);
+    };
+}, [activeConversation, userId]);
+return (
     <div className="flex bg-gradient-to-br from-[#BCD0EA50] to-indigo-50 min-h-[calc(100vh-5rem)] mt-20">
       <SideBar />
 
@@ -491,11 +585,6 @@ function getPhotoUrl(photoPath) {
                       }`}
                     >
                       <div className="relative">
-                        {/* <img
-                          src={getPhotoUrl(conversation.participant?.photo)}
-                          alt="avatar"
-                          className="w-12 h-12 rounded-full object-cover shadow-sm"
-                        /> */}
                         <img 
                           src={getPhotoUrl(conversation.participant?.photo)}
                           alt="avatar"
@@ -514,9 +603,16 @@ function getPhotoUrl(photoPath) {
                           <h4 className="font-semibold truncate">
                             {conversation.participant?.name || 'Utilisateur inconnu'}
                           </h4>
-                          <span className="text-xs text-gray-400 whitespace-nowrap ml-2">
-                            {conversation.lastMessageTime}
-                          </span>
+                          <div className="flex items-center">
+                            {conversation._id !== activeConversation?._id && conversation.unreadCount > 0 && (
+                                <span className="bg-blue-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center ml-2">
+                                    {conversation.unreadCount}
+                                </span>
+                            )}
+                            <span className="text-xs text-gray-400 whitespace-nowrap ml-2">
+                                {conversation.lastMessageTime}
+                            </span>
+                        </div>
                         </div>
                         <p className="text-sm text-gray-500 truncate">
                           {conversation.lastMessage || 'Aucun message'}

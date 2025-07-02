@@ -16,5 +16,5 @@ router.get('/users/search', requireAuth, checkOnlineStatus, messageController.se
 router.put('/users/online-status', requireAuth, messageController.updateOnlineStatus);
 router.delete('/conversations/:conversationId', requireAuth, messageController.deleteConversation);
 router.patch('/conversations/:conversationId/pin', requireAuth, messageController.pinConversation);
-
+router.patch('/conversations/:conversationId/read', requireAuth, messageController.markAsRead);
 module.exports = router;

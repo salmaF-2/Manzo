@@ -14,6 +14,11 @@ const conversationSchema = new mongoose.Schema({
         type: Boolean,
         default: false
     },
+    unreadCount: {  // Ajoutez ce champ
+        type: Map,
+        of: Number,
+        default: {}
+    },
     createdAt: {
         type: Date,
         default: Date.now

@@ -4,6 +4,46 @@ const Conversation = require('../models/Conversation');
 
 // Récupérer les conversations avec statut en ligne
 // Dans messageController.js
+// exports.getConversations = async (req, res) => {
+//     try {
+//         const userId = req.user.userId;
+
+//         const conversations = await Conversation.find({
+//             participants: userId
+//         })
+//         .populate({
+//             path: 'participants',
+//             select: 'nom prenom photo online role',
+//             match: { _id: { $ne: userId } }
+//         })
+//         .populate('lastMessage')
+//         .sort({ updatedAt: -1 });
+
+//         const formattedConversations = conversations.map(conv => {
+//             const otherParticipant = conv.participants.find(p => p._id.toString() !== userId);
+            
+//             return {
+//                 _id: conv._id,
+//                 participant: otherParticipant ? {
+//                     _id: otherParticipant._id,
+//                     name: `${otherParticipant.nom} ${otherParticipant.prenom}`,
+//                     // avatar: otherParticipant.photo || 'https://i.pravatar.cc/150?img=0',
+//                     // avatar: otherParticipant.photo ? `http://localhost:5000${otherParticipant.photo}` : 'https://i.pravatar.cc/150?img=0',
+//                     photo: otherParticipant.photo,
+//                     online: otherParticipant.online,
+//                     role: otherParticipant.role
+//                 } : null,
+//                 lastMessage: conv.lastMessage?.content || 'Aucun message',
+//                 lastMessageTime: formatTime(conv.lastMessage?.createdAt || conv.createdAt)
+//             };
+//         }).filter(conv => conv.participant); // Filter out conversations without participant
+
+//         res.status(200).json(formattedConversations);
+//     } catch (error) {
+//         console.error('Erreur:', error);
+//         res.status(500).json({ message: 'Erreur serveur', error: error.message });
+//     }
+// };
 exports.getConversations = async (req, res) => {
     try {
         const userId = req.user.userId;
@@ -21,20 +61,20 @@ exports.getConversations = async (req, res) => {
 
         const formattedConversations = conversations.map(conv => {
             const otherParticipant = conv.participants.find(p => p._id.toString() !== userId);
+            const unreadCount = conv.unreadCount?.get(userId.toString()) || 0;
             
             return {
                 _id: conv._id,
                 participant: otherParticipant ? {
                     _id: otherParticipant._id,
                     name: `${otherParticipant.nom} ${otherParticipant.prenom}`,
-                    // avatar: otherParticipant.photo || 'https://i.pravatar.cc/150?img=0',
-                    // avatar: otherParticipant.photo ? `http://localhost:5000${otherParticipant.photo}` : 'https://i.pravatar.cc/150?img=0',
                     photo: otherParticipant.photo,
                     online: otherParticipant.online,
                     role: otherParticipant.role
                 } : null,
                 lastMessage: conv.lastMessage?.content || 'Aucun message',
-                lastMessageTime: formatTime(conv.lastMessage?.createdAt || conv.createdAt)
+                lastMessageTime: formatTime(conv.lastMessage?.createdAt || conv.createdAt),
+                unreadCount // Ajoutez ceci
             };
         }).filter(conv => conv.participant); // Filter out conversations without participant
 
@@ -57,6 +97,10 @@ exports.getMessages = async (req, res) => {
             participants: userId
         });
 
+        await Conversation.findByIdAndUpdate(conversationId, {
+            [`unreadCount.${userId}`]: 0
+        });
+        
         if (!conversation) {
             return res.status(403).json({ message: 'Accès non autorisé' });
         }
@@ -129,6 +173,12 @@ exports.sendMessage = async (req, res) => {
 
         // Mettre à jour la conversation
         conversation.lastMessage = newMessage._id;
+        const participants = conversation.participants.filter(p => p._id.toString() !== userId);
+        participants.forEach(participant => {
+            const participantId = participant._id.toString();
+            conversation.unreadCount.set(participantId, 
+                (conversation.unreadCount.get(participantId) || 0) + 1);
+        });
         await conversation.save();
 
         // Populer le message pour Socket.IO
@@ -165,7 +215,14 @@ exports.sendMessage = async (req, res) => {
         const io = req.app.get('socketio');
 
         
+        // io.to(conversationId).emit('newMessage', messageData);
         io.to(conversationId).emit('newMessage', messageData);
+        participants.forEach(participantId => {
+            io.to(participantId.toString()).emit('unreadUpdate', {
+                conversationId: conversation._id,
+                unreadCount: conversation.unreadCount.get(participantId.toString())
+            });
+        });
 
     } catch (error) {
         console.error('Erreur:', error);
@@ -360,5 +417,63 @@ exports.searchUsers = async (req, res) => {
             message: 'Erreur serveur', 
             error: error.message
         });
+    }
+};
+
+
+
+exports.markAsRead = async (req, res) => {
+    try {
+        const { conversationId } = req.params;
+        const userId = req.user.userId;
+
+        const conversation = await Conversation.findById(conversationId);
+        if (!conversation) {
+            return res.status(404).json({ message: 'Conversation non trouvée' });
+        }
+
+        // Réinitialiser le compteur
+        conversation.unreadCount.set(userId.toString(), 0);
+        await conversation.save();
+
+        // Notifier via Socket.io
+        const io = req.app.get('socketio');
+        io.to(conversationId).emit('unreadUpdate', { 
+            conversationId,
+            unreadCount: conversation.unreadCount
+        });
+
+        res.status(200).json({ success: true });
+    } catch (error) {
+        console.error('Erreur:', error);
+        res.status(500).json({ message: 'Erreur serveur', error: error.message });
+    }
+};
+// Marquer les messages comme lus
+exports.markAsRead = async (req, res) => {
+    try {
+        const { conversationId } = req.params;
+        const userId = req.user.userId;
+
+        const conversation = await Conversation.findById(conversationId);
+        if (!conversation) {
+            return res.status(404).json({ message: 'Conversation non trouvée' });
+        }
+
+        // Réinitialiser le compteur pour cet utilisateur
+        conversation.unreadCount.set(userId.toString(), 0);
+        await conversation.save();
+
+        // Notifier via Socket.IO
+        const io = req.app.get('socketio');
+        io.to(conversationId).emit('unreadUpdate', {
+            conversationId: conversation._id,
+            unreadCount: 0
+        });
+
+        res.status(200).json({ success: true });
+    } catch (error) {
+        console.error('Erreur:', error);
+        res.status(500).json({ message: 'Erreur serveur', error: error.message });
     }
 };
