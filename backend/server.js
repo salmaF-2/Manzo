@@ -48,7 +48,8 @@ mongoose.connect(process.env.MONGO_URI)
 app.use('/api', contactRoutes);
 app.use('/api/stripe', stripeRoutes);
 app.use('/api/bookings', bookingRoutes);
-
+app.use('/api/services',serviceRoutes)
+app.use('/api/categories',categoryRoutes)
 // This is the route that is being called by the frontend.
 // The `reviewRoutes` module needs to have a route defined for `GET /`
 // to handle the request to `http://localhost:5000/api/reviews`.
