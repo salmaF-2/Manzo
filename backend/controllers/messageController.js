@@ -141,7 +141,10 @@ exports.sendMessage = async (req, res) => {
             text: populatedMessage.content,
             time: formatTime(populatedMessage.createdAt),
             sent: false,
-            file: populatedMessage.file,
+             file: populatedMessage.file ? {
+                ...populatedMessage.file,
+                url: `${process.env.BASE_URL || 'http://localhost:5000'}${populatedMessage.file.url}`
+            } : null,
             conversationId: conversationId,
             senderId: userId,
             senderName: `${populatedMessage.sender.nom} ${populatedMessage.sender.prenom}`

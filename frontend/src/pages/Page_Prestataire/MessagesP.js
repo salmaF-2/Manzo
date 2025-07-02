@@ -329,31 +329,7 @@ const [userId, setUserId] = useState(null);
       console.error("Error sending message:", error);
     }
   };
-  // const renderFilePreview = (file) => {
-  //   if (!file) return null;
-    
-  //   if (file.type.startsWith('image/')) {
-  //     return (
-  //       <div className="mt-2 max-w-xs">
-  //         <img 
-  //           src={file.url} 
-  //           alt="Preview" 
-  //           className="rounded-lg border border-gray-200 max-h-40 object-cover"
-  //         />
-  //       </div>
-  //     );
-  //   }
-    
-  //   return (
-  //     <div className="mt-2 p-3 bg-gray-100 rounded-lg border border-gray-200 flex items-center">
-  //       <FileText className="text-blue-600 mr-2" size={20} />
-  //       <div className="truncate">
-  //         <p className="font-medium truncate">{file.name}</p>
-  //         <p className="text-xs text-gray-500">{(file.size / 1024).toFixed(1)} KB</p>
-  //       </div>
-  //     </div>
-  //   );
-  // };
+
 const renderFilePreview = (file) => {
   if (!file) return null;
   
@@ -361,9 +337,13 @@ const renderFilePreview = (file) => {
     return (
       <div className="mt-2 max-w-xs">
         <img 
-          src={getPhotoUrl(file.url)}  // Utilisez getPhotoUrl ici aussi
+          src={getPhotoUrl(file.url)}
           alt="Preview" 
           className="rounded-lg border border-gray-200 max-h-40 object-cover"
+          onError={(e) => {
+            e.target.onerror = null; 
+            e.target.src = 'https://via.placeholder.com/150';
+          }}
         />
       </div>
     );
@@ -379,34 +359,19 @@ const renderFilePreview = (file) => {
     </div>
   );
 };
- const filteredConversations = conversations.filter(conv => {
+const filteredConversations = conversations.filter(conv => {
   const participantName = conv.participant?.name?.toLowerCase() || '';
   const lastMsg = conv.lastMessage?.toLowerCase() || '';
   return participantName.includes(searchQuery.toLowerCase()) || 
          lastMsg.includes(searchQuery.toLowerCase());
 });
 
-// function getPhotoUrl(photoPath) {
-//   if (!photoPath) return 'https://i.pravatar.cc/150?img=0';
-  
-//   // Si le chemin contient déjà l'URL complète
-//   if (photoPath.startsWith('http') || photoPath.startsWith('https')) {
-//     return photoPath;
-//   }
-  
-//   // Si c'est juste un nom de fichier
-//   if (!photoPath.includes('/')) {
-//     return `http://localhost:5000/uploads/${photoPath}`;
-//   }
-  
-//   // Si c'est un chemin relatif
-//   return `http://localhost:5000${photoPath.startsWith('/') ? '' : '/'}${photoPath}`;
-// }
+
 function getPhotoUrl(photoPath) {
   if (!photoPath) return 'https://i.pravatar.cc/150?img=0';
   
-  // Si c'est déjà une URL complète (http ou https)
-  if (/^https?:\/\//i.test(photoPath)) {
+  // Si c'est déjà une URL complète (comme pour les avatars par défaut)
+  if (photoPath.startsWith('http://') || photoPath.startsWith('https://')) {
     return photoPath;
   }
   
@@ -415,15 +380,9 @@ function getPhotoUrl(photoPath) {
     return `http://localhost:5000${photoPath}`;
   }
   
-  // Si c'est juste un nom de fichier
-  if (!photoPath.includes('/')) {
-    return `http://localhost:5000/uploads/${photoPath}`;
-  }
-  
-  // Par défaut, retourner le chemin tel quel (au cas où)
-  return photoPath;
+  // Si c'est stocké directement dans le champ 'photo' (sans /uploads/)
+  return `http://localhost:5000/uploads/${photoPath}`;
 }
-
   return (
     <div className="flex bg-gradient-to-br from-[#BCD0EA50] to-indigo-50 min-h-[calc(100vh-5rem)] mt-20">
       <SideBar />
@@ -481,8 +440,7 @@ function getPhotoUrl(photoPath) {
                       className="p-3 hover:bg-gray-100 cursor-pointer flex items-center"
                       onClick={() => startNewConversation(user._id)}
                     >
-                      <img 
-                        // src={user.photo ? `http://localhost:5000${user.photo}` : 'https://i.pravatar.cc/150?img=0'}
+                     <img 
                         src={getPhotoUrl(user.photo)}
                         alt={user.nom}
                         className="w-8 h-8 rounded-full mr-3"
@@ -533,10 +491,19 @@ function getPhotoUrl(photoPath) {
                       }`}
                     >
                       <div className="relative">
-                        <img
+                        {/* <img
                           src={getPhotoUrl(conversation.participant?.photo)}
                           alt="avatar"
                           className="w-12 h-12 rounded-full object-cover shadow-sm"
+                        /> */}
+                        <img 
+                          src={getPhotoUrl(conversation.participant?.photo)}
+                          alt="avatar"
+                          className="w-12 h-12 rounded-full object-cover shadow-sm"
+                          onError={(e) => {
+                            e.target.onerror = null; 
+                            e.target.src = 'https://i.pravatar.cc/150?img=0';
+                          }}
                         />
                         {conversation.participant?.online && (
                           <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-white"></div>

@@ -236,13 +236,6 @@ const MessagesC = () => {
         }
       );
 
-      // Marquez explicitement le message comme envoyé
-      // const sentMessage = {
-      //   ...response.data,
-      //   sent: true // Forcez ce flag à true pour les messages envoyés
-      // };
-
-      // setCurrentMessages(prev => [...prev, sentMessage]);
       setNewMessage("");
       setSelectedFile(null);
       setFilePreview(null);
@@ -250,32 +243,36 @@ const MessagesC = () => {
       console.error("Error sending message:", error);
     }
   };
-  const renderFilePreview = (file) => {
-    if (!file) return null;
-    
-    if (file.type.startsWith('image/')) {
-      return (
-        <div className="mt-2 max-w-xs">
-          <img 
-            src={file.url} 
-            alt="Preview" 
-            className="rounded-lg border border-gray-200 max-h-40 object-cover"
-          />
-        </div>
-      );
-    }
-    
+
+const renderFilePreview = (file) => {
+  if (!file) return null;
+  
+  if (file.type.startsWith('image/')) {
     return (
-      <div className="mt-2 p-3 bg-gray-100 rounded-lg border border-gray-200 flex items-center">
-        <FileText className="text-blue-600 mr-2" size={20} />
-        <div className="truncate">
-          <p className="font-medium truncate">{file.name}</p>
-          <p className="text-xs text-gray-500">{(file.size / 1024).toFixed(1)} KB</p>
-        </div>
+      <div className="mt-2 max-w-xs">
+        <img 
+          src={getPhotoUrl(file.url)}
+          alt="Preview" 
+          className="rounded-lg border border-gray-200 max-h-40 object-cover"
+          onError={(e) => {
+            e.target.onerror = null; 
+            e.target.src = 'https://via.placeholder.com/150';
+          }}
+        />
       </div>
     );
-  };
-
+  }
+  
+  return (
+    <div className="mt-2 p-3 bg-gray-100 rounded-lg border border-gray-200 flex items-center">
+      <FileText className="text-blue-600 mr-2" size={20} />
+      <div className="truncate">
+        <p className="font-medium truncate">{file.name}</p>
+        <p className="text-xs text-gray-500">{(file.size / 1024).toFixed(1)} KB</p>
+      </div>
+    </div>
+  );
+};
   const filteredConversations = conversations.filter(conv => {
     if (!conv.participant) return false;
     
@@ -285,23 +282,22 @@ const MessagesC = () => {
            lastMsg.includes(searchQuery.toLowerCase());
   });
 
-  function getPhotoUrl(photoPath) {
-    if (!photoPath) return 'https://i.pravatar.cc/150?img=0';
-    
-    // Si c'est déjà une URL complète (http ou https)
-    if (/^https?:\/\//i.test(photoPath)) {
-      return photoPath;
-    }
-    
-    // Si c'est un chemin relatif qui commence par /uploads
-    if (photoPath.startsWith('/uploads/')) {
-      return `http://localhost:5000${photoPath}`;
-    }
-    
-    // Si c'est juste un nom de fichier
-    return `http://localhost:5000/uploads/${photoPath}`;
+function getPhotoUrl(photoPath) {
+  if (!photoPath) return 'https://i.pravatar.cc/150?img=0';
+  
+  // Si c'est déjà une URL complète (comme pour les avatars par défaut)
+  if (photoPath.startsWith('http://') || photoPath.startsWith('https://')) {
+    return photoPath;
   }
-
+  
+  // Si c'est un chemin relatif qui commence par /uploads
+  if (photoPath.startsWith('/uploads/')) {
+    return `http://localhost:5000${photoPath}`;
+  }
+  
+  // Si c'est stocké directement dans le champ 'photo' (sans /uploads/)
+  return `http://localhost:5000/uploads/${photoPath}`;
+}
   return (
     <div className="flex bg-gradient-to-br from-[#BCD0EA50] to-indigo-50 min-h-[calc(100vh-5rem)] mt-20">
       <SideBarClient />
@@ -414,10 +410,19 @@ const MessagesC = () => {
                         }`}
                       >
                         <div className="relative">
-                          <img
+                          {/* <img
                             src={getPhotoUrl(conversation.participant?.photo)}
                             alt="avatar"
                             className="w-12 h-12 rounded-full object-cover shadow-sm"
+                          /> */}
+                          <img 
+                            src={getPhotoUrl(conversation.participant?.photo)}
+                            alt="avatar"
+                            className="w-12 h-12 rounded-full object-cover shadow-sm"
+                            onError={(e) => {
+                              e.target.onerror = null; 
+                              e.target.src = 'https://i.pravatar.cc/150?img=0';
+                            }}
                           />
                           {conversation.participant?.online && (
                             <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-white"></div>
